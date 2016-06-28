@@ -126,7 +126,11 @@ Extending the machine
 
 Unlike the original LMC, there are hook points in the simulator for extending the unused
 instruction codes. Inside the simulator.py execute() function you will find each simulated
-instruction. 901 and 902 are INP and OUT respectively, so 900 and 903..999 are unused instructions.
+instruction. 
+
+There are 3 places that you can extend the instruction set:
+
+901 and 902 are INP and OUT respectively, so 900 and 903..999 are unused instructions.
 If you include these instructions in your .dec file, they will be sent to execIOInstr() for
 processing. The idea here is you could wire up new instructions to control GPIO pins on a Raspberry Pi,
 or even to display characters on a SenseHat or other display device.
@@ -137,6 +141,16 @@ are routed to the execHaltInstr() function. Only 000 is handled (which halts the
 can be added by the user inside execHaltInstr() to perform anything. I always had a view that these
 instructions could be used for non-IO based OS calls or runtime library calls, such as getting a random
 number, reading the date and time, delaying for a fixed period, etc.
+
+The original LMC does not specify any operation for 4xx instructions. The code routes these
+to a execUserInstr(), so you can decode 400..499 and allocate any processing to these. I always
+had a view that some of these would be used for intrinsic functions to extend the machine,
+such as a MULT, DIV, REM for fast multiply and divide, shift and rotate instructions,
+sign extension instructions, and other useful instructions. Intrinsics in this way can be used
+to allow the core machine (which is beautifully simple) to be made more powerful. This could
+be done by making these intrinsics jump to linked library routines that are written in LMC code,
+or to just call user provided Python code.
+
 
 Learning Opportunities
 ====
