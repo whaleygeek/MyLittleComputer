@@ -503,7 +503,7 @@ def gen_mul(op1, op2, res):
         ["LDA", op1],
         ["STA", getreg("muldiv_reg")],
         ["LDA", op2],
-        ["MUL", ""],
+        ["U", "01"], # U 01 is MUL
         ["STA", res]
     ]
     return ac
@@ -515,7 +515,7 @@ def gen_div(op1, op2, res):
         ["LDA", op1],
         ["STA", getreg("muldiv_reg")],
         ["LDA", op2],
-        ["DIV", ""],
+        ["U", "02"], # U 02 is DIV
         ["STA", res]
     ]
     return ac

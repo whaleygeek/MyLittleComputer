@@ -77,12 +77,12 @@ def main():
 	m = parse(IN_NAME)
 	symtab.fixup(m)
 
-	#symtab.dumpLabels()
-	#symtab.dumpFixups()
+	##symtab.dumpLabels()
+	##symtab.dumpFixups()
 
-	#loader.showmem(m)
+	##loader.showmem(m)
 
-	#disassembler.disassemble(m)
+	##disassembler.disassemble(m)
 
 	write(m, OUT_NAME)
 

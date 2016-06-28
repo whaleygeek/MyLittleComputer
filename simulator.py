@@ -224,8 +224,21 @@ def execUserInstr(operand):
 	# stored in separate named parameter registers. Or one of the operands could
 	# be in accumulator, another in a named location.
 
-	if False:
-		pass # DEFINE USER INSTRUCTIONS HERE
+	#TODO: Unless we pass forward the symbol table from the compiler
+	#we won't know the address of the muldiv_reg
+	
+	if   operand == 01: # U 01  MUL
+		##muldiv_reg_addr = symtab.get("muldiv_reg")
+		##muldiv_reg = memory[muldiv_reg_addr]
+		##accumulator = accumulator * muldiv_reg
+		##update_flags(accumulator)
+		raise RuntimeError("MUL not yet completely written")
+
+	elif operand == 02: # U 02  DIV
+		raise RuntimeError("DIV not yet completely written")
+		# lookup muldiv_reg in symtab
+		# acc = acc / muldiv_reg
+		# update_flags(acc)
 	else:
 		raise ValueError("Unknown U instr:" + str(operand))
 
