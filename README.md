@@ -2,14 +2,14 @@
 
 This is a complete toolchain for a tiny computer architecture
 
-This code is at ALPHA release status. It is released into the community in order to trigger feedback and
-further innovation. 
-
 This is a complete toolchain for a tiny computer architecture. The chosen architecture is completely
-compatible with the Little Man Computer architecture (but supports a range of additional extensions
-in the form of IO calls and OS calls). MLC (MyLittle Computer) is a re-arranged acronym of LMC
-(LittleManComputer) to identify it's close resemblance but independence from it's inspirational parent.
+compatible with the Little Man Computer architecture, as (mostly defined) here:
 
+https://en.wikipedia.org/wiki/Little_man_computer
+ 
+I have called this variant MLC (MyLittleComputer) as a re-arranged acronym of LMC
+(LittleManComputer) to identify it's close resemblance but independence from it's inspirational parent.
+ 
 The whole toolchain is written in Python.
 
 The purpose of this toolchain is to provide a tiny but complete implementation, written in a style of Python
