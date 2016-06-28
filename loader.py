@@ -3,18 +3,21 @@
 # Load numeric data into memory
 # Useful for loading a 'binary' file into the simulator
 
+import io
+
 def load(filename, memory, startaddr=0):
     """Load from a file into memory"""
 
     f = open(filename, "rt")
     addr = startaddr
 
-    for line in f.readlines():
-        line = line.strip()
-        if len(line) != 0:
-            instr = int(line)
+    while True:
+        instr = io.read(file=f)
+        if instr != None:
             memory[addr] = instr
             addr += 1
+        else:
+            break
 
     f.close()
 

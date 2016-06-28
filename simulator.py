@@ -4,16 +4,21 @@
 
 import instruction
 import loader
+import io
 import sys
 
-BUS_MAX         = 999 # largest value the internal buses can use
-PC_MAX          = BUS_MAX
-program_counter = 0
-accumulator     = 0
-z_flag          = False # zero
-p_flag          = False # positive
-halt            = False
-memory          = {}
+
+BUS_MAX           = 999 # largest value the internal buses can use
+PC_MAX            = BUS_MAX
+STDIN_REDIRECTED  = not sys.stdin.isatty()
+STDOUT_REDIRECTED = not sys.stdout.isatty()
+
+program_counter   = 0
+accumulator       = 0
+z_flag            = False # zero
+p_flag            = False # positive
+halt              = False
+memory            = {}
 
 
 def trace(msg):
@@ -120,15 +125,20 @@ def execute(operator, operand):
 
 	elif operator == instruction.IO: # 9xx
 		if operand == instruction.IO_IN: # 901
-			value = int(raw_input("in? ")) #python2
+			if not STDIN_REDIRECTED:
+				sys.stdout.write("in? ")
+			value = io.read()
 			#TODO should we cope with negative numbers here and complement appropriately?
+			#TODO: Should honour buswidth here depending on decimal/binary/hexadecimal io mode
 			if value < 0 or value > 999:
 				raise ValueError("Out of range value:" + str(value))
 			accumulator = truncate(value)
 			update_flags(accumulator)
 
 		elif operand == instruction.IO_OUT: # 902
-			print("out=" + str(accumulator).zfill(3))
+			if not STDOUT_REDIRECTED:
+				sys.stdout.write("out=")
+			io.write(accumulator)
 			update_flags(accumulator)
 
 		else: # user defined 9xx instructions
@@ -159,7 +169,7 @@ def update_flags(v):
 	# does the assembler allow entry of negative numbers, and code them
 	# into the appropriate complemented form?
 	
-	if v < 500:
+	if v < 500: #TODO: This will be dependent on buswidth
 		p_flag = True
 	else:
 		p_flag = False
@@ -220,11 +230,17 @@ def execIOInstr(operand):
 
 # MAIN PROGRAM ----------------------------------------------------------------
 
-if __name__ == "__main__":
+def main():
 	FILENAME = sys.argv[1]
 	m = {}
 	loader.load(FILENAME, m)
 	run(m)
+
+
+if __name__ == "__main__":
+	#TODO#### get encoder decoder settings from args io.configure()
+	main()
+
 
 # END
 

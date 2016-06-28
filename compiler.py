@@ -26,8 +26,6 @@
 #
 # The output from this compiler can be fed into the LMC assembler.py
 # to generate a program, that can be executed with the LMC simulator.py
-#
-# For TODO list, see end of this file.
 
 
 import sys
@@ -83,10 +81,22 @@ def isalnum(ch):
 # Scans through characters in the input stream.
 # Strips unwanted whitespace,
 # Turns into token numbers with optional values.
+#
+# tokens:
+#   [0-9]+ is a CONST
+#   +
+#   -
+#   (
+#   )
+#   *
+#   /
+#   ;
 
 # SCANNER STATE
 
 CONST       = 256
+EOLN        = 257
+
 inbuf       = None
 lookahead   = None
 lineno      = 0
@@ -95,9 +105,12 @@ pos         = 0
 
 def tokname(t):
     """Get the name of this token number"""
+    # single character tokens like '+' have their lexical symbol as their name
 
     if t == CONST:
         return "CONST"
+    elif t == EOLN:
+        return "EOLN"
     else:
         return t
 
@@ -107,19 +120,20 @@ def get():
 
     global pos
     if pos >= len(inbuf):
-        return None
+        return None # end of file
     ch = inbuf[pos]
     pos += 1
+    #trace("get:" + str(ch))
     return ch
 
 
 def unget(ch):
     """Put this character back in the input stream"""
-
-    global pos, lookahead
+    #trace("unget:" + str(ch))
+    global pos
     pos -= 1
-    lookahead = ch
-
+    if inbuf[pos] != ch:
+        raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
 
 def lexer():
     """The lexical analyser driver that identifies tokens"""
@@ -138,9 +152,13 @@ def lexer():
                 tokenval = tokenval*10 + ord(t) - ord('0')
                 t = get()
             unget(t)
+            #trace("lexer:CONST")
             return CONST
+        elif t == None:
+            return EOLN
         else:
             tokenval = None
+            #trace("lexer:" + str(t))
             return t
 
 
@@ -159,23 +177,22 @@ expr -> expr + term
     | expr - term
     | term
 
-//term -> term * factor
-//    | term / factor
-//    | factor
+term -> term * factor
+    | term / factor
+    | factor
 
-
-//factor -> ( expr )
-//    | CONST
-
-term -> ( expr )
+factor -> ( expr )
     | CONST
-
 """
+
+
 def expr():
+    #trace("expr")
     """Parse an expression"""
 
     term()
     while True:
+        #trace("lookahead:" + str(lookahead))
         if lookahead == '+':
             match('+')
             term()
@@ -188,24 +205,27 @@ def expr():
             break
 
 
-#def term():
-#    factor()
-#    while True:
-#        if lookahead == '*':
-#            match('*')
-#            factor()
-#            emit('*')
-#
-#        elif lookahead == '/':
-#            match('/')
-#            factor()
-#            emit('/')
-#        else:
-#            break
-
 def term():
-    """Parse a term"""
+    #trace("term")
+    factor()
+    while True:
+        #trace("lookahead:" + str(lookahead))
+        if lookahead == '*':
+            match('*')
+            factor()
+            emit('*')
 
+        elif lookahead == '/':
+            match('/')
+            factor()
+            emit('/')
+        else:
+            break
+
+
+def factor():
+    #trace("factor")
+    #trace("lookahead:" + str(lookahead))
     if lookahead == '(':
         match('(')
         expr()
@@ -214,19 +234,7 @@ def term():
         emit(CONST, tokenval)
         match(CONST)
     else:
-        error("expected term, got:" + str(lookahead))
-
-
-#def factor():
-#    if lookahead == '(':
-#        match('(')
-#        expr()
-#        match(')')
-#    elif lookahead == CONST:
-#        emit(CONST, tokenval)
-#        match(CONST)
-#    else:
-#        error("expected factor, got:" + str(lookahead))
+        error("factor:expected factor, got:" + str(lookahead))
 
 
 def match(t):
@@ -235,9 +243,10 @@ def match(t):
     global lookahead
 
     if lookahead == t:
+        #trace("matched:" + str(t))
         lookahead = lexer()
     else:
-        error("expected " + str(t) + " got:" + str(lookahead))
+        error("match:expected " + str(t) + " got:" + str(lookahead))
 
 
 #----- EMITTER ----------------------------------------------------------------
@@ -363,6 +372,8 @@ def emit(t, tval=None):
     """Emit code for this token"""
 
     global outbuf
+    tac = None
+
     if t == CONST:
         pushconst(tval)
 
@@ -375,10 +386,6 @@ def emit(t, tval=None):
         pushtmp(tmp)
         if istmp(a): usetmp(a)
         if istmp(b): usetmp(b)
-        ac = tac_to_ac(tac)
-        for c in ac:
-            outbuf.append(c)
-        #outbuf.append(tac)
 
     elif t == '-':
         a = poptop()
@@ -389,50 +396,147 @@ def emit(t, tval=None):
         pushtmp(tmp)
         if istmp(a): usetmp(a)
         if istmp(b): usetmp(b)
+
+    elif t == '*':
+        #temporary, LMC does not have a mult instruction!
+        a = poptop()
+        b = poptop()
+        tmp = newtmp()
+        # Note, a and b are rvalue uses of these items that need counting
+        tac = ["MUL", str(b), str(a), maketmp(tmp)]
+        pushtmp(tmp)
+        if istmp(a): usetmp(a)
+        if istmp(b): usetmp(b)
+
+    elif t == '/':
+        #temporary, LMC does not have a div instruction!
+        a = poptop()
+        b = poptop()
+        tmp = newtmp()
+        # Note, a and b are rvalue uses of these items that need counting
+        tac = ["DIV", str(b), str(a), maketmp(tmp)]
+        pushtmp(tmp)
+        if istmp(a): usetmp(a)
+        if istmp(b): usetmp(b)
+
+    if tac != None:
         ac = tac_to_ac(tac)
         for c in ac:
             outbuf.append(c)
-        #outbuf.append(tac)
+    #if tac != None:
+    #    outbuf.append(tac)
+
+
 
 
 #----- TAC TRANSFORMER --------------------------------------------------------------
 #
 # Transforms TAC (three address code) into the machine architecture (accumulator code)
 
-def tac_to_ac(tac):
-    """Translate three-address-code to accumulator-code"""
-    
-    # This creates instructions that are compatible with the target architecture
-    # which is accumulator based and single operand based.
-
-    # Note this could be written as a rule in a rule rewrite engine
-    # Note this is where we could synthesise lots of things, including
-    # inlining shifts and multiply routines from pseudo TAC instructions
-
+def gen_add(op1, op2, res):
     # ADD const0,const1->tmp0 becomes
     #   LDA const0
     #   ADD const1
     #   STA tmp0
-    #
+    ac = [
+        ["LDA", op1],
+        ["ADD", op2],
+        ["STA", res]
+    ]
+    return ac
+
+
+def gen_sub(op1, op2, res):
     # SUB const0, const1->tmp0 becomes
     #   LDA const0
     #   SUB const1
     #   STA tmp0
+    ac = [
+        ["LDA", op1],
+        ["SUB", op2],
+        ["STA", res]
+    ]
+    return ac
+
+
+def gen_mul(op1, op2, res):
+    # There is no multiply instruction in the processor architecture
+    # so expand a compiler inline intrinsic that does a multiply for us
+    #TODO: we could use one of the extension registers to implement multiply
+    #within the simulator, or as a jmp/return to a linker provided routine
+
+    # MUL op1, op2->res becomes:
+    # newtmp(mult_counter)
+    # newtmp(mult_result)
+    # newconst(zero, 0)
+    # newconst(one, 1)
+    #
+    # LDA op1
+    # STA mult_counter
+    # LDA zero
+    # STA mult_result
+    # mult_loop LDA mult_counter
+    # BRZ mult_done
+    # SUB one
+    # STA mult_counter
+    # LDA op2
+    # ADD mult_result
+    # STA mult_result
+    # BRA mult_loop
+    # mult_done
+    #
+    # result(mult_result)
+    # deltmp(mult_count)
+    # deltmp(mult_result)
+
+    #TODO
+    ac = [
+        ["LDA", op1],
+        ["#intrinsic mult", op2],
+        ["STA", res]
+    ]
+    return ac
+
+
+def gen_div(op1, op2, res):
+    #TODO
+    #TODO: we could use one of the extension registers to implement divide
+    #within the simulator, or as a jmp/return to a linker provided routine
+
+    ac = [
+        ["LDA", op1],
+        ["#intrinsic div", op2],
+        ["STA", res]
+    ]
+    return ac
+
+
+def tac_to_ac(tac):
+    """Translate three-address-code to accumulator-code"""
+
+    # This creates instructions that are compatible with the target architecture
+    # which is accumulator based and single operand based.
+
+    # Note this could be written as a rule, in a rule rewrite engine
+    # Note this is where we could synthesise lots of things, including
+    # inlining shifts and multiply routines from pseudo TAC instructions
+    # and the whole tac_to_ac could be done as a rewrite engine.
+
 
     operator, op1, op2, res = tac
     if operator == "ADD":
-        ac = [
-            ["LDA", op1],
-            ["ADD", op2],
-            ["STA", res]
-        ]
+        return gen_add(op1, op2, res)
+
     elif operator == "SUB":
-        ac = [
-            ["LDA", op1],
-            ["SUB", op2],
-            ["STA", res]
-        ]
-    return ac
+        return gen_sub(op1, op2, res)
+
+    elif operator == "MUL":
+        return gen_mul(op1, op2, res)
+
+    elif operator == "DIV":
+        return gen_mul(op1, op2, res)
+
+    error("Unknown operator:" + str(operator))
 
 
 #----- OPTIMISER --------------------------------------------------------------
@@ -487,7 +591,9 @@ def peephole_redundant_store_load(instrs):
 #
 # Main compiler driver
 
-if __name__ == "__main__":
+def main():
+    global inbuf, outbuf, pos, tmp_stack, lookahead
+
     while True:
         try:
             inbuf = raw_input("") # if not isatty don't send prompt, else send prompt (see ark-iotic)
@@ -496,14 +602,14 @@ if __name__ == "__main__":
             break
 
         lookahead = lexer()
-        while lookahead != None:
+        while lookahead != EOLN:
             outbuf = []
             expr()
             match(';')
-            stack.pop()
+            final = stack.pop()
 
             # each subexpression is output at each step
-            outbuf.append(["LDA", "tmp0"])
+            outbuf.append(["LDA", final])
             outbuf.append(["OUT",""])
 
             # Run an optimisation pass on this code region only
@@ -513,6 +619,7 @@ if __name__ == "__main__":
             for i in outbuf:
                 opcode, operand = i
                 print(opcode + " " + str(operand))
+                #print(str(i))
 
             # empty the tmp stack
             tmp_stack = []
@@ -532,51 +639,10 @@ if __name__ == "__main__":
         print(maketmp(t) + " DAT")
 
 
+if __name__ == "__main__":
+    main()
 
 
-#================================================================================
+# END
 
-
-# Planned features:
-#   expression parsing
-#   named variables (integer only)
-#   functions and procedures
-#   function return results
-#   function and procedure parameters
-#   call and return (simulated stack?)
-
-# TODO put a limit on range of integer numbers (0..999)
-# TODO consider negative numbers?
-
-# add variables to grammar
-
-# add in() function to grammar
-# this is our first compiler intrinsic. in() generates IN
-
-# Add inlining support for mult and div (no runtime machine stack yet)
-# - these are also compiler intrinsics
-
-# Add set statement to grammar (split OUT and expr into sepr statements
-
-# Add print statement to grammar (compiler intrinsic that generates OUT)
-
-# add if statements
-
-# add trap instructions (trap0 is stop trap1..999 are os calls)
-
-# add loops
-
-# Add a runtime machine stack (call and return, single level at this state)
-# - can we do an indirect branch??? Only by self modifying code?
-# - move mult/div to a library routine that is called
-# - store library routines in a library and link it in
-# - can then use library version of mult and div to save code space
-
-# Add multi level software stack with call and return
-# - user procedures, global variables
-# - add parameters
-# - add return results
-# - add in scope (global/local)
-# - add in a display? (for nested scopes)
-# - add local variables
 

@@ -1,0 +1,11 @@
+#! /bin/bash
+
+cat > math.e <<EOT
+1+(3-2)+(4+5);
+EOT
+
+python compiler.py < math.e > math.lmc
+python assembler.py math.lmc math.out
+python simulator.py math.out > math.run
+cat math.run
+

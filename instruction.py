@@ -98,10 +98,11 @@ def build(operator, operand=None):
 	if operand == None:
 		operand = 0
 
-	elif operand < 0 or operand > 99:
+	elif operand < 0 or operand > 99: # TODO change to 0..255 to allow binary/hex machines
 		raise ValueError("Operand out of range:" + str(operand))
 
-	return operator + operand
+	return operator + operand # TODO might have to store differently to allow bytes
+	# but beware, when we get it's value on a decimal machine, it must return correct value
 
 
 def setOperator(instr, operator):
@@ -121,14 +122,14 @@ def setOperand(instr, operand):
 def getOperator(instr):
 	"""Get the operator from an existing instruction"""
 
-	operator = (instr/100)*100
+	operator = (instr/100)*100 # change for binary machine, but beware of breaking number output
 	return operator
 	
 
 def getOperand(instr):
 	"""Get the operand from an existing instruction"""
 	
-	return instr % 100
+	return instr % 100 # change for binary machine, but beware of breaking number output
 
 
 def has_operand(instr):
@@ -162,7 +163,7 @@ def toString(instr):
 	result = getOperatorString(instr)
 	if has_operand(instr):
 		operand = getOperand(instr)
-		result = result + " " + str(operand).zfill(3)
+		result = result + " " + str(operand).zfill(3) ## might need to change for binary machine
 
 	return result
 
@@ -178,7 +179,7 @@ def isOperator(s):
 
 def operatorFromString(s):
 	"""Turn a string into a numberic operator"""
-	# We also support numberic operators (000..999)
+	# We also support numberic operators (000..999) # change this for binary machine
 	try:
 		operator = int(s)
 		return operator

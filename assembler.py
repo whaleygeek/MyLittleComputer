@@ -5,7 +5,7 @@
 import parser
 import instruction
 import symtab
-import loader
+import io
 
 # Set to True if you want addresses prefixed into the output file
 PREFIX_ADDR = False
@@ -63,13 +63,13 @@ def write(memory, filename):
 	startaddr = min(memory)
 
 	for addr in range(startaddr, startaddr+size):
-		if PREFIX_ADDR:
-			f.write(str(addr).zfill(3) + ":")
-		f.write(str(memory[addr]).zfill(3) + "\n")
+		#if PREFIX_ADDR:
+		#	io.write(addr, file=f)
+		io.write(memory[addr], file=f)
 	f.close()
   
 
-if __name__ == "__main__":
+def main():
 	import sys
 	IN_NAME = sys.argv[1]
 	OUT_NAME = sys.argv[2]
@@ -85,6 +85,12 @@ if __name__ == "__main__":
 	#disassembler.disassemble(m)
 
 	write(m, OUT_NAME)
-	
+
+
+if __name__ == "__main__":
+	#TODO#### get encoder settings from command line args use io.configure()
+	main()
+
+
 # END
 

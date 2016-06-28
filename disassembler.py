@@ -46,14 +46,19 @@ def writeFile(source, filename, startaddr=0):
 	for addr in range(startaddr, startaddr+size):
 		f.write(source[addr].zfill(3) + "\n")
 	f.close()
-	
 
-if __name__ == "__main__":
+
+def main():
 	import sys
 	IN_NAME  = sys.argv[1]
 	OUT_NAME = sys.argv[2]
 	mem = processFile(IN_NAME)
 	writeFile(mem, OUT_NAME)
-	
+
+
+if __name__ == "__main__":
+	main()
+
+
 # END
 
