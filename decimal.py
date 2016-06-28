@@ -6,10 +6,13 @@
 
 DEFAULT_WIDTH = 3
 
-def read(width=3, file=None):
+def read(width=None, file=None):
     #print("read")
     """return a decimal number in range 000-999"""
     # default width is 3 characters, but you can ask for wider
+
+    if width == None:
+        width = DEFAULT_WIDTH
 
     if file == None: # stdin, strip blank lines
         #print("stdin")
@@ -45,9 +48,12 @@ def read(width=3, file=None):
 
 
 
-def write(number, width=DEFAULT_WIDTH, file=None):
-    #print("write:" + str(number))
+def write(number, width=None, file=None):
+    #print("write: %s %s %s %s" %( str(number) , str(type(number)), str(width), str(type(width))))
     """write a decimal number 000-999 zero padded"""
+
+    if width == None:
+        width = DEFAULT_WIDTH
 
     if file == None: # stdout
         print(str(number).zfill(width))
