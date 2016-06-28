@@ -26,7 +26,7 @@ def parse(filename, memory=None, startaddr=0):
 		line = line.strip()
 		label, operator, operand, labelref = parser.parseLine(line)
 		#trace("parse:" + line + "=" + str((label, operator, operand, labelref)))
-		if label == None and operator == None:
+		if line == "" or (label == None and operator == None):
 			# must be a comment
 			continue # go round to next line
 
