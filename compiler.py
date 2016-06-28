@@ -29,6 +29,7 @@
 
 
 import sys
+import symtab
 
 def trace(msg):
     pass #print("# " + str(msg))
@@ -307,6 +308,15 @@ def isconst(name):
     return name.startswith("const")
 
 
+special_reg = []
+
+def getreg(name):
+    """Get the address of a special register, create on first use"""
+    if not name in special_reg:
+        special_reg.append(name)
+    return name
+
+
 def newtmp():
     """Get a usable tmp variable number"""
 
@@ -489,23 +499,23 @@ def gen_mul(op1, op2, res):
     # deltmp(mult_count)
     # deltmp(mult_result)
 
-    #TODO
     ac = [
         ["LDA", op1],
-        ["#intrinsic mult", op2],
+        ["STA", getreg("muldiv_reg")],
+        ["LDA", op2],
+        ["MUL", ""],
         ["STA", res]
     ]
     return ac
 
 
 def gen_div(op1, op2, res):
-    #TODO
-    #TODO: we could use one of the extension registers to implement divide
-    #within the simulator, or as a jmp/return to a linker provided routine
 
     ac = [
         ["LDA", op1],
-        ["#intrinsic div", op2],
+        ["STA", getreg("muldiv_reg")],
+        ["LDA", op2],
+        ["DIV", ""],
         ["STA", res]
     ]
     return ac
@@ -534,7 +544,7 @@ def tac_to_ac(tac):
         return gen_mul(op1, op2, res)
 
     elif operator == "DIV":
-        return gen_mul(op1, op2, res)
+        return gen_div(op1, op2, res)
 
     error("Unknown operator:" + str(operator))
 
@@ -634,9 +644,13 @@ def main():
         print(makeconst(value) + " DAT " + str(value))
 
     # Allocate space for variables
-    trace("#" + str(used_tmp))
+    #trace("#" + str(used_tmp))
     for t in used_tmp:
         print(maketmp(t) + " DAT")
+
+    # Allocate space for special registers
+    for s in special_reg:
+        print(s + " DAT")
 
 
 if __name__ == "__main__":

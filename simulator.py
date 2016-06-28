@@ -209,8 +209,25 @@ def execHaltInstr(operand):
 def execUserInstr(operand):
 	"""Execute any user instructions here (instruction.U_xx)"""
 
-	raise ValueError("Unknown U instr:" + str(operand))
-	# DEFINE USER INSTRUCTIONS HERE
+	global accumulator
+
+	# Note, not possible to define user instructions that have other operands
+	# due to their being insufficient space in the instruction format.
+	# e.g. LDA 10 MULT 20 won't work
+	# unless you say the 20 is a small constant, and the higher bits
+	# represent the opcode and the lower bits the operand. This gets
+	# messy with decimal as the range is 00-99 which is not a fixed number of bits.
+
+	# So, it is better to reserve these instructions to either jump to specific
+	# routines, or to work on nominated memory locations.
+	# MULT for example could multiply the MULTIPLIER and the MULTIPLICAND
+	# stored in separate named parameter registers. Or one of the operands could
+	# be in accumulator, another in a named location.
+
+	if False:
+		pass # DEFINE USER INSTRUCTIONS HERE
+	else:
+		raise ValueError("Unknown U instr:" + str(operand))
 
 
 # 901=INP and 902=OUT, but 900 and 903..999 are not used.

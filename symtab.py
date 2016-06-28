@@ -12,6 +12,10 @@ def trace(msg):
     print(str(msg))
 
 
+def is_defined(label):
+    return label in defines
+
+
 def define(label, addr):
     """Define a new label"""
 
