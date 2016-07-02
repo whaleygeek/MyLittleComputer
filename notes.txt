@@ -59,7 +59,6 @@ X07 ASR   - arithmetic shift right (divide by two, sign preserved)
 X08..X99  - reserved for other extended instructions
 
 
-
 --------------------------------------------------------------------------------
 
 TRAP CODES
@@ -75,3 +74,24 @@ HARDWARE ACCESS (IO)
 H01          901          INP
 H02          902          OUT
 H00,H03..H99 900,903..999 reserved for other hardware access such as GPIO
+
+
+--------------------------------------------------------------------------------
+
+LIBRARY ROUTINES
+
+It would be nice for the multiply and divide to also be possible as a library
+routine that you just call and return.
+
+This means the following
+- need a convention that allows call and return to be implemented,
+i.e. either a single level stack in memory, or a multi level stack.
+
+- need a librarian, to allow this code to be compiled into a named library
+with a named routine name
+
+- need a linker, to allow library functions to be linked in and their
+addresses resolved.
+
+
+END.

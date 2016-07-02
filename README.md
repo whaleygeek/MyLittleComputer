@@ -1,7 +1,5 @@
 # MyLittleComputer
 
-This is a complete toolchain for a tiny computer architecture
-
 This is a complete toolchain for a tiny computer architecture. The chosen architecture is completely
 compatible with the Little Man Computer architecture, as (mostly defined) here:
 
@@ -20,7 +18,8 @@ selected based on a known subset used by children and school teachers.
 Note: The Little Man Computer architecture stipulates a decimal representation (not a binary).
 This is contrary to how modern CPU's are designed (they are binary machines). However, there
 is (untested) experimental support for BINARY and HEXADECIMAL i/o modes, that can be configured
-in io.py.
+in io.py, although I haven't done much tested of the BINARY and HEXADECIMAL modes yet so they
+might not completely work.
 
 
 The toolchain consists of:
@@ -34,6 +33,7 @@ simulator.py - simulate a decimal file on an LMC compliant architecture
 interactive.py - run an interactive session with the simulator
 
 compiler.py - compile simple high level source programs into assembly language source files
+
 
 Hello World
 ====
@@ -165,36 +165,57 @@ resultant python programs are small enough that children can understand them, us
 Feel free to fork this code, add more features to it, but let me know what you do with it!
 
 
+Current work
+====
+
+Just implemented some extended instructions that allow multiply and divide to work.
+This works in the compiler as well (the grammar has been extended to allow them with the correct
+precedence)
+
+Looking at possibility of writing a librarian and a linker, so that the multiply and divide
+routines could be written by children, and then put into a library and linked into the code.
+This would actually be better than using extended instructions, as the multiply routine is
+part of the standard syllabus to implement. It would also make the explanation of what the role
+and operation of a librarian and a linker are much easier, by example (again, this is something
+that is covered on the syllabus)
+
+Making command line parameter passing format consistent across all tools
+(some use redirection, some use command line parameters, at the moment)
+
+
 New ideas
 ====
 
 Of course, I have lots of new additions to add to the compiler, but feel free to do some of these yourself!
 
 * multiply and divide
-* compiler intrinsics (mult, div, rem, mod, shift)
+* compiler intrinsics or extended instructions (rem, mod, logical-shift, arithmetic-shift)
 * variables
 * support for negative numbers
 * if statements
-* using HLT 1.. HLT 999 to implement OS calls
-* using IO 3..999 to implement file io, GPIO, network IO, and other neat things
+* using T 01..T 99 to implement OS calls (TRAPS)
+* using H 3 .. H99 to implement other hardware, such as: file io, GPIO, network IO, and other neat things
 * loops
-* call and return stack
+* call and return stack (single level, and multi level with a stack pointer)
 * function calls
 * function return results
 * function parameters
 * global and local variables
+* lifetime and scope
 * a larger memory space for programs
 * better optimisations in the compiler
 * a command line debugger
 * a tiny IDE written in Python
 * a visual debugger with single step and breakpoints
 * an interface to Minecraft (of course!)
+* a way to switch between bases seamlessly so that a binary machine can be used too
 
 David Whale
 
 @whaleygeek
 
-28th June 2016
+2nd July 2016
+
 
 
 

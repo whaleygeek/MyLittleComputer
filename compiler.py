@@ -470,10 +470,13 @@ def gen_sub(op1, op2, res):
 
 
 def gen_mul(op1, op2, res):
-    # There is no multiply instruction in the processor architecture
-    # so expand a compiler inline intrinsic that does a multiply for us
-    #TODO: we could use one of the extension registers to implement multiply
-    #within the simulator, or as a jmp/return to a linker provided routine
+    # There is no multiply instruction in the default LMC processor architecture
+    # but we have implemented an extended instruction that does it for us.
+    #
+    # Note, could also possibly do a jump to a multiply routine,
+    # as long as the address of the multiply routine was known.
+    # However, this requires us to write the librarian.py and linker.py
+    # before we could link in a runtime library.
 
     # MUL op1, op2->res becomes:
     # newtmp(mult_counter)
@@ -510,6 +513,13 @@ def gen_mul(op1, op2, res):
 
 
 def gen_div(op1, op2, res):
+    # There is no divide instruction in the default LMC processor architecture
+    # but we have implemented an extended instruction that does it for us.
+    #
+    # Note, could also possibly do a jump to a divide routine,
+    # as long as the address of the multiply routine was known.
+    # However, this requires us to write the librarian.py and linker.py
+    # before we could link in a runtime library.
 
     ac = [
         ["LDA", op1],
