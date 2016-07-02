@@ -71,8 +71,8 @@ def write(memory, filename):
 
 def main():
 	import sys
-	IN_NAME = sys.argv[1]
-	OUT_NAME = sys.argv[2]
+	IN_NAME = sys.argv[1] #TODO if - or not present, use stdin
+	OUT_NAME = sys.argv[2] #TODO if - of not present, use stdout
 
 	m = parse(IN_NAME)
 	symtab.fixup(m)

@@ -26,18 +26,20 @@ OUT = 902
 
 # User Extension opcodes
 # Probably useful for defining new custom instructions
-U      = 400 # Unknown/User
+X      = 400 # Unknown/User
 # 00..99 not used yet
 
 # IO opcodes, probably useful for defining new I/O instructions
-IO     = 900 # Various I/O including INP and OUT
-IO_IN  = 01
-IO_OUT = 02
+H     = 900 # Various I/O including INP and OUT
+H_IN  = 01
+H_OUT = 02
 # 00, 03..99 not used yet
 
-# HLT instructions, probably useful for OS calls
-# Note special case of 000 is HLT 00 = HLT.
+# TRAP instructions, probably useful for OS calls
+# Note special case of 000 is TRAP 00 = HLT.
+# T00..T99 are traps
 # 01..99 not used yet
+T = 000
 
 # Pseudo opcodes, used by assembler only, not by LMC architecture
 # An out of range opcode is used to signify these.
@@ -51,20 +53,20 @@ DAT    = 1000
 no_operands = [HLT, INP, OUT]
 
 operators = {
-	HLT: "HLT",  # this is really HLT 00
+	HLT: "HLT",  # this is really T 00
 	ADD: "ADD",
 	SUB: "SUB",
 	STA: "STA",
-	U:   "U",    # unknown/user extensions
+	X:   "X",    # user extensions
 	LDA: "LDA",
 	BRA: "BRA",
 	BRZ: "BRZ",
 	BRP: "BRP",
-	INP: "INP",  # this is really IO 1
-	OUT: "OUT",  # this is really IO 2
+	INP: "INP",  # this is really H 1
+	OUT: "OUT",  # this is really H 2
 
-	# EXTENSION
-	IO:  "IO",
+	# HARDWARE I/O
+	H:  "H",
 
 	# PSEUDO
 	DAT: "DAT"

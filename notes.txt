@@ -1,0 +1,77 @@
+DESIGN NOTES
+
+MULTIPLY AND DIVIDE INSTRUCTION EXTENSIONS
+Adding multiply and divide instructions for the * and / in the compiler
+
+The problem is, there is not enough instruction space to add a MUL and a DIV instruction
+as well as an operand for it.
+
+The obvious way is for it to be an operand-less instruction, so that other operandless
+instructions can be defined.
+
+If we store data in a memory location, there is no way to transfer the address of that location
+forward to the simulator with a raw .dec file unless there is an associated symbol table.
+
+But unlike ADD and SUB which have instruction space for an operand, there is now way
+to get the second operand to them.
+
+
+So, we could define a B register for the second operand
+But there is not enough space for both a LDB and STB in the instruction set.
+
+
+We could do an instruction prefix like the Z80 does
+i.e. prefix with U00 (USEB) and the next instruction only uses the B register
+instead of the A register. That will allow us to load and store two operands,
+and then use a user instruction with no operands for MUL and DIV. The result
+will always conveniently be put into the A register.
+
+So, MUL becomes
+
+X00 (USB)
+LDA const1
+LDA const2
+X01 (MUL)
+STA result
+OUT
+HLT
+
+But how does MUL and DIV actually get executed by the simulator?
+X01 (MUL) is directed to a piece of user code.
+This user code decodes the 01 and redirects to a multiply routine
+The multiply routine performs A=A*B and updates flags
+
+Same for other instructions.
+
+
+--------------------------------------------------------------------------------
+
+USER EXTENDED INSTRUCTIONS X00-X99
+
+X00 USB   - use B register instead of A in next instruction only
+X01 MUL   - multiply    A=A*B
+X02 DIV   - divide      A=A/B
+X03 REM   - remainder   A=A%B
+X04 SHL   - shift left  A >>= 1
+X05 SHR   - shift right A <<= 1
+X06 ASL   - arithmetic shift left (multiply by two, sign preserved)
+X07 ASR   - arithmetic shift right (divide by two, sign preserved)
+X08..X99  - reserved for other extended instructions
+
+
+
+--------------------------------------------------------------------------------
+
+TRAP CODES
+
+T00       = HLT
+T01-T99   = user traps for os calls)
+
+
+--------------------------------------------------------------------------------
+
+HARDWARE ACCESS (IO)
+
+H01          901          INP
+H02          902          OUT
+H00,H03..H99 900,903..999 reserved for other hardware access such as GPIO

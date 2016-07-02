@@ -5,16 +5,16 @@
 import instruction
 
 def labelFromString(s):
-    """Work out if this operand is a label or not"""
+	"""Work out if this operand is a label or not"""
 
-    # Is it numeric?
-    try:
-        operand = int(s)
-        return operand, None # just a normal number
-    except:
-        pass
+	# Is it numeric?
+	try:
+		operand = int(s)
+		return operand, None # just a normal number
+	except:
+		pass
 
-    # Must be a label
+	# Must be a label
 	return None, s # A labelref
 
 

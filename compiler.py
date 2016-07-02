@@ -501,9 +501,9 @@ def gen_mul(op1, op2, res):
 
     ac = [
         ["LDA", op1],
-        ["STA", getreg("muldiv_reg")],
+        ["X", "00"], # USB - use B register in next instruction
         ["LDA", op2],
-        ["U", "01"], # U 01 is MUL
+        ["X", "01"], # MUL A=A*B
         ["STA", res]
     ]
     return ac
@@ -513,9 +513,9 @@ def gen_div(op1, op2, res):
 
     ac = [
         ["LDA", op1],
-        ["STA", getreg("muldiv_reg")],
+        ["X", "00"], # USB - use B register in next instruction
         ["LDA", op2],
-        ["U", "02"], # U 02 is DIV
+        ["X", "02"], # DIV A=A/B
         ["STA", res]
     ]
     return ac
@@ -654,6 +654,10 @@ def main():
 
 
 if __name__ == "__main__":
+	## import sys
+	## IN_NAME = sys.argv[1] #TODO if -  or not present, use stdin
+	## OUT_NAME = sys.argv[2] #TODO if - or not present, use stdout
+
     main()
 
 

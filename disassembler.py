@@ -50,8 +50,8 @@ def writeFile(source, filename, startaddr=0):
 
 def main():
 	import sys
-	IN_NAME  = sys.argv[1]
-	OUT_NAME = sys.argv[2]
+	IN_NAME  = sys.argv[1] #TODO: If - or not present, use stdin
+	OUT_NAME = sys.argv[2] #TODO: if - or not present, use stdout
 	mem = processFile(IN_NAME)
 	writeFile(mem, OUT_NAME)
 

@@ -15,9 +15,11 @@ STDOUT_REDIRECTED = not sys.stdout.isatty()
 
 program_counter   = 0
 accumulator       = 0
+b_reg             = 0
 z_flag            = False # zero
 p_flag            = False # positive
-halt              = False
+b_flag            = False # use A (if True, use B)
+halt_flag         = False
 memory            = {}
 
 
@@ -32,7 +34,7 @@ def run(mem, startaddr = 0):
 	program_counter = startaddr
 	memory = mem
 	
-	while not halt:
+	while not halt_flag:
 		#TODO check LMC spec, does 999+1 wrap to 000?
 		if program_counter < 0 or program_counter > 999:
 			raise ValueError("out of range program counter:" 
@@ -43,18 +45,31 @@ def run(mem, startaddr = 0):
 def cycle():
 	"""Run a single cycle of the LMC machine"""
 
-	global program_counter
+	global program_counter, accumulator, b_flag, b_reg
 	
 	# FETCH
 	instr = fetch()
-	#trace("fetch: pc:" + str(program_counter) + " instr:" + str(instr))
+	##trace("fetch: pc:" + str(program_counter) + " instr:" + str(instr))
 	program_counter = truncate(program_counter+1)
 	
 	# DECODE
 	operator, operand = decode(instr)
+
+	# If b_flag is set, read and write the B rather than the A
+	if b_flag:
+		acc = b_reg
+	else:
+		acc = accumulator
 	
 	# EXECUTE
-	execute(operator, operand)
+	acc = execute(operator, operand, acc)
+
+	# WRITE BACK
+	if b_flag:
+		b_reg = acc
+		b_flag = False
+	else:
+		accumulator = acc
 
 
 def fetch():
@@ -66,11 +81,12 @@ def fetch():
 	
 def decode(instr):
 	"""Decode a single instruction"""
-	
+
 	operator = instruction.getOperator(instr)
 	operand = instruction.getOperand(instr)
+
 	return operator, operand
-	
+
 
 def truncate(v):
 	"""Truncate a value to the bus-width of the machine"""
@@ -78,36 +94,37 @@ def truncate(v):
 	return v % (BUS_MAX+1)
 
 
-def execute(operator, operand):
+def execute(operator, operand, acc):
 	"""Execute a single instruction"""
 
-	global program_counter, accumulator, z_flag, p_flag, memory, halt
-	
+	global program_counter, z_flag, p_flag, memory, halt_flag
+
 	if   operator == instruction.HLT: # 0xx
-		execHaltInstr(operand)
+		execTrapInstr(operand)
 
 	elif operator == instruction.ADD: # 1xx
-		accumulator += memory[operand]
-		accumulator = truncate(accumulator)
-		update_flags(accumulator)
+		acc += memory[operand]
+		acc = truncate(acc)
+		update_flags(acc)
 		
 	elif operator == instruction.SUB: # 2xx
-		accumulator -= memory[operand]
-		accumulator = truncate(accumulator)
-		update_flags(accumulator)
+		acc -= memory[operand]
+		acc = truncate(acc)
+		update_flags(acc)
 		
 	elif operator == instruction.STA: # 3xx
-		memory[operand] = accumulator
-		#trace("m[" + str(operand) + "]=" + str(accumulator))
-		update_flags(accumulator)
+		memory[operand] = acc
+		##trace("m[" + str(operand) + "]=" + str(acc))
+		update_flags(acc)
 
-	elif operator == instruction.U: # 4xx
-		execUserInstr(operand)
+	elif operator == instruction.X: # 4xx
+		acc = execExtendedInstr(operand, acc)
+		#Note, it does it's own update_flags if necessary
 		
 	elif operator == instruction.LDA: # 5xx
-		accumulator = memory[operand]
-		#trace("a=m[" + str(operand) + "]")
-		update_flags(accumulator)
+		acc = memory[operand]
+		##trace("a=m[" + str(operand) + "]")
+		update_flags(acc)
 		
 	elif operator == instruction.BRA: # 6xx
 		program_counter = operand
@@ -123,29 +140,31 @@ def execute(operator, operand):
 			program_counter = operand
 			#??update_flags(operand)
 
-	elif operator == instruction.IO: # 9xx
-		if operand == instruction.IO_IN: # 901
+	elif operator == instruction.H: # 9xx
+		if operand == instruction.H_IN: # 901
 			if not STDIN_REDIRECTED:
 				sys.stdout.write("in? ")
 			value = io.read()
-			#TODO should we cope with negative numbers here and complement appropriately?
+			#TODO: should we cope with negative numbers here and complement appropriately?
 			#TODO: Should honour buswidth here depending on decimal/binary/hexadecimal io mode
 			if value < 0 or value > 999:
 				raise ValueError("Out of range value:" + str(value))
-			accumulator = truncate(value)
-			update_flags(accumulator)
+			acc = truncate(value)
+			update_flags(acc)
 
-		elif operand == instruction.IO_OUT: # 902
+		elif operand == instruction.H_OUT: # 902
 			if not STDOUT_REDIRECTED:
 				sys.stdout.write("out=")
-			io.write(accumulator)
-			update_flags(accumulator)
+			io.write(acc)
+			update_flags(acc)
 
 		else: # user defined 9xx instructions
-			execIOInstr(operand)
+			execHardwareInstr(operand)
 
 	else: # all might now be covered above??
 		raise ValueError("Unknown operator:" + str(operator))
+
+	return acc
 
 		
 def update_flags(v):
@@ -175,7 +194,7 @@ def update_flags(v):
 		p_flag = False
 
 
-# USER DEFINED INSTRUCTIONS ---------------------------------------------------
+# EXTENDED INSTRUCTIONS ---------------------------------------------------
 #
 # This is a place that users can add their own instructions, while still
 # being backwards compatible with the standard architecture.
@@ -187,16 +206,16 @@ def update_flags(v):
 # the accumulator might be a memory address that stores a block of
 # parameters.
 
-def execHaltInstr(operand):
+def execTrapInstr(operand):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
-	global halt
+	global halt_flag
 	# Note that instruction.HLT is HLT 00 (000)
 	if operand == 0:
-		halt = True
+		halt_flag = True
 	else:
 		raise ValueError("Unknown HLT instr:" + str(operand))
-		# DEFINE USER HLT INSTRUCTIONS HERE
+		# DEFINE TRAP INSTRUCTIONS HERE
 
 
 # 5xx instructions are not defined, so these are USER instructions,
@@ -206,41 +225,26 @@ def execHaltInstr(operand):
 # not normally be done with OS calls.
 
 
-def execUserInstr(operand):
-	"""Execute any user instructions here (instruction.U_xx)"""
+def execExtendedInstr(operand, acc):
+	"""Execute any user instructions here (instruction.X_xx)"""
 
-	global accumulator
+	if   operand == 00: # U 00 USB (Use B in next instruction)
+		global b_flag
+		b_flag = True # next instr will use B instead of A
 
-	# Note, not possible to define user instructions that have other operands
-	# due to their being insufficient space in the instruction format.
-	# e.g. LDA 10 MULT 20 won't work
-	# unless you say the 20 is a small constant, and the higher bits
-	# represent the opcode and the lower bits the operand. This gets
-	# messy with decimal as the range is 00-99 which is not a fixed number of bits.
-
-	# So, it is better to reserve these instructions to either jump to specific
-	# routines, or to work on nominated memory locations.
-	# MULT for example could multiply the MULTIPLIER and the MULTIPLICAND
-	# stored in separate named parameter registers. Or one of the operands could
-	# be in accumulator, another in a named location.
-
-	#TODO: Unless we pass forward the symbol table from the compiler
-	#we won't know the address of the muldiv_reg
-	
-	if   operand == 01: # U 01  MUL
-		##muldiv_reg_addr = symtab.get("muldiv_reg")
-		##muldiv_reg = memory[muldiv_reg_addr]
-		##accumulator = accumulator * muldiv_reg
-		##update_flags(accumulator)
-		raise RuntimeError("MUL not yet completely written")
+	elif operand == 01: # U 01  MUL
+		acc = b_reg * acc
+		update_flags(acc)
 
 	elif operand == 02: # U 02  DIV
-		raise RuntimeError("DIV not yet completely written")
-		# lookup muldiv_reg in symtab
-		# acc = acc / muldiv_reg
-		# update_flags(acc)
+		##trace("acc %d breg %d" % (acc, b_reg))
+		acc = b_reg / acc
+		update_flags(acc)
+
 	else:
-		raise ValueError("Unknown U instr:" + str(operand))
+		raise ValueError("Unknown X instr:" + str(operand))
+
+	return acc
 
 
 # 901=INP and 902=OUT, but 900 and 903..999 are not used.
@@ -251,7 +255,7 @@ def execUserInstr(operand):
 # they could be done as User instrutions (U) but it's handy to group
 # all the I/O together into a set of instructions.
 
-def execIOInstr(operand):
+def execHardwareInstr(operand):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
 
 	raise ValueError("Unknown IO instr:" + str(operand))
