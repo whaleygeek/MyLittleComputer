@@ -503,7 +503,7 @@ def gen_mul(op1, op2, res):
         ["LDA", op1],
         ["X", "00"], # USB - use B register in next instruction
         ["LDA", op2],
-        ["X", "01"], # MUL A=A*B
+        ["X", "01"], # MUL A=B*A
         ["STA", res]
     ]
     return ac
@@ -515,7 +515,7 @@ def gen_div(op1, op2, res):
         ["LDA", op1],
         ["X", "00"], # USB - use B register in next instruction
         ["LDA", op2],
-        ["X", "02"], # DIV A=A/B
+        ["X", "02"], # DIV A=B/A
         ["STA", res]
     ]
     return ac
