@@ -20,16 +20,6 @@ BRP = 800
 INP = 901
 OUT = 902
 
-
-# IO opcodes, probably useful for defining new I/O instructions
-IO     = 900 # Various I/O including INP and OUT
-
-# HLT instructions, probably useful for OS calls
-# Note special case of 000 is TRAP 00 = HLT.
-# T00..T99 are traps
-# 01..99 not used yet
-HLT = 000
-
 # Pseudo opcodes, used by assembler only, not by LMC architecture
 # An out of range opcode is used to signify these.
 PSEUDO = 1000
@@ -38,9 +28,10 @@ DAT    = 1000
 
 
 # useful lookup table for string versions of operands
-no_operands = [INP, OUT, IO, HLT]
+no_operands = [INP, OUT, HLT]
 
 operators = {
+	HLT: "HLT",  # this is really HLT 00
 	ADD: "ADD",
 	SUB: "SUB",
 	STA: "STA",
@@ -48,24 +39,18 @@ operators = {
 	BRA: "BRA",
 	BRZ: "BRZ",
 	BRP: "BRP",
-
-	# HARDWARE I/O
-	##TODO: Runtime register IO in ioinstrs.py
-	IO:  "IO", # will collide with H00
-	
-	INP: "INP",  # this is really H 1
-	OUT: "OUT",  # this is really H 2
-
-	# Halts
-	HLT: "HLT",  # this is really HLT 00
-
+	INP: "INP",  # this is really IO 1
+	OUT: "OUT",  # this is really IO 2
 	# PSEUDO
-	DAT: "DAT"
+	DAT: "DAT" # PSEUDO instruction, for convenience
 }
 
 
 def trace(msg):
 	print(str(msg))
+
+
+#TODO: Add registerMnemonic(name, code, operands=False)
 
 
 def reverseLookup(mymap, value):
@@ -74,7 +59,6 @@ def reverseLookup(mymap, value):
 	value_idx = mymap.values().index(value)
 	key = mymap.keys()[value_idx]
 	return key
-
 
 
 def build(operator, operand=None):

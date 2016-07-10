@@ -2,12 +2,22 @@
 #
 # Add extra IO instructions to the instruction set simulator
 
-# Might not be needed, unless you need mnemonic support in addition to
-# generic form IO 01 IO 02 etc
+import instruction
 
-#TODO: Also, runtime registration of these 3 instrutions into the instruction.py tables
-# will need to be done here, so that instruction.py is not polluted with non standard
-# features. But only if the instructions need mnemonic names other than IO 03 etc
+# Runtime registration of generic form
+# you can add specific mnemonic names here if you want,
+# see the example in extinstrs.py to see how to do it in a way that
+# does not pollute instruction.py with optional features.
+
+# IO opcodes, probably useful for defining new I/O instructions
+instruction.IO     = 900 # Various I/O including INP and OUT
+
+instruction.no_operands += [instruction.IO]
+
+instruction.operators[instruction.IO] =  "IO"
+
+
+# INP and OUT are already handled in simulator.py, and never delegated here.
 
 # 901=INP and 902=OUT, but 900 and 903..999 are not used.
 # These undefined instructions are therefore useful to use to define

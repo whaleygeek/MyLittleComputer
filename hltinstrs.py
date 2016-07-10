@@ -3,15 +3,12 @@
 # Extra HLT instructions for the instruction set simulator
 # These are good for implementing OS calls
 
-# Might not be needed, unless you need mnemonic support in addition to
-# generic form HLT 01 HLT 02 etc
+# You can use mnemonic forms instead of HLT 01 HLT 02 etc if you want,
+# but look at extinstrs.py to see how to runtime register new
+# mneumonics in the instruction table from here, in a way that does
+# not pollute the instruction.py with unnecessary optional detail.
 
-# TODO: runtime registration of these instructions into the instruction.py tables
-# will need to be done here, so that instruction.py is not polluted with non standard
-# features. (but only if they have names, if they are just HLT 01.. HLT 99 then
-# the instruction.py won't need changing)
-
-
+# HLT 00 (HLT) is handled in simulator.py and never delegated here.
 
 # 000 is HLT but 001..099 are undefined. So, by modelling 0xx as a HLT
 # and making HLT mean HLT 00, we can add HLT 01..HLT 99.
