@@ -1,4 +1,4 @@
-# simulator.py  0311/2014  D.J.Whale
+# simulator.py  03/11/2014  D.J.Whale
 #
 # Simulate an LMC program.
 
@@ -21,10 +21,8 @@ STDOUT_REDIRECTED = not sys.stdout.isatty()
 
 program_counter   = 0
 accumulator       = 0
-##b_reg             = 0 ##TODO: Refactor extract to extarch.py
 z_flag            = False # zero
 p_flag            = False # positive
-##b_flag            = False # use A (if True, use B) ##TODO: Refactor extract to extarch.py
 halt_flag         = False
 memory            = {}
 
@@ -51,7 +49,7 @@ def run(mem, startaddr = 0):
 def cycle():
 	"""Run a single cycle of the LMC machine"""
 
-	global program_counter, accumulator ##, b_flag, b_reg
+	global program_counter, accumulator
 	
 	# FETCH
 	instr = fetch()
@@ -61,27 +59,8 @@ def cycle():
 	# DECODE
 	operator, operand = decode(instr)
 
-	## MODIFICATION TO CORE LMC ARCHITECTURE
-	##TODO: Refactor extract into extarch.py as a decorator
-	## If b_flag is set, read and write the B rather than the A
-	##if b_flag:
-	##	acc = b_reg
-	##else:
-	##	acc = accumulator
-	##MOD END
-
 	# EXECUTE
 	accumulator = execute(operator, operand, accumulator)
-
-	## MODIFICATION TO CORE LMC ARCHITECTURE
-	##TODO: Refactor extract into extarch.py as a decorator
-	## WRITE BACK
-	##if b_flag and instr != instruction.USB:
-	##	b_reg = acc
-	##	b_flag = False
-	##else:
-	##	accumulator = acc
-	##MOD END
 
 
 def fetch():
@@ -115,6 +94,7 @@ def execute(operator, operand, acc):
 	if   operator == instruction.HLT: # 0xx
 		if operand == 0: # HLT 00 is actually HLT
 			halt_flag = True
+		#TODO: Could do this optional extension with extarch.hlt
 		else:
 			hltinstrs.execHLTInstr(operand) # EXTENSIONS
 
@@ -133,8 +113,9 @@ def execute(operator, operand, acc):
 		##trace("m[" + str(operand) + "]=" + str(acc))
 		update_flags(acc)
 
+	#TODO: could do this optional extension with extarch.ext
 	elif operator == instruction.EXT: # 4xx
-		acc = extinstrs.execExtendedInstr(operand, acc) ##TODO: EXTENSION
+		acc = extinstrs.execExtendedInstr(operand, acc) # EXTENSION
 		update_flags(acc)
 
 	elif operator == instruction.LDA: # 5xx
@@ -174,6 +155,7 @@ def execute(operator, operand, acc):
 			io.write(acc)
 			update_flags(acc)
 
+		#TODO: Could do this optional extension with extarch.io
 		else: # user defined 9xx instructions
 			ioinstrs.execIOInstr(operand) # EXTENSIONS
 

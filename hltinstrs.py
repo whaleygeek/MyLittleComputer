@@ -1,11 +1,12 @@
 # hltinstrs.py  10/07/2016  D.J.Whale
 #
-# Placeholder for extra HLT instructions
+# Extra HLT instructions for the instruction set simulator
+# These are good for implementing OS calls
 
-# Will refactor extract:
-# HLT 01.. HLT  99
+# Might not be needed, unless you need mnemonic support in addition to
+# generic form HLT 01 HLT 02 etc
 
-# Also, runtime registration of these instructions into the instruction.py tables
+# TODO: runtime registration of these instructions into the instruction.py tables
 # will need to be done here, so that instruction.py is not polluted with non standard
 # features. (but only if they have names, if they are just HLT 01.. HLT 99 then
 # the instruction.py won't need changing)

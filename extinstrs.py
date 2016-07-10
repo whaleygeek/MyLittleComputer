@@ -1,16 +1,11 @@
 # extinstrs.py  10/07/2016  D.J.Whale
 #
-# Placeholder for extended instructions
+# Wxtended instructions that are added to the instuction set simulator
 
 import extarch # for b_flag and b_reg
 import instruction
 
-# Will refactor extract:
-# USB
-# MUL
-# DIV
-
-# Also, runtime registration of these 3 instrutions into the instruction.py tables
+# TODO: runtime registration of these 3 instrutions into the instruction.py tables
 # will need to be done here, so that instruction.py is not polluted with non standard
 # features.
 

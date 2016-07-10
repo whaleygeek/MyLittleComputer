@@ -1,18 +1,13 @@
 # ioinstrs.py  10/07/2016  D.J.Whale
 #
-# Placeholder for extended IO hardware instructions
+# Add extra IO instructions to the instruction set simulator
 
-# Will refactor extract
-# dispatcher for IOInstructions
+# Might not be needed, unless you need mnemonic support in addition to
+# generic form IO 01 IO 02 etc
 
-# Also, runtime registration of these 3 instrutions into the instruction.py tables
+#TODO: Also, runtime registration of these 3 instrutions into the instruction.py tables
 # will need to be done here, so that instruction.py is not polluted with non standard
 # features. But only if the instructions need mnemonic names other than IO 03 etc
-
-
-
-#TODO: Refactor extract into ioinstrs.py
-# but leave INP and OUT in this module
 
 # 901=INP and 902=OUT, but 900 and 903..999 are not used.
 # These undefined instructions are therefore useful to use to define
@@ -27,7 +22,7 @@ def execIOInstr(operand):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
 
 	raise ValueError("Unknown IO instr:" + str(operand))
-	# DEFINE IO INSTRUCTIONS HERE
+	# DEFINE NEW IO INSTRUCTIONS HERE
 
 
 # END
