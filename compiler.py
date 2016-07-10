@@ -503,9 +503,9 @@ def gen_mul(op1, op2, res):
     # deltmp(mult_result)
 
     ac = [
-        ["LDA", op1],
-        ["USB", ""], # USB - use B register in next instruction
         ["LDA", op2],
+        ["USB", ""], # USB - use B register in next instruction
+        ["LDA", op1],
         ["MUL", ""], # MUL A=B*A
         ["STA", res]
     ]

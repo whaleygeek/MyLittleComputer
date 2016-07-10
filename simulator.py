@@ -55,21 +55,26 @@ def cycle():
 	# DECODE
 	operator, operand = decode(instr)
 
+	## MODIFICATION TO CORE LMC ARCHITECTURE
 	# If b_flag is set, read and write the B rather than the A
 	if b_flag:
 		acc = b_reg
 	else:
 		acc = accumulator
+	##MOD END
+
 	
 	# EXECUTE
 	acc = execute(operator, operand, acc)
 
+	## MODIFICATION TO CORE LMC ARCHITECTURE
 	# WRITE BACK
 	if b_flag and instr != instruction.USB:
 		b_reg = acc
 		b_flag = False
 	else:
 		accumulator = acc
+	##MOD END
 
 
 def fetch():
@@ -206,6 +211,8 @@ def update_flags(v):
 # the accumulator might be a memory address that stores a block of
 # parameters.
 
+#TODO: Put this in hltinstr.py
+
 def execHLTInstr(operand):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
@@ -224,6 +231,7 @@ def execHLTInstr(operand):
 # such as bitwise operators and other useful facilities that would
 # not normally be done with OS calls.
 
+#TODO: Put this in extinstr.py
 
 def execExtendedInstr(operand, acc):
 	"""Execute any user instructions here (instruction.X_xx)"""
@@ -255,6 +263,8 @@ def execExtendedInstr(operand, acc):
 # they could be done as User instrutions (U) but it's handy to group
 # all the I/O together into a set of instructions.
 
+#TODO: Put this in ioinstr.py
+
 def execIOInstr(operand):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
 
@@ -272,7 +282,8 @@ def main():
 
 
 if __name__ == "__main__":
-	#TODO#### get encoder decoder settings from args io.configure()
+	#TODO: get encoder decoder settings from args io.configure()
+	#so that we can use BINARY and HEXADECIMAL modes too.
 	main()
 
 

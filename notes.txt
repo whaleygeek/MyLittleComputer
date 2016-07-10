@@ -1,6 +1,50 @@
 DESIGN NOTES
 
 --------------------------------------------------------------------------------
+NEXT STEPS
+
+Refactor out all additions from the standard LMC architecture, into separate
+modules, and try to make them as optional as possible.
+
+It could be then used as part of an exercise to write these extensions
+yourself.
+
+extarch.py - extended architecture
+extinstrs.py - extended instructions
+hltinstrs.py - halt instructions
+ioinstrs.py  - io instructions
+
+These would need to use runtime modification of the instruction.py tables
+in order to register their new instructions, so that instruction.py is
+not polluted with non LMC code from the start.
+
+
+--------------------------------------------------------------------------------
+
+ARCHITECTURAL ADDITIONS
+
+The b_reg and b_flag is an architectural extension that does pollute the
+clean LMC simulator a bit. Not quite sure yet how we could extract this
+in a way that it could be turned on and off - it would be nice to be able
+to put this in an extra module that is optional, so that the base machine
+files without extension modules is *just* LMC with nothing extra added
+(apart from the hooks for extensions).
+
+Ignoring the extra instructions like USB and MUL DIV that use the b_reg,
+the only part of the core architecture that is affected is the definition
+of b_reg and b_flag, and the additions to the read and writeback parts
+of simulator.cycle()
+
+It looks like all we need to do is wrap a decorator around simulator.execute()
+that does the b_flag switching - so we could use something like this:
+
+import extarch # extarch.py for extended architecture
+
+@extarch.bflag
+def execute(operator, operand, acc):
+
+
+--------------------------------------------------------------------------------
 
 USER EXTENDED INSTRUCTIONS X00-X99
 
@@ -13,7 +57,25 @@ EXT 05 SHL    - shift left  A >>= 1
 EXT 06 SHR    - shift right A <<= 1
 EXT 07 ASL    - arithmetic shift left (multiply by two, sign preserved)
 EXT 08 ASR    - arithmetic shift right (divide by two, sign preserved)
-EXT 09..9999  - reserved for other extended instructions
+EXT 09..99    - reserved for other extended instructions
+
+Could put all of these instructions in a separate python module to
+keep them separate from the core architecture.
+
+Note that the B register has been added to the architecture in order to
+make it possible to pass two parameters to common extension instructions
+like MUL and DIV.
+
+Could all be in python module: extinstrs.py
+
+But note that to add them as mnemonics, the tables in instruction.py
+need to be updated - this could be done when extinstr.py first starts,
+modifying the default static tables in instruction.py - that way
+instruction.py could be written to be just the known LMC subset that
+is defined, and extensions added by loading the extinstr.py module.
+
+This will make it easier to add extended instructions to the simulator,
+assembler and disassembler, without polluting the core architecture.
 
 
 --------------------------------------------------------------------------------
@@ -22,6 +84,12 @@ HALT CODES
 
 HLT 00       = HLT
 HLT01..99    = user halts, for os calls
+
+OS calls could be done via an oscall module, that sub decodes all the HLT
+codes and applys a call and return parameter convention, mapping each code
+to an OS call of some kind.
+
+This could be hltinstrs.py
 
 
 --------------------------------------------------------------------------------
@@ -32,6 +100,85 @@ IO 01          901           INP
 IO 02          902           OUT
 IO 00,H03..H99 900,903..999  reserved for other hardware access such as GPIO
 
+we already have an io module for input and output of numbers in any base.
+There might be a separate module or set of modules that handles all IO hardware
+access instructions, sub decodes, implies calling parameters and return results,
+and imports necessary lower level modules to implement IO extension instructions
+like GPIO.
+
+This could be ioinstrs.py
+
+--------------------------------------------------------------------------------
+
+CALL AND RETURN
+
+- single level stack
+
+Usual method is to reserve one register for the return address
+
+- multi level stack
+
+Usual method is to reserve one register as stack pointer, and
+a block of memory as the stack. Without indexed addressing
+or special instructions, code grows quite quickly.
+
+- parameter passing
+
+Can pass parameters on stack.
+Or can pass parameters in nominated reserved registers, and where
+nested calls are done, an overlay manager is required to assess the
+whole call tree, and make all registers non overlapping for all
+possible call paths
+
+- return result
+
+Can pass a return result in a nominated register.
+
+Call and return is really a compiler addition, with some conventions as
+to memory space usage. e.g.
+
+For a single depth stack
+
+RETADDR DAT 1
+
+For a multi level stack of size 16
+
+SP    DAT 1
+STACK DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+      DAT 1
+
+Note there is no indexed addressing mode. Although this could be made a bit
+easier by adding an extra instruction that does a CALL and another that does
+a RETURN, providing the address of the STACK is known and passed into the
+simulator somehow (even non symbolically, as we have to be able to simulate
+raw .dec files).
+
+The usual way would be to have a LDA STACK; STA SP in the init code
+inserted by the compiler at the start of the code, like this:
+
+LMCINIT  LDA STACK
+         STA SP
+
+
+The assembler might have some extended syntax like this, meaning reserve
+16 bytes and set them all to zero just to make it a bit easier to specify
+larger memory regions in the future.
+
+STACK   DAT 0*16
 
 --------------------------------------------------------------------------------
 
@@ -50,5 +197,24 @@ with a named routine name
 - need a linker, to allow library functions to be linked in and their
 addresses resolved.
 
+--------------------------------------------------------------------------------
+
+LINKER
+
+Compiler/assembler have to have a way to build a symbol table,
+that include exported symbols and imported symbols.
+
+All addresses in LMC are absolute, so there is no position independent
+code, so linking might require quite a lot of code adjustment at link time.
+
+--------------------------------------------------------------------------------
+
+LIBRARIAN
+
+Need to be able to add output from assembler or compiler (.dec file which
+is essentially an unlinked and not yet located in memory, object file).
+Table entry includes a symbol table index with all variables and all code
+entry routines, as well as all dependent symbols (imports) with some
+reference to where they would normally come from (default libraries)
 
 END.
