@@ -182,6 +182,13 @@ The MUL and DIV instructions don't have enough space inside their instruction to
 of a second operand (unlike all other LMC instructions), so the B register is used for the 
 second operand.
 
+A lot of work has just been done to move all optional extensions into separate modules.
+This is so that the core simulator assembler and disassembler are as true to the original
+LMC architecture as possible. I have not documented the extension mechanism yet (but will do 
+soon), as this means that the MUL and DIV features can be turned on and off, and also that
+students can extend the architecture and the instruction set in a clean way themselves
+if they want to add new features.
+
 I am looking at possibility of writing a librarian and a linker, so that the multiply and divide
 routines could be written by children, and then put into a library and linked into the code.
 This would actually be better than using extended instructions, as the multiply routine is
