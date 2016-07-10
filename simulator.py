@@ -138,7 +138,7 @@ def execute(operator, operand, acc):
 			#??update_flags(operand)
 
 	elif operator == instruction.IO: # 9xx
-		if operand == instruction.IO_IN: # 901
+		if operand == instruction.getOperand(instruction.INP): # 901
 			if not STDIN_REDIRECTED:
 				sys.stdout.write("in? ")
 			value = io.read()
@@ -149,7 +149,7 @@ def execute(operator, operand, acc):
 			acc = truncate(value)
 			update_flags(acc)
 
-		elif operand == instruction.IO_OUT: # 902
+		elif operand == instruction.getOperand(instruction.OUT): # 902
 			if not STDOUT_REDIRECTED:
 				sys.stdout.write("out=")
 			io.write(acc)

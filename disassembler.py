@@ -4,6 +4,12 @@
 
 import instruction
 
+# Extension mechanism
+import hltinstrs
+import ioinstrs
+import extarch
+import extinstrs
+
 
 def processMemory(memory):
 	"""Dump all instructions in a memory region"""

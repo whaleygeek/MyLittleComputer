@@ -3,46 +3,6 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 NEXT STEPS
 
-Refactor out all additions from the standard LMC architecture, into separate
-modules, and try to make them as optional as possible.
-
-It could be then used as part of an exercise to write these extensions
-yourself.
-
-extarch.py - extended architecture
-extinstrs.py - extended instructions
-hltinstrs.py - halt instructions
-ioinstrs.py  - io instructions
-
-These would need to use runtime modification of the instruction.py tables
-in order to register their new instructions, so that instruction.py is
-not polluted with non LMC code from the start.
-
-
---------------------------------------------------------------------------------
-
-ARCHITECTURAL ADDITIONS
-
-The b_reg and b_flag is an architectural extension that does pollute the
-clean LMC simulator a bit. Not quite sure yet how we could extract this
-in a way that it could be turned on and off - it would be nice to be able
-to put this in an extra module that is optional, so that the base machine
-files without extension modules is *just* LMC with nothing extra added
-(apart from the hooks for extensions).
-
-Ignoring the extra instructions like USB and MUL DIV that use the b_reg,
-the only part of the core architecture that is affected is the definition
-of b_reg and b_flag, and the additions to the read and writeback parts
-of simulator.cycle()
-
-It looks like all we need to do is wrap a decorator around simulator.execute()
-that does the b_flag switching - so we could use something like this:
-
-import extarch # extarch.py for extended architecture
-
-@extarch.bflag
-def execute(operator, operand, acc):
-
 
 --------------------------------------------------------------------------------
 
@@ -85,12 +45,6 @@ HALT CODES
 HLT 00       = HLT
 HLT01..99    = user halts, for os calls
 
-OS calls could be done via an oscall module, that sub decodes all the HLT
-codes and applys a call and return parameter convention, mapping each code
-to an OS call of some kind.
-
-This could be hltinstrs.py
-
 
 --------------------------------------------------------------------------------
 
@@ -100,13 +54,6 @@ IO 01          901           INP
 IO 02          902           OUT
 IO 00,H03..H99 900,903..999  reserved for other hardware access such as GPIO
 
-we already have an io module for input and output of numbers in any base.
-There might be a separate module or set of modules that handles all IO hardware
-access instructions, sub decodes, implies calling parameters and return results,
-and imports necessary lower level modules to implement IO extension instructions
-like GPIO.
-
-This could be ioinstrs.py
 
 --------------------------------------------------------------------------------
 

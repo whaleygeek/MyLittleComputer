@@ -21,24 +21,8 @@ INP = 901
 OUT = 902
 
 
-# Opcodes that will be used to extend the machine architecture
-# in a compatible way without breaking existing programs
-
-# User Extension opcodes
-# Probably useful for defining new custom instructions
-##TODO: Runtime register these in extinstrs.py
-EXT    = 400 # Extension instruction
-USB    = 401 # use B register
-MUL    = 402 # multiply A and B
-DIV    = 403 # divide A and B
-REM    = 404 # divide A and B and keep remainder
-# 00, 05..99 not used yet
-
 # IO opcodes, probably useful for defining new I/O instructions
 IO     = 900 # Various I/O including INP and OUT
-IO_IN  = 01
-IO_OUT = 02
-# 00, 03..99 not used yet
 
 # HLT instructions, probably useful for OS calls
 # Note special case of 000 is TRAP 00 = HLT.
@@ -54,9 +38,7 @@ DAT    = 1000
 
 
 # useful lookup table for string versions of operands
-
-##TODO: Runtime register USB MUL DIV in extinstrs.py
-no_operands = [INP, OUT, EXT, IO, USB, MUL, DIV, HLT]
+no_operands = [INP, OUT, IO, HLT]
 
 operators = {
 	ADD: "ADD",
@@ -67,15 +49,10 @@ operators = {
 	BRZ: "BRZ",
 	BRP: "BRP",
 
-	##TODO: Runtime register these in extinstrs.py
-	EXT: "EXT",    # user extensions #will collide with X00 extension
-    USB: "USB",
-	MUL: "MUL",
-	DIV: "DIV",
-
 	# HARDWARE I/O
 	##TODO: Runtime register IO in ioinstrs.py
 	IO:  "IO", # will collide with H00
+	
 	INP: "INP",  # this is really H 1
 	OUT: "OUT",  # this is really H 2
 

@@ -7,6 +7,13 @@ import instruction
 import symtab
 import io
 
+# Extension mechanism
+import hltinstrs
+import ioinstrs
+import extarch
+import extinstrs
+
+
 # Set to True if you want addresses prefixed into the output file
 PREFIX_ADDR = False
 
