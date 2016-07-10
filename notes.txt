@@ -1,44 +1,36 @@
 DESIGN NOTES
 
-MULTIPLY AND DIVIDE NOW IMPLEMENTED
-
-X instructions used
-
-Would be nice if we could extend the Instruction.py so that MUL and DIV could
-be used instead of X 01 and X 02
-
-
-
 --------------------------------------------------------------------------------
 
 USER EXTENDED INSTRUCTIONS X00-X99
 
-X00 USB   - use B register instead of A in next instruction only
-X01 MUL   - multiply    A=A*B
-X02 DIV   - divide      A=A/B
-X03 REM   - remainder   A=A%B
-X04 SHL   - shift left  A >>= 1
-X05 SHR   - shift right A <<= 1
-X06 ASL   - arithmetic shift left (multiply by two, sign preserved)
-X07 ASR   - arithmetic shift right (divide by two, sign preserved)
-X08..X99  - reserved for other extended instructions
+EXT 01 USB    - use B register instead of A in next instruction only
+EXT 02 MUL    - multiply    A=A*B
+EXT 03 DIV    - divide      A=A/B
+-- NOT DONE YET
+EXT 04 REM    - remainder   A=A%B
+EXT 05 SHL    - shift left  A >>= 1
+EXT 06 SHR    - shift right A <<= 1
+EXT 07 ASL    - arithmetic shift left (multiply by two, sign preserved)
+EXT 08 ASR    - arithmetic shift right (divide by two, sign preserved)
+EXT 09..9999  - reserved for other extended instructions
 
 
 --------------------------------------------------------------------------------
 
-TRAP CODES
+HALT CODES
 
-T00       = HLT
-T01-T99   = user traps for os calls)
+HLT 00       = HLT
+HLT01..99    = user halts, for os calls
 
 
 --------------------------------------------------------------------------------
 
 HARDWARE ACCESS (IO)
 
-H01          901          INP
-H02          902          OUT
-H00,H03..H99 900,903..999 reserved for other hardware access such as GPIO
+IO 01          901           INP
+IO 02          902           OUT
+IO 00,H03..H99 900,903..999  reserved for other hardware access such as GPIO
 
 
 --------------------------------------------------------------------------------
