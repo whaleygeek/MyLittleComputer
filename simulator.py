@@ -15,10 +15,10 @@ STDOUT_REDIRECTED = not sys.stdout.isatty()
 
 program_counter   = 0
 accumulator       = 0
-b_reg             = 0
+b_reg             = 0 ##TODO: Refactor extract to extarch.py
 z_flag            = False # zero
 p_flag            = False # positive
-b_flag            = False # use A (if True, use B)
+b_flag            = False # use A (if True, use B) ##TODO: Refactor extract to extarch.py
 halt_flag         = False
 memory            = {}
 
@@ -56,6 +56,7 @@ def cycle():
 	operator, operand = decode(instr)
 
 	## MODIFICATION TO CORE LMC ARCHITECTURE
+	##TODO: Refactor extract into extarch.py as a decorator
 	# If b_flag is set, read and write the B rather than the A
 	if b_flag:
 		acc = b_reg
@@ -68,6 +69,7 @@ def cycle():
 	acc = execute(operator, operand, acc)
 
 	## MODIFICATION TO CORE LMC ARCHITECTURE
+	##TODO: Refactor extract into extarch.py as a decorator
 	# WRITE BACK
 	if b_flag and instr != instruction.USB:
 		b_reg = acc
@@ -105,7 +107,8 @@ def execute(operator, operand, acc):
 	global program_counter, z_flag, p_flag, memory, halt_flag
 
 	if   operator == instruction.HLT: # 0xx
-		execHLTInstr(operand)
+		execHLTInstr(operand) ##TODO: EXTENSIONS
+		# might put HLT 00 handling here, and delegate others to the extension mechanism
 
 	elif operator == instruction.ADD: # 1xx
 		acc += memory[operand]
@@ -123,7 +126,7 @@ def execute(operator, operand, acc):
 		update_flags(acc)
 
 	elif operator == instruction.EXT: # 4xx
-		acc = execExtendedInstr(operand, acc)
+		acc = execExtendedInstr(operand, acc) ##TODO: EXTENSION
 		#Note, it does it's own update_flags if necessary
 		
 	elif operator == instruction.LDA: # 5xx
@@ -164,7 +167,7 @@ def execute(operator, operand, acc):
 			update_flags(acc)
 
 		else: # user defined 9xx instructions
-			execIOInstr(operand)
+			execIOInstr(operand) ##TODO: EXTENSIONS
 
 	else: # all might now be covered above??
 		raise ValueError("Unknown operator:" + str(operator))
@@ -211,11 +214,13 @@ def update_flags(v):
 # the accumulator might be a memory address that stores a block of
 # parameters.
 
-#TODO: Put this in hltinstr.py
+#TODO: Refactor extract into hltinstrs.py
+#but leave HLT (HLT 00) in this module
 
 def execHLTInstr(operand):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
+	##TODO: Move standard HLT 00 handling into execute()
 	global halt_flag
 	# Note that instruction.HLT is HLT 00 (000)
 	if operand == 0:
@@ -225,17 +230,20 @@ def execHLTInstr(operand):
 		# DEFINE TRAP INSTRUCTIONS HERE
 
 
+#TODO: Refactor extract into extinstrs.py
+
 # 5xx instructions are not defined, so these are USER instructions,
 # The whole range from 500 to 599 are free for user use. U + 00
 # to U + 99 can be used to add specific instruction extensions,
 # such as bitwise operators and other useful facilities that would
 # not normally be done with OS calls.
 
-#TODO: Put this in extinstr.py
-
 def execExtendedInstr(operand, acc):
 	"""Execute any user instructions here (instruction.X_xx)"""
 
+	##TODO b_reg and b_flag to be extracted into extarch.py
+	#There should be no reference to b_flag or b_reg in this module,
+	#as it is not core LMC architecture.
 	if   operand == instruction.getOperand(instruction.USB): # Use Breg in next instruction
 		global b_flag
 		b_flag = True # next instr will use B instead of A
@@ -255,6 +263,9 @@ def execExtendedInstr(operand, acc):
 	return acc
 
 
+#TODO: Refactor extract into ioinstrs.py
+# but leave INP and OUT in this module
+
 # 901=INP and 902=OUT, but 900 and 903..999 are not used.
 # These undefined instructions are therefore useful to use to define
 # other types of IO, such as GPO for general purpose output, GPI for
@@ -263,7 +274,6 @@ def execExtendedInstr(operand, acc):
 # they could be done as User instrutions (U) but it's handy to group
 # all the I/O together into a set of instructions.
 
-#TODO: Put this in ioinstr.py
 
 def execIOInstr(operand):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
