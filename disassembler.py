@@ -5,10 +5,7 @@
 import instruction
 
 # Extension mechanism
-import hltinstrs
-import ioinstrs
 import extarch
-import extinstrs
 
 
 def processMemory(memory):

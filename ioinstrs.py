@@ -23,11 +23,12 @@ instruction.registerMnemonic("IO", 900, False)
 # all the I/O together into a set of instructions.
 
 
-def execIOInstr(operand):
+def execIOInstr(operand, acc):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
 
-	raise ValueError("Unknown IO instr:" + str(operand))
+	print("exec IO instr %d" % str(operand))
 	# DEFINE NEW IO INSTRUCTIONS HERE
+	return acc
 
 
 # END

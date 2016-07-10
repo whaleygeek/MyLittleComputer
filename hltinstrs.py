@@ -17,11 +17,13 @@
 # the accumulator might be a memory address that stores a block of
 # parameters.
 
-def execHLTInstr(operand):
+def execHLTInstr(operand, acc):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
-	raise ValueError("Unknown HLT instr:" + str(operand))
+	print("executed HLT %d" % str(operand))
 	# DEFINE USER HLT INSTRUCTIONS HERE
+
+	return acc
 
 
 # END

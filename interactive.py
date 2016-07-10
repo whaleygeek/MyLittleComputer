@@ -3,8 +3,6 @@
 # A simple interactive shell
 
 import instruction
-import assembler
-import disassembler
 import parser
 import simulator
 
@@ -27,7 +25,6 @@ def main():
 		#TODO: Somehow adding b_reg functionality needs to add b display here too?
 		print("  pc:"    + todec(simulator.program_counter)
 			+ " a:"    + todec(simulator.accumulator)
-		    ## + " b:"    + todec(99)
 			+ " z:"    + str(simulator.z_flag)
 			+ " p:"    + str(simulator.p_flag)
 			+ " halt:" + str(simulator.halt_flag))

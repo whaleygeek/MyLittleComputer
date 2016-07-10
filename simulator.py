@@ -8,10 +8,7 @@ import io
 import sys
 
 # Extension mechanism
-import hltinstrs
-import ioinstrs
 import extarch
-import extinstrs
 
 
 BUS_MAX           = 999 # largest value the internal buses can use
@@ -85,7 +82,12 @@ def truncate(v):
 	return v % (BUS_MAX+1)
 
 
-@extarch.bmux
+# Extended architecture features (comment out if you don't want them)
+@extarch.bmux        # Add b_reg multiplexed with accumulator
+@extarch.hlt_instrs  # add user specified HLT instructions
+@extarch.io_instrs   # add user specified IO instructions
+@extarch.ext_instrs  # add user specified EXT instructions
+
 def execute(operator, operand, acc):
 	"""Execute a single instruction, and return new desired accumulator result"""
 
@@ -94,48 +96,33 @@ def execute(operator, operand, acc):
 	if   operator == instruction.HLT: # 0xx
 		if operand == 0: # HLT 00 is actually HLT
 			halt_flag = True
-		#TODO: Could do this optional extension with extarch.hlt
-		else:
-			hltinstrs.execHLTInstr(operand) # EXTENSIONS
 
 	elif operator == instruction.ADD: # 1xx
 		acc += memory[operand]
 		acc = truncate(acc)
-		update_flags(acc)
-		
+
 	elif operator == instruction.SUB: # 2xx
 		acc -= memory[operand]
 		acc = truncate(acc)
-		update_flags(acc)
-		
+
 	elif operator == instruction.STA: # 3xx
 		memory[operand] = acc
 		##trace("m[" + str(operand) + "]=" + str(acc))
-		update_flags(acc)
-
-	#TODO: could do this optional extension with extarch.ext
-	elif operator == instruction.EXT: # 4xx
-		acc = extinstrs.execExtendedInstr(operand, acc) # EXTENSION
-		update_flags(acc)
 
 	elif operator == instruction.LDA: # 5xx
 		acc = memory[operand]
 		##trace("a=m[" + str(operand) + "]")
-		update_flags(acc)
-		
+
 	elif operator == instruction.BRA: # 6xx
 		program_counter = operand
-		#??update_flags(operand)
-		
+
 	elif operator == instruction.BRZ: # 7xx
 		if z_flag:
 			program_counter = operand
-			#??update_flags(operand)
-			
+
 	elif operator == instruction.BRP: # 8xx
 		if p_flag:
 			program_counter = operand
-			#??update_flags(operand)
 
 	elif operator == instruction.IO: # 9xx
 		if operand == instruction.getOperand(instruction.INP): # 901
@@ -147,21 +134,16 @@ def execute(operator, operand, acc):
 			if value < 0 or value > 999:
 				raise ValueError("Out of range value:" + str(value))
 			acc = truncate(value)
-			update_flags(acc)
 
 		elif operand == instruction.getOperand(instruction.OUT): # 902
 			if not STDOUT_REDIRECTED:
 				sys.stdout.write("out=")
 			io.write(acc)
-			update_flags(acc)
 
-		#TODO: Could do this optional extension with extarch.io
-		else: # user defined 9xx instructions
-			ioinstrs.execIOInstr(operand) # EXTENSIONS
-
-	else: # all might now be covered above??
+	else: # unhandled operator
 		raise ValueError("Unknown operator:" + str(operator))
 
+	update_flags(acc)
 	return acc
 
 		
