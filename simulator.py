@@ -101,14 +101,26 @@ def truncate(v):
 	return v % (BUS_MAX+1)
 
 
+#Will probably do all of these as extension decorators, so that even the hooks
+#are external.
+#As this is a feature that most children and teachers won't understand,
+#decoractors will have to be well commented in the extarch.py module so that
+#they can understand how it works.
+##TODO: extarch.execute.bflag
+##TODO: extarch.execute.hltinstrs
+##TODO: extarch.execute.extinstrs
+##TODO: extarch.execute.ioinstrs
+
 def execute(operator, operand, acc):
-	"""Execute a single instruction"""
+	"""Execute a single instruction, and return new desired accumulator result"""
 
 	global program_counter, z_flag, p_flag, memory, halt_flag
 
 	if   operator == instruction.HLT: # 0xx
-		execHLTInstr(operand) ##TODO: EXTENSIONS
-		# might put HLT 00 handling here, and delegate others to the extension mechanism
+		if operand == 0: # HLT 00 is actually HLT
+			halt_flag = True
+		else:
+			execHLTInstr(operand) ##EXTENSIONS
 
 	elif operator == instruction.ADD: # 1xx
 		acc += memory[operand]
@@ -220,14 +232,8 @@ def update_flags(v):
 def execHLTInstr(operand):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
-	##TODO: Move standard HLT 00 handling into execute()
-	global halt_flag
-	# Note that instruction.HLT is HLT 00 (000)
-	if operand == 0:
-		halt_flag = True
-	else:
-		raise ValueError("Unknown HLT instr:" + str(operand))
-		# DEFINE TRAP INSTRUCTIONS HERE
+	raise ValueError("Unknown HLT instr:" + str(operand))
+	# DEFINE USER HLT INSTRUCTIONS HERE
 
 
 #TODO: Refactor extract into extinstrs.py
