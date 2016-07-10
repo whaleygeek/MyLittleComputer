@@ -11,4 +11,19 @@
 # the instruction.py won't need changing)
 
 
+
+# 000 is HLT but 001..099 are undefined. So, by modelling 0xx as a HLT
+# and making HLT mean HLT 00, we can add HLT 01..HLT 99.
+# Halts are useful for adding OS calls, for example, and might take
+# a value in the accumulator to parameterise them, or the value in
+# the accumulator might be a memory address that stores a block of
+# parameters.
+
+def execHLTInstr(operand):
+	"""Execute any halt instructions here (instruction.T_XX)"""
+
+	raise ValueError("Unknown HLT instr:" + str(operand))
+	# DEFINE USER HLT INSTRUCTIONS HERE
+
+
 # END

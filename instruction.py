@@ -26,6 +26,7 @@ OUT = 902
 
 # User Extension opcodes
 # Probably useful for defining new custom instructions
+##TODO: Runtime register these in extinstrs.py
 EXT    = 400 # Extension instruction
 USB    = 401 # use B register
 MUL    = 402 # multiply A and B
@@ -54,6 +55,7 @@ DAT    = 1000
 
 # useful lookup table for string versions of operands
 
+##TODO: Runtime register USB MUL DIV in extinstrs.py
 no_operands = [INP, OUT, EXT, IO, USB, MUL, DIV, HLT]
 
 operators = {
@@ -65,12 +67,14 @@ operators = {
 	BRZ: "BRZ",
 	BRP: "BRP",
 
+	##TODO: Runtime register these in extinstrs.py
 	EXT: "EXT",    # user extensions #will collide with X00 extension
     USB: "USB",
 	MUL: "MUL",
 	DIV: "DIV",
 
 	# HARDWARE I/O
+	##TODO: Runtime register IO in ioinstrs.py
 	IO:  "IO", # will collide with H00
 	INP: "INP",  # this is really H 1
 	OUT: "OUT",  # this is really H 2

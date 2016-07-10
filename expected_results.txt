@@ -54,45 +54,45 @@ HLT
 HLT
 015
 instruction? instr:INP
-  pc:001 a:010 b:000 z:False p:True halt:False
+  pc:001 a:010 z:False p:True halt:False
 instruction? instr:STA 10
-  pc:002 a:010 b:000 z:False p:True halt:False
+  pc:002 a:010 z:False p:True halt:False
 instruction? instr:INP
-  pc:003 a:020 b:000 z:False p:True halt:False
+  pc:003 a:020 z:False p:True halt:False
 instruction? instr:STA 11
-  pc:004 a:020 b:000 z:False p:True halt:False
+  pc:004 a:020 z:False p:True halt:False
 instruction? instr:LDA 10
-  pc:005 a:010 b:000 z:False p:True halt:False
+  pc:005 a:010 z:False p:True halt:False
 instruction? instr:ADD 11
-  pc:006 a:030 b:000 z:False p:True halt:False
+  pc:006 a:030 z:False p:True halt:False
 instruction? instr:STA 12
-  pc:007 a:030 b:000 z:False p:True halt:False
+  pc:007 a:030 z:False p:True halt:False
 instruction? instr:LDA 12
-  pc:008 a:030 b:000 z:False p:True halt:False
+  pc:008 a:030 z:False p:True halt:False
 instruction? instr:OUT
 030
-  pc:009 a:030 b:000 z:False p:True halt:False
+  pc:009 a:030 z:False p:True halt:False
 instruction? instr:HLT
-  pc:010 a:030 b:000 z:False p:True halt:True
+  pc:010 a:030 z:False p:True halt:True
 instruction? instr:INP
-  pc:001 a:002 b:000 z:False p:True halt:False
+  pc:001 a:002 z:False p:True halt:False
 instruction? instr:STA 22
-  pc:002 a:002 b:000 z:False p:True halt:False
+  pc:002 a:002 z:False p:True halt:False
 instruction? instr:INP
-  pc:003 a:003 b:000 z:False p:True halt:False
+  pc:003 a:003 z:False p:True halt:False
 instruction? instr:STA 23
-  pc:004 a:003 b:000 z:False p:True halt:False
+  pc:004 a:003 z:False p:True halt:False
 instruction? instr:USB
-  pc:005 a:003 b:000 z:False p:True halt:False
+  pc:005 a:003 z:False p:True halt:False
 instruction? instr:LDA 22
-  pc:006 a:003 b:002 z:False p:True halt:False
+  pc:006 a:002 z:False p:True halt:False
 instruction? instr:LDA 23
-  pc:007 a:003 b:002 z:False p:True halt:False
+  pc:007 a:003 z:False p:True halt:False
 instruction? instr:MUL
-  pc:008 a:006 b:002 z:False p:True halt:False
+  pc:008 a:006 z:False p:True halt:False
 instruction? instr:OUT
 006
-  pc:009 a:006 b:002 z:False p:True halt:False
+  pc:009 a:006 z:False p:True halt:False
 instruction? instr:HLT
-  pc:010 a:006 b:002 z:False p:True halt:True
-006
+  pc:010 a:006 z:False p:True halt:True
+001
