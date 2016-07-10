@@ -65,7 +65,7 @@ def cycle():
 	acc = execute(operator, operand, acc)
 
 	# WRITE BACK
-	if b_flag:
+	if b_flag and instr != instruction.USB:
 		b_reg = acc
 		b_flag = False
 	else:
@@ -117,7 +117,7 @@ def execute(operator, operand, acc):
 		##trace("m[" + str(operand) + "]=" + str(acc))
 		update_flags(acc)
 
-	elif operator == instruction.X: # 4xx
+	elif operator == instruction.EXT: # 4xx
 		acc = execExtendedInstr(operand, acc)
 		#Note, it does it's own update_flags if necessary
 		
@@ -140,8 +140,8 @@ def execute(operator, operand, acc):
 			program_counter = operand
 			#??update_flags(operand)
 
-	elif operator == instruction.H: # 9xx
-		if operand == instruction.H_IN: # 901
+	elif operator == instruction.IO: # 9xx
+		if operand == instruction.IO_IN: # 901
 			if not STDIN_REDIRECTED:
 				sys.stdout.write("in? ")
 			value = io.read()
@@ -152,14 +152,14 @@ def execute(operator, operand, acc):
 			acc = truncate(value)
 			update_flags(acc)
 
-		elif operand == instruction.H_OUT: # 902
+		elif operand == instruction.IO_OUT: # 902
 			if not STDOUT_REDIRECTED:
 				sys.stdout.write("out=")
 			io.write(acc)
 			update_flags(acc)
 
 		else: # user defined 9xx instructions
-			execHardwareInstr(operand)
+			execIOInstr(operand)
 
 	else: # all might now be covered above??
 		raise ValueError("Unknown operator:" + str(operator))
@@ -228,15 +228,15 @@ def execTrapInstr(operand):
 def execExtendedInstr(operand, acc):
 	"""Execute any user instructions here (instruction.X_xx)"""
 
-	if   operand == 00: # U 00 USB (Use B in next instruction)
+	if   operand == instruction.getOperand(instruction.USB): # Use Breg in next instruction
 		global b_flag
 		b_flag = True # next instr will use B instead of A
 
-	elif operand == 01: # U 01  MUL
+	elif operand == instruction.getOperand(instruction.MUL): # multiply
 		acc = b_reg * acc
 		update_flags(acc)
 
-	elif operand == 02: # U 02  DIV
+	elif operand == instruction.getOperand(instruction.DIV): # divide
 		##trace("acc %d breg %d" % (acc, b_reg))
 		acc = b_reg / acc
 		update_flags(acc)
@@ -255,7 +255,7 @@ def execExtendedInstr(operand, acc):
 # they could be done as User instrutions (U) but it's handy to group
 # all the I/O together into a set of instructions.
 
-def execHardwareInstr(operand):
+def execIOInstr(operand):
 	"""Execute any user IO instructions here (instruction.IO_xx)"""
 
 	raise ValueError("Unknown IO instr:" + str(operand))

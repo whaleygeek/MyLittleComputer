@@ -14,20 +14,22 @@ def todec(n):
 simulator.memory = [0 for i in range(99)]
 
 def main():
-	while not simulator.halt:
+	while not simulator.halt_flag:
 		line = raw_input("instruction? ")
 
 		label, operator, operand, labelref = parser.parseLine(line)
 		instr = instruction.build(operator, operand)
+		print("instr:" + instruction.toString(instr))
 
 		simulator.memory[simulator.program_counter] = instr
 		simulator.cycle()
 
-		print("pc:"    + todec(simulator.program_counter)
+		print("  pc:"    + todec(simulator.program_counter)
 			+ " a:"    + todec(simulator.accumulator)
+		    + " b:"    + todec(simulator.b_reg)
 			+ " z:"    + str(simulator.z_flag)
 			+ " p:"    + str(simulator.p_flag)
-			+ " halt:" + str(simulator.halt))
+			+ " halt:" + str(simulator.halt_flag))
 
 
 if __name__ == "__main__":

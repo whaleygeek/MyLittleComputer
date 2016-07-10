@@ -1,47 +1,12 @@
 DESIGN NOTES
 
-MULTIPLY AND DIVIDE INSTRUCTION EXTENSIONS
-Adding multiply and divide instructions for the * and / in the compiler
+MULTIPLY AND DIVIDE NOW IMPLEMENTED
 
-The problem is, there is not enough instruction space to add a MUL and a DIV instruction
-as well as an operand for it.
+X instructions used
 
-The obvious way is for it to be an operand-less instruction, so that other operandless
-instructions can be defined.
+Would be nice if we could extend the Instruction.py so that MUL and DIV could
+be used instead of X 01 and X 02
 
-If we store data in a memory location, there is no way to transfer the address of that location
-forward to the simulator with a raw .dec file unless there is an associated symbol table.
-
-But unlike ADD and SUB which have instruction space for an operand, there is now way
-to get the second operand to them.
-
-
-So, we could define a B register for the second operand
-But there is not enough space for both a LDB and STB in the instruction set.
-
-
-We could do an instruction prefix like the Z80 does
-i.e. prefix with U00 (USEB) and the next instruction only uses the B register
-instead of the A register. That will allow us to load and store two operands,
-and then use a user instruction with no operands for MUL and DIV. The result
-will always conveniently be put into the A register.
-
-So, MUL becomes
-
-X00 (USB)
-LDA const1
-LDA const2
-X01 (MUL)
-STA result
-OUT
-HLT
-
-But how does MUL and DIV actually get executed by the simulator?
-X01 (MUL) is directed to a piece of user code.
-This user code decodes the 01 and redirects to a multiply routine
-The multiply routine performs A=A*B and updates flags
-
-Same for other instructions.
 
 
 --------------------------------------------------------------------------------

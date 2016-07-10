@@ -1,0 +1,98 @@
+INP
+STA 18
+INP
+STA 19
+LDA 18
+ADD 19
+STA 20
+LDA 18
+SUB 19
+STA 21
+LDA 20
+OUT
+LDA 21
+OUT
+BRA 14
+BRZ 15
+BRP 16
+IO
+IO
+INP
+OUT
+IO 03
+IO 04
+IO 05
+HLT
+HLT
+HLT 01
+HLT 02
+HLT 03
+HLT 01
+HLT 02
+HLT 03
+HLT 04
+INP
+STA 19
+INP
+STA 20
+STA 17
+LDA 17
+BRZ 13
+SUB 16
+STA 17
+LDA 19
+ADD 18
+STA 18
+BRA 05
+LDA 18
+OUT
+HLT
+HLT 01
+HLT
+HLT
+HLT
+HLT
+015
+instruction? instr:INP
+  pc:001 a:010 b:000 z:False p:True halt:False
+instruction? instr:STA 10
+  pc:002 a:010 b:000 z:False p:True halt:False
+instruction? instr:INP
+  pc:003 a:020 b:000 z:False p:True halt:False
+instruction? instr:STA 11
+  pc:004 a:020 b:000 z:False p:True halt:False
+instruction? instr:LDA 10
+  pc:005 a:010 b:000 z:False p:True halt:False
+instruction? instr:ADD 11
+  pc:006 a:030 b:000 z:False p:True halt:False
+instruction? instr:STA 12
+  pc:007 a:030 b:000 z:False p:True halt:False
+instruction? instr:LDA 12
+  pc:008 a:030 b:000 z:False p:True halt:False
+instruction? instr:OUT
+030
+  pc:009 a:030 b:000 z:False p:True halt:False
+instruction? instr:HLT
+  pc:010 a:030 b:000 z:False p:True halt:True
+instruction? instr:INP
+  pc:001 a:002 b:000 z:False p:True halt:False
+instruction? instr:STA 22
+  pc:002 a:002 b:000 z:False p:True halt:False
+instruction? instr:INP
+  pc:003 a:003 b:000 z:False p:True halt:False
+instruction? instr:STA 23
+  pc:004 a:003 b:000 z:False p:True halt:False
+instruction? instr:USB
+  pc:005 a:003 b:000 z:False p:True halt:False
+instruction? instr:LDA 22
+  pc:006 a:003 b:002 z:False p:True halt:False
+instruction? instr:LDA 23
+  pc:007 a:003 b:002 z:False p:True halt:False
+instruction? instr:MUL
+  pc:008 a:006 b:002 z:False p:True halt:False
+instruction? instr:OUT
+006
+  pc:009 a:006 b:002 z:False p:True halt:False
+instruction? instr:HLT
+  pc:010 a:006 b:002 z:False p:True halt:True
+006

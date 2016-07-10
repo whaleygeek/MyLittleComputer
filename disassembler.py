@@ -44,7 +44,7 @@ def writeFile(source, filename, startaddr=0):
 	size = len(source)
 	
 	for addr in range(startaddr, startaddr+size):
-		f.write(source[addr].zfill(3) + "\n")
+		f.write(source[addr] + "\n")
 	f.close()
 
 

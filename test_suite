@@ -1,0 +1,158 @@
+#! /bin/bash
+
+rm actual_results.txt
+
+
+echo ---- assemble/disassemble test.lmc
+
+cat <<END > test.lmc
+INP
+STA 18
+INP
+STA 19
+LDA 18
+ADD 19
+STA 20
+LDA 18
+SUB 19
+STA 21
+LDA 20
+OUT
+LDA 21
+OUT
+BRA 14
+BRZ 15
+BRP 16
+IO
+IO 00
+IO 01
+IO 02
+IO 03
+IO 04
+IO 05
+HLT
+HLT 00
+HLT 01
+HLT 02
+HLT 03
+DAT 01
+DAT 02
+DAT 03
+DAT 04
+END
+
+python assembler.py test.lmc test.out
+python disassembler.py test.out test.dis
+cat test.dis >> actual_results.txt
+
+
+echo ---- assemble/disassemble multiply.lmc
+
+cat <<END > multiply.lmc
+INP
+STA FIRST
+INP
+STA SECOND
+STA COUNT
+
+MULT LDA COUNT
+BRZ MULTEND
+SUB ONE
+STA COUNT
+LDA FIRST
+ADD TOTAL
+STA TOTAL
+BRA MULT
+MULTEND LDA TOTAL
+
+OUT
+HLT
+
+ONE DAT 001
+COUNT DAT
+TOTAL DAT
+FIRST DAT
+SECOND DAT
+END
+
+
+python assembler.py multiply.lmc multiply.out
+python disassembler.py multiply.out multiply.dis
+cat multiply.dis >> actual_results.txt
+
+
+
+echo ---- simulate multiply.lmc
+
+python simulator.py multiply.out <<END > multiply.run
+5
+3
+END
+cat multiply.run >> actual_results.txt
+
+
+
+echo ---- interactive session to add two numbers
+
+python interactive.py <<END > interactive.run
+INP
+10
+STA 010
+INP
+20
+STA 011
+LDA 010
+ADD 011
+STA 012
+LDA 012
+OUT
+HLT
+END
+
+cat interactive.run >> actual_results.txt
+
+
+echo ---- new USB, MUL and DIV instruction mnemonics
+
+python interactive.py <<END > interactive2.run
+INP
+2
+STA 022
+INP
+3
+STA 023
+USB
+LDA 022
+LDA 023
+MUL
+OUT
+HLT
+END
+
+cat interactive2.run >> actual_results.txt
+
+
+echo ---- Test compiler
+
+
+cat > math.e <<END
+(((2+3)-1)*3)/2;
+END
+
+python compiler.py < math.e > math.lmc
+python assembler.py math.lmc math.dec
+python disassembler.py math.dec math.dis
+python simulator.py math.dec > math.run
+cat math.run >> actual_results.txt
+
+
+
+echo ---- Comparing Results
+diff expected_results.txt actual_results.txt
+
+
+
+
+
+
+

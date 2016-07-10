@@ -26,20 +26,24 @@ OUT = 902
 
 # User Extension opcodes
 # Probably useful for defining new custom instructions
-X      = 400 # Unknown/User
-# 00..99 not used yet
+EXT    = 400 # Extension instruction
+USB    = 401 # use B register
+MUL    = 402 # multiply A and B
+DIV    = 403 # divide A and B
+REM    = 404 # divide A and B and keep remainder
+# 00, 05..99 not used yet
 
 # IO opcodes, probably useful for defining new I/O instructions
-H     = 900 # Various I/O including INP and OUT
-H_IN  = 01
-H_OUT = 02
+IO     = 900 # Various I/O including INP and OUT
+IO_IN  = 01
+IO_OUT = 02
 # 00, 03..99 not used yet
 
-# TRAP instructions, probably useful for OS calls
+# HLT instructions, probably useful for OS calls
 # Note special case of 000 is TRAP 00 = HLT.
 # T00..T99 are traps
 # 01..99 not used yet
-T = 000
+HLT = 000
 
 # Pseudo opcodes, used by assembler only, not by LMC architecture
 # An out of range opcode is used to signify these.
@@ -50,23 +54,29 @@ DAT    = 1000
 
 # useful lookup table for string versions of operands
 
-no_operands = [HLT, INP, OUT]
+no_operands = [INP, OUT, EXT, IO, USB, MUL, DIV, HLT]
 
 operators = {
-	HLT: "HLT",  # this is really T 00
 	ADD: "ADD",
 	SUB: "SUB",
 	STA: "STA",
-	X:   "X",    # user extensions
 	LDA: "LDA",
 	BRA: "BRA",
 	BRZ: "BRZ",
 	BRP: "BRP",
+
+	EXT: "EXT",    # user extensions #will collide with X00 extension
+    USB: "USB",
+	MUL: "MUL",
+	DIV: "DIV",
+
+	# HARDWARE I/O
+	IO:  "IO", # will collide with H00
 	INP: "INP",  # this is really H 1
 	OUT: "OUT",  # this is really H 2
 
-	# HARDWARE I/O
-	H:  "H",
+	# Halts
+	HLT: "HLT",  # this is really HLT 00
 
 	# PSEUDO
 	DAT: "DAT"
@@ -165,8 +175,7 @@ def toString(instr):
 	result = getOperatorString(instr)
 	if has_operand(instr):
 		operand = getOperand(instr)
-		result = result + " " + str(operand).zfill(3) ## might need to change for binary machine
-
+		result = result + " " + str(operand).zfill(2) ## might need to change for binary machine
 	return result
 
 
