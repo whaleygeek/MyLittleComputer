@@ -100,7 +100,7 @@ def execute(operator, operand, acc):
 	global program_counter, z_flag, p_flag, memory, halt_flag
 
 	if   operator == instruction.HLT: # 0xx
-		execTrapInstr(operand)
+		execHLTInstr(operand)
 
 	elif operator == instruction.ADD: # 1xx
 		acc += memory[operand]
@@ -206,7 +206,7 @@ def update_flags(v):
 # the accumulator might be a memory address that stores a block of
 # parameters.
 
-def execTrapInstr(operand):
+def execHLTInstr(operand):
 	"""Execute any halt instructions here (instruction.T_XX)"""
 
 	global halt_flag
@@ -242,7 +242,7 @@ def execExtendedInstr(operand, acc):
 		update_flags(acc)
 
 	else:
-		raise ValueError("Unknown X instr:" + str(operand))
+		raise ValueError("Unknown EXT instr:" + str(operand))
 
 	return acc
 
