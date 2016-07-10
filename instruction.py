@@ -50,7 +50,21 @@ def trace(msg):
 	print(str(msg))
 
 
-#TODO: Add registerMnemonic(name, code, operands=False)
+def registerMnemonic(name, code, hasOperands=False):
+	"""Register a new Mnemonic in the instruction tables"""
+
+	# Define the constant (e.g. instruction.XXX)
+	import sys
+	me = sys.modules[__name__]
+	setattr(me, name, code)
+
+	# Add the name into the table (e.g. XXX: "XXX"
+	operators[code] = name
+
+	# If appropriate, flag that it has no operands
+	if not hasOperands:
+		global no_operands
+		no_operands += [code]
 
 
 def reverseLookup(mymap, value):

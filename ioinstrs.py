@@ -9,12 +9,7 @@ import instruction
 # see the example in extinstrs.py to see how to do it in a way that
 # does not pollute instruction.py with optional features.
 
-# IO opcodes, probably useful for defining new I/O instructions
-instruction.IO     = 900 # Various I/O including INP and OUT
-
-instruction.no_operands += [instruction.IO]
-
-instruction.operators[instruction.IO] =  "IO"
+instruction.registerMnemonic("IO", 900, False)
 
 
 # INP and OUT are already handled in simulator.py, and never delegated here.

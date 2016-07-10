@@ -10,20 +10,10 @@ import instruction
 # with their proper mnemonic names, but by runtime registering them int
 # does not pollute instruction.py with extended functionality
 
-# Define numeric values
-instruction.EXT    = 400 # Extension instruction
-instruction.USB    = 401 # use B register
-instruction.MUL    = 402 # multiply A and B
-instruction.DIV    = 403 # divide A and B
-## 00, 05..99 not used yet
-
-instruction.no_operands += [instruction.EXT, instruction.USB, instruction.MUL, instruction.DIV]
-
-# Define string values
-instruction.operators[instruction.EXT] = "EXT"
-instruction.operators[instruction.USB] = "USB"
-instruction.operators[instruction.MUL] = "MUL"
-instruction.operators[instruction.DIV] = "DIV"
+instruction.registerMnemonic("EXT", 400, False)
+instruction.registerMnemonic("USB", 401, False)
+instruction.registerMnemonic("MUL", 402, False)
+instruction.registerMnemonic("DIV", 403, False)
 
 
 def execExtendedInstr(operand, acc):

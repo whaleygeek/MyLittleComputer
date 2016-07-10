@@ -3,12 +3,14 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 NEXT STEPS
 
-Add helper functions to instruction.py to make it easier to runtime register
-new mnemonics in the tables. At the moment this is hand-patched in the
-extended modules, but that does break the abstraction of the instruction.py
-and it would be cleaner to have a routine that registers things on your
-behalf.
+- write a GPIO abstraction for Raspberry Pi (and anyio)
+- Try to define some simple OS calls
+- Add some more instructions, like Remainder shifts and rotates
+- Document the extension mechanism separately
 
+- Look into BINARY and HEXADECIMAL modes
+- see if we can extend the bus width to an arbitrary large number
+  (will need logic on the zfill() calls)
 
 --------------------------------------------------------------------------------
 
