@@ -250,9 +250,7 @@ def match(t):
         error("match:expected " + str(t) + " got:" + str(lookahead))
 
 
-#----- EMITTER ----------------------------------------------------------------
-#
-# Generate code based on the parse tree.
+#----- TEMPORARIES AND CONSTANTS TABLE MANAGEMENT -----------------------------
 
 # STATE
 
@@ -260,7 +258,6 @@ const_used  = []
 tmp_stack   = []
 used_tmp    = {}
 stack       = []
-outbuf      = []
 
 
 def maketmp(name):
@@ -308,13 +305,13 @@ def isconst(name):
     return name.startswith("const")
 
 
-special_reg = []
+##special_reg = []
 
-def getreg(name):
-    """Get the address of a special register, create on first use"""
-    if not name in special_reg:
-        special_reg.append(name)
-    return name
+##def getreg(name):
+##    """Get the address of a special register, create on first use"""
+##    if not name in special_reg:
+##        special_reg.append(name)
+##    return name
 
 
 def newtmp():
@@ -378,6 +375,12 @@ def poptop():
     return top
 
 
+#----- EMITTER ----------------------------------------------------------------
+#
+# Generate code based on the parse tree.
+
+outbuf      = []
+
 def emit(t, tval=None):
     """Emit code for this token"""
 
@@ -437,8 +440,6 @@ def emit(t, tval=None):
     #    outbuf.append(tac)
 
 
-
-
 #----- TAC TRANSFORMER --------------------------------------------------------------
 #
 # Transforms TAC (three address code) into the machine architecture (accumulator code)
@@ -479,28 +480,11 @@ def gen_mul(op1, op2, res):
     # before we could link in a runtime library.
 
     # MUL op1, op2->res becomes:
-    # newtmp(mult_counter)
-    # newtmp(mult_result)
-    # newconst(zero, 0)
-    # newconst(one, 1)
-    #
-    # LDA op1
-    # STA mult_counter
-    # LDA zero
-    # STA mult_result
-    # mult_loop LDA mult_counter
-    # BRZ mult_done
-    # SUB one
-    # STA mult_counter
-    # LDA op2
-    # ADD mult_result
-    # STA mult_result
-    # BRA mult_loop
-    # mult_done
-    #
-    # result(mult_result)
-    # deltmp(mult_count)
-    # deltmp(mult_result)
+    #   LDA op2
+    #   USB
+    #   LDA op1
+    #   MUL
+    #   STA res
 
     ac = [
         ["LDA", op2],
@@ -520,6 +504,13 @@ def gen_div(op1, op2, res):
     # as long as the address of the multiply routine was known.
     # However, this requires us to write the librarian.py and linker.py
     # before we could link in a runtime library.
+
+    # DIV op1, op2->res becomes:
+    #   LDA op2
+    #   USB
+    #   LDA op1
+    #   DIV
+    #   STA res
 
     ac = [
         ["LDA", op2],
@@ -658,13 +649,13 @@ def main():
     for t in used_tmp:
         print(maketmp(t) + " DAT")
 
-    # Allocate space for special registers
-    for s in special_reg:
-        print(s + " DAT")
+    ## Allocate space for special registers
+    ##for s in special_reg:
+    ##    print(s + " DAT")
 
 
 if __name__ == "__main__":
-	## import sys
+    ## import sys
 	## IN_NAME = sys.argv[1] #TODO if -  or not present, use stdin
 	## OUT_NAME = sys.argv[2] #TODO if - or not present, use stdout
 

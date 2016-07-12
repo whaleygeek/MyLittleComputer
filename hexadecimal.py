@@ -21,3 +21,5 @@ def write(number, width=DEFAULT_WIDTH, file=None):
     else:
         file.write(v)
         file.write('\n')
+
+# END

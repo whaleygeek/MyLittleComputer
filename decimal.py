@@ -61,6 +61,4 @@ def write(number, width=None, file=None):
         file.write(str(number).zfill(width) + "\n")
 
 
-
-
 # END

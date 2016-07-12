@@ -34,4 +34,5 @@ def execExtendedInstr(operand, acc):
 
 	return acc
 
+
 # END

@@ -31,5 +31,6 @@ def showmem(memory, start=0, end=None):
     for addr in range(start, end):
         print(str(addr) + " " + str(memory[addr]))
 
+
 # END
 
