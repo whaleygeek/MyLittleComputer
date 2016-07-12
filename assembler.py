@@ -77,12 +77,15 @@ def main():
 	import sys
 	IN_NAME = sys.argv[1] #TODO if - or not present, use stdin
 	OUT_NAME = sys.argv[2] #TODO if - of not present, use stdout
+	SYM_NAME = OUT_NAME + ".sym"
 
 	m = parse(IN_NAME)
 	symtab.fixup(m)
 
-	##symtab.dumpLabels()
-	##symtab.dumpFixups()
+	sym_f = open(SYM_NAME, "w")
+	symtab.dumpLabels(sym_f)
+	symtab.dumpFixups(sym_f)
+	sym_f.close()
 
 	##loader.showmem(m)
 

@@ -73,20 +73,28 @@ def fixup(memory):
         memory[refaddr] = instr2
 
 
-def dumpLabels():
+def dumpLabels(f=None):
     """Dump the whole symbol table to stdout"""
 
-    print("LABELS:")
+    if f==None:
+        import sys
+        f = sys.stdout
+
+    f.write("LABELS:\n")
     for label in defines:
-        print("  " + label + ":" + str(defines[label]))
+        f.write("  " + label + ":" + str(defines[label]) + "\n")
 
 
-def dumpFixups():
+def dumpFixups(f=None):
     """Dump all fixups in the symbol table to stdout"""
 
-    print("FIXUPS:")
+    if f==None:
+        import sys
+        f = sys.stdout
+
+    f.write("FIXUPS:\n")
     for refaddr in fixups:
-        print("  " + str(refaddr) + ":" + fixups[refaddr])
+        f.write("  " + str(refaddr) + ":" + fixups[refaddr] + "\n")
 
 
 # END

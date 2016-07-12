@@ -3,6 +3,8 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 NEXT STEPS
 
+- resolve discrepancies in command line arguments
+
 - write a GPIO abstraction for Raspberry Pi (and anyio)
 - Try to define some simple OS calls
 - Add some more instructions, like Remainder shifts and rotates
