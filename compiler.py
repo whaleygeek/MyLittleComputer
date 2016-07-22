@@ -35,6 +35,7 @@ def trace(msg):
     pass #print("# " + str(msg))
 
 
+#===== FRONT END ==============================================================
 #----- ERROR HANDLING ---------------------------------------------------------
 
 def error(reason=None):
@@ -92,18 +93,13 @@ def isalnum(ch):
 #   *
 #   /
 #   ;
+#   a-zA-Z (single character is a variable name, case insensitive)
 
-# SCANNER STATE
+# Tokens
 
 CONST       = 256
 EOLN        = 257
 VAR         = 258
-
-inbuf       = None
-lookahead   = None
-lineno      = 0
-pos         = 0
-
 
 def tokname(t):
     """Get the name of this token number"""
@@ -113,9 +109,21 @@ def tokname(t):
         return "CONST"
     elif t == EOLN:
         return "EOLN"
+    elif t == "VAR":
+        return "VAR"
     else:
         return t
 
+
+# SCANNER STATE
+
+inbuf       = None
+lookahead   = None
+lineno      = 0
+pos         = 0
+
+
+# Stream management
 
 def get():
     """Get the next character in the input stream"""
@@ -138,6 +146,8 @@ def unget(ch):
         raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
 
 
+# The actual scanner/lexer
+
 def lexer():
     """The lexical analyser driver that identifies tokens"""
 
@@ -146,8 +156,10 @@ def lexer():
         t = get()
         if t == ' ' or t == '\t':
             pass
+
         elif t == '\n':
             lineno += 1
+
         elif isdigit(t):
             tokenval = ord(t) - ord('0')
             t = get()
@@ -157,12 +169,15 @@ def lexer():
             unget(t)
             #trace("lexer:CONST")
             return CONST
+
         elif t == None:
             return EOLN
+
         elif isalpha(t):
             t = t.upper()
             tokenval = t
             return VAR
+
         else:
             tokenval = None
             #trace("lexer:" + str(t))
@@ -260,27 +275,38 @@ def match(t):
         error("match:expected " + str(t) + " got:" + str(lookahead))
 
 
-#----- TEMPORARIES AND CONSTANTS TABLE MANAGEMENT -----------------------------
+#----- TEMPORARIES, CONSTANTS, VARIABLES, ABSTRACT MACHINE STACK --------------
 
 # STATE
 
 const_used  = []
 var_used    = []
 tmp_stack   = []
-used_tmp    = {}
+tmp_used    = {}
 stack       = []
 
 
-def maketmp(name):
-    """Make a tmp variable name"""
+# Stack
 
-    return "tmp" + str(name)
+def poptop():
+    """Pop the top item off of the parse stack"""
+
+    top = stack.pop()
+    trace("poptop:" + str(top))
+    if istmp(top):
+        tmp = tmp_stack.pop()
+        trace("top popped:" + str(top) + " tmp stack popped:" + str(tmp))
+    return top
 
 
-def makeconst(name):
-    """Make a constant name"""
+def pushtmp(tmp):
+    """Push a tmp variable on the stack"""
 
-    return "const" + str(name)
+    #Also remember how many times it has been used
+    trace("pushtmp:" + str(tmp))
+    usetmp(tmp)
+    stack.append(maketmp(tmp))
+    trace("stack:" + str(stack))
 
 
 def pushconst(value):
@@ -294,12 +320,6 @@ def pushconst(value):
     trace("stack:" + str(stack))
 
 
-def makevar(name):
-    """Make a variable name"""
-
-    return "var" + str(name)
-
-
 def pushvar(varname):
     """push a variable onto the stack, work out it's name first"""
 
@@ -311,15 +331,7 @@ def pushvar(varname):
     trace("stack:" + str(stack))
 
 
-def pushtmp(tmp):
-    """Push a tmp variable on the stack"""
-
-    #Also remember how many times it has been used
-    trace("pushtmp:" + str(tmp))
-    usetmp(tmp)
-    stack.append(maketmp(tmp))
-    trace("stack:" + str(stack))
-
+# temporaries (TMP)
 
 def istmp(name):
     """Is this a name of a tmp variable?"""
@@ -327,25 +339,10 @@ def istmp(name):
     return name.startswith("tmp")
 
 
-def isconst(name):
-    """Is this the name of a const?"""
+def maketmp(name):
+    """Make a tmp variable name"""
 
-    return name.startswith("const")
-
-
-def isvar(name):
-    """Is thsi the name of a var?"""
-
-    return name.startswith("var")
-
-
-##special_reg = []
-
-##def getreg(name):
-##    """Get the address of a special register, create on first use"""
-##    if not name in special_reg:
-##        special_reg.append(name)
-##    return name
+    return "tmp" + str(name)
 
 
 def newtmp():
@@ -354,6 +351,53 @@ def newtmp():
     tmp = len(tmp_stack)
     tmp_stack.append(tmp)
     return tmp
+
+
+def usetmp(tmp):
+    """Mark this tmp variable as used"""
+
+    trace("#usetmp:" + str(tmp))
+    if type(tmp) == str:
+        if tmp.startswith("tmp"):
+          tmp = int(tmp[3:])
+
+    if not tmp_used.has_key(tmp):
+        tmp_used[tmp] = 1
+    else:
+        tmp_used[tmp] += 1
+
+
+def unusetmp(tmp):
+    """Remove a use of a temporary variable number"""
+
+    #e.g. when the optimiser rewrites or deletes an instruction
+
+    global tmp_used
+    trace("#unuse:" + str(tmp))
+    if type(tmp) == str:
+        if tmp.startswith("tmp"):
+            tmp = int(tmp[3:])
+
+    if tmp_used.has_key(tmp):
+        tmp_used[tmp] -= 1
+        if tmp_used[tmp] == 0:
+            del tmp_used[tmp]
+            trace("#deleted:" + str(tmp))
+            trace("#tmp_used:" + str(tmp_used))
+
+
+# constants (CONST)
+
+def isconst(name):
+    """Is this the name of a const?"""
+
+    return name.startswith("const")
+
+
+def makeconst(name):
+    """Make a constant name"""
+
+    return "const" + str(name)
 
 
 def useconst(value):
@@ -365,6 +409,20 @@ def useconst(value):
         const_used.append(value)
 
 
+# Variables (VARs)
+
+def isvar(name):
+    """Is thsi the name of a var?"""
+
+    return name.startswith("var")
+
+
+def makevar(name):
+    """Make a variable name"""
+
+    return "var" + str(name)
+
+
 def usevar(name):
     # Is this a known variable name?
 
@@ -374,53 +432,11 @@ def usevar(name):
         var_used.append(name)
 
 
-def usetmp(tmp):
-    """Mark this tmp variable as used"""
 
-    trace("#usetmp:" + str(tmp))
-    if type(tmp) == str:
-        if tmp.startswith("tmp"):
-          tmp = int(tmp[3:])
-
-    if not used_tmp.has_key(tmp):
-        used_tmp[tmp] = 1
-    else:
-        used_tmp[tmp] += 1
-
-
-def unusetmp(tmp):
-    """Remove a use of a temporary variable number"""
-
-    #e.g. when the optimiser rewrites or deletes an instruction
-
-    global used_tmp
-    trace("#unuse:" + str(tmp))
-    if type(tmp) == str:
-        if tmp.startswith("tmp"):
-            tmp = int(tmp[3:])
-
-    if used_tmp.has_key(tmp):
-        used_tmp[tmp] -= 1
-        if used_tmp[tmp] == 0:
-            del used_tmp[tmp]
-            trace("#deleted:" + str(tmp))
-            trace("#used_tmp:" + str(used_tmp))
-
-
-def poptop():
-    """Pop the top item off of the parse stack"""
-
-    top = stack.pop()
-    trace("poptop:" + str(top))
-    if istmp(top):
-        tmp = tmp_stack.pop()
-        trace("top popped:" + str(top) + " tmp stack popped:" + str(tmp))
-    return top
-
-
+#===== BACK END ===============================================================
 #----- EMITTER ----------------------------------------------------------------
 #
-# Generate code based on the parse tree.
+# Generate code based on the parse stack.
 
 outbuf      = []
 
@@ -666,6 +682,8 @@ def main():
             final = stack.pop()
 
             # each subexpression is output at each step
+            #TODO: If an assignment statement, don't output the result, squash this.
+            #only output an expression if it is not assigned to anything.
             outbuf.append(["LDA", final])
             outbuf.append(["OUT",""])
 
@@ -692,8 +710,8 @@ def main():
         print(makeconst(value) + " DAT " + str(value))
 
     # Allocate space for temporaries
-    #trace("#" + str(used_tmp))
-    for t in used_tmp:
+    #trace("#" + str(tmp_used))
+    for t in tmp_used:
         print(maketmp(t) + " DAT")
 
     # Allocate space for variables
@@ -702,11 +720,6 @@ def main():
         name = var_used[i]
         value = 0 # All vars are zero-init
         print(makevar(name) + " DAT " + str(value))
-
-
-    ## Allocate space for special registers
-    ##for s in special_reg:
-    ##    print(s + " DAT")
 
 
 if __name__ == "__main__":
