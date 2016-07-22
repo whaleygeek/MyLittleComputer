@@ -97,6 +97,7 @@ def isalnum(ch):
 
 CONST       = 256
 EOLN        = 257
+VAR         = 258
 
 inbuf       = None
 lookahead   = None
@@ -136,6 +137,7 @@ def unget(ch):
     if inbuf[pos] != ch:
         raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
 
+
 def lexer():
     """The lexical analyser driver that identifies tokens"""
 
@@ -157,6 +159,10 @@ def lexer():
             return CONST
         elif t == None:
             return EOLN
+        elif isalpha(t):
+            t = t.upper()
+            tokenval = t
+            return VAR
         else:
             tokenval = None
             #trace("lexer:" + str(t))
@@ -184,6 +190,7 @@ term -> term * factor
 
 factor -> ( expr )
     | CONST
+    | VAR
 """
 
 
@@ -234,6 +241,9 @@ def factor():
     elif lookahead == CONST:
         emit(CONST, tokenval)
         match(CONST)
+    elif lookahead == VAR:
+        emit(VAR, tokenval)
+        match(VAR)
     else:
         error("factor:expected factor, got:" + str(lookahead))
 
@@ -255,6 +265,7 @@ def match(t):
 # STATE
 
 const_used  = []
+var_used    = []
 tmp_stack   = []
 used_tmp    = {}
 stack       = []
@@ -283,6 +294,23 @@ def pushconst(value):
     trace("stack:" + str(stack))
 
 
+def makevar(name):
+    """Make a variable name"""
+
+    return "var" + str(name)
+
+
+def pushvar(varname):
+    """push a variable onto the stack, work out it's name first"""
+
+    #If this is a new variable, create a data region for it.
+    #If this is an existing variable, just reuse the name.
+    trace("pushvar:" + str(varname))
+    usevar(varname)
+    stack.append(makevar(varname))
+    trace("stack:" + str(stack))
+
+
 def pushtmp(tmp):
     """Push a tmp variable on the stack"""
 
@@ -303,6 +331,12 @@ def isconst(name):
     """Is this the name of a const?"""
 
     return name.startswith("const")
+
+
+def isvar(name):
+    """Is thsi the name of a var?"""
+
+    return name.startswith("var")
 
 
 ##special_reg = []
@@ -329,6 +363,15 @@ def useconst(value):
         const_used.index(value)
     except ValueError:
         const_used.append(value)
+
+
+def usevar(name):
+    # Is this a known variable name?
+
+    try:
+        var_used.index(name)
+    except ValueError:
+        var_used.append(name)
 
 
 def usetmp(tmp):
@@ -389,6 +432,9 @@ def emit(t, tval=None):
 
     if t == CONST:
         pushconst(tval)
+
+    elif t == VAR:
+        pushvar(tval)
 
     elif t == '+':
         a = poptop()
@@ -640,14 +686,23 @@ def main():
 
 
     # Allocate space for constants
+    #trace("#" + str(const_used))
     for i in range(len(const_used)):
         value = const_used[i]
         print(makeconst(value) + " DAT " + str(value))
 
-    # Allocate space for variables
+    # Allocate space for temporaries
     #trace("#" + str(used_tmp))
     for t in used_tmp:
         print(maketmp(t) + " DAT")
+
+    # Allocate space for variables
+    trace("#" + str(var_used))
+    for i in range(len(var_used)):
+        name = var_used[i]
+        value = 0 # All vars are zero-init
+        print(makevar(name) + " DAT " + str(value))
+
 
     ## Allocate space for special registers
     ##for s in special_reg:

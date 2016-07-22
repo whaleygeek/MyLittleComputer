@@ -3,6 +3,11 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 NEXT STEPS
 
+- add variables and variable assignment to the compiler grammar.
+It can then be used as a general purpose calculator to do maths for
+arbitrary expressions (without any iteration or conditions)
+
+
 - resolve discrepancies in command line arguments
 
 - write a GPIO abstraction for Raspberry Pi (and anyio)
