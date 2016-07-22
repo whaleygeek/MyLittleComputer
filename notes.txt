@@ -1,12 +1,47 @@
 DESIGN NOTES
 
+variables as rvalues are generating correct code.
+
 --------------------------------------------------------------------------------
 NEXT STEPS
 
-- add variables and variable assignment to the compiler grammar.
-It can then be used as a general purpose calculator to do maths for
-arbitrary expressions (without any iteration or conditions)
+- look at the grammar and work out how to add LVALUE variable assignment.
 
+- In particular, need to understand and document how to turn a grammar into
+  a recursive descent code tree (as it is not immediately obvious from the
+  existing code how to do this - need to refer to Aho Sethi and Ullman to
+  extract their procedural description)
+
+- add some test cases that use variables as lvalue and rvalue
+
+--------------------------------------------------------------------------------
+
+- consider adding a V flag (overflow) that is set if the previous multiply
+divide overflowed or underflowed. Do this as an architecture
+annotation, as it is not part of the standard machine.
+
+- might want to add an architectural feature that puts the flags into a
+memory location somewhere, or a way to copy flags into A, so that they
+can be stored for later consumption by bit operations etc.
+
+- consider adding a C flag (carry)
+
+- This might make it possible then to implement 16 bit and 32 bit arithmetic
+routines.
+
+--------------------------------------------------------------------------------
+
+- Look at ways to extend the memory space so that larger programs can
+be written. BUS_MAX will need to be extended for this to work.
+
+- Might put BUS_MAX and other 'configuration constants' in a config.py
+module, so that it keeps all these things in one machine configuration
+file. Can then easily switch between standard LMC and modified machine
+architectures by editing 1 file. This file could also offer command line
+config parameter settings so that things can be overriden on the command
+line or by addition of an external .config file.
+
+--------------------------------------------------------------------------------
 
 - resolve discrepancies in command line arguments
 
