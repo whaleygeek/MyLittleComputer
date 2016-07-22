@@ -1,11 +1,10 @@
 DESIGN NOTES
 
-variables as rvalues are generating correct code.
-
 --------------------------------------------------------------------------------
 NEXT STEPS
 
 - look at the grammar and work out how to add LVALUE variable assignment.
+  See: Aho, Sethi, Ullman page 64-65
 
 - In particular, need to understand and document how to turn a grammar into
   a recursive descent code tree (as it is not immediately obvious from the
