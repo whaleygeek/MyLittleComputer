@@ -2,11 +2,11 @@
 #
 # A very simple high level language compiler
 #
-# Based on from Aho, Sethi and Ullman "Compilers: Principles, techniques and tools", 1986.
+# Based on the book: Aho, Sethi and Ullman "Compilers: Principles, techniques and tools", 1986.
 # ISBN 0-201-10194-7
 # pages 48-78.
 #
-# This code implements a recursive-descent parser, with 1 character lookahead.
+# This code implements a recursive-descent parser, with 1 character look-ahead.
 #
 # This version does the following:
 #   Parses a program provided on stdin
@@ -16,6 +16,8 @@
 #   supports an expression grammar only
 #   integer numbers, + - brackets ( and )
 #   Lines terminated by ;
+#   also supports reading of variables A-Z
+#   (TODO, lvalue assignment still needs to be added)
 #
 # Example program:
 #   1+2;
@@ -36,6 +38,7 @@ def trace(msg):
 
 
 #===== FRONT END ==============================================================
+
 #----- ERROR HANDLING ---------------------------------------------------------
 
 def error(reason=None):
@@ -49,7 +52,6 @@ def error(reason=None):
     print(inbuf)
     print(' ' * errorpos + '^')
     sys.exit()
-
 
 
 #----- CHARACTER HELPERS ------------------------------------------------------
@@ -78,6 +80,47 @@ def isalnum(ch):
     return False
 
 
+#----- INPUT STREAM MANAGEMENT ------------------------------------------------
+
+lineno = 0
+inbuf  = None
+pos    = 0
+
+
+def get():
+    """Get the next character in the input stream"""
+
+    global pos
+    if pos >= len(inbuf):
+        return EOLN # end of line
+    ch = inbuf[pos]
+    pos += 1
+    return ch
+
+
+def unget(ch):
+    """Put this character back in the input stream"""
+
+    global pos
+    pos -= 1
+    if inbuf[pos] != ch:
+        raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
+
+
+def readline():
+    """Read a single line of input and return it, or return EOF if no more left"""
+
+    global lineno
+
+    try:
+        line = raw_input("") # if not isatty don't send prompt, else send prompt
+        lineno += 1
+        return line
+
+    except EOFError:
+        return EOF
+
+
 #----- SCANNER/LEXER ----------------------------------------------------------
 #
 # Scans through characters in the input stream.
@@ -104,6 +147,7 @@ EOF         = 259
 
 def tokname(token):
     """Get the name of this token number"""
+
     # single character tokens like '+' have their lexical symbol as their name
 
     if token == CONST:
@@ -118,33 +162,7 @@ def tokname(token):
 
 # SCANNER STATE
 
-inbuf       = None
 lookahead   = None
-lineno      = 0
-pos         = 0
-
-
-# Stream management
-
-def get():
-    """Get the next character in the input stream"""
-
-    global pos
-    if pos >= len(inbuf):
-        return EOLN # end of line
-    ch = inbuf[pos]
-    pos += 1
-    ##trace("get:" + str(ch))
-    return ch
-
-
-def unget(ch):
-    """Put this character back in the input stream"""
-    ##trace("unget:" + str(ch))
-    global pos
-    pos -= 1
-    if inbuf[pos] != ch:
-        raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
 
 
 # The actual scanner/lexer
@@ -152,15 +170,13 @@ def unget(ch):
 def lexer():
     """The lexical analyser driver that identifies tokens"""
 
-    global lookahead, tokenval, lineno
+    global lookahead, tokenval
 
     while True:
         token = get()
-        if token == ' ' or token == '\t':
+        if token == ' ' or token == '\t' or token == '\n':
+            # strip whitespace
             pass
-
-        elif token == '\n':
-            lineno += 1
 
         elif isdigit(token):
             tokenval = ord(token) - ord('0')
@@ -176,9 +192,13 @@ def lexer():
             return VAR
 
         elif token == EOLN:
+            # Note EOLN is actually "end of line buffer"
+            # which is distinct from '\n' which will always be the last character
+            # in the line buffer when the input stream is read from.
             return EOLN
 
         else:
+            # All other tokens use their ascii representation (e.g. '+' is a '+')
             tokenval = None
             return token
 
@@ -191,8 +211,11 @@ def lexer():
 
 """ This is the desired grammar to parse:
 (Aho, Sethi and Ullman, p70)
+Note the addition of EOLN in prog, so that it is easy to process one line at a time.
 
-prog -> expr ; prog
+start->prog EOF
+
+prog -> expr ; EOLN prog
     | empty
 
 expr -> expr + term
@@ -207,10 +230,12 @@ factor -> ( expr )
     | CONST
     | VAR
 
-But we want to build a recursive-descent parser, and the grammar is left-recursive,
-which will make the parser loop forever. So, the following grammar is used with
-left-recursion completely eliminated:
-(Aho, Sethi and Ullman, p72)
+
+But we want to build a recursive-descent parser, and the above grammar is
+left-recursive, which will make the parser loop forever.
+
+So, the following modified grammar is used with left-recursion completely eliminated:
+(Aho, Sethi and Ullman, p72) using the technique on p47-48.
 
 prog -> expr ; EOLN prog
     | empty
@@ -235,8 +260,12 @@ factor -> ( expr )
 Note 1: The compiler driver processes lines at a time, so line breaks inside
 expressions are not allowed in this implementation.
 
-Note 2: moreterms and morefactors are optimised inside terms and factors,
+Note 2: moreterms and morefactors are optimised inside term() and factor(),
 rather than being separate functions.
+
+Note 3: the '.' character in the comments represents where the predictive parser
+thinks it should be at that point in time. This makes it possible to relate the
+code back to the grammar.
 """
 
 
@@ -246,7 +275,7 @@ def expr():
     # expr->.term moreterms
     term()
 
-    # expr-> erm .moreterms
+    # expr->term .moreterms
     while True:
         # moreterms->.+ term moreterms
         if lookahead == '+':
@@ -268,6 +297,8 @@ def expr():
 
 
 def term():
+    """Parse a term"""
+
     # term->.factor morefactors
     factor()
 
@@ -292,6 +323,7 @@ def term():
 
 
 def factor():
+    """Parse a factor"""
 
     # factor->.( expr )
     if lookahead == '(':
@@ -485,6 +517,7 @@ def usevar(name):
 
 
 #===== BACK END ===============================================================
+
 #----- EMITTER ----------------------------------------------------------------
 #
 # Generate code based on the parse stack.
@@ -492,7 +525,7 @@ def usevar(name):
 outbuf      = []
 
 def emit(token, tval=None):
-    """Emit code for this token"""
+    """Emit TAC (three address code) for this token"""
 
     global outbuf
     tac = None
@@ -524,7 +557,7 @@ def emit(token, tval=None):
         if istmp(b): usetmp(b)
 
     elif token == '*':
-        #temporary, LMC does not have a mult instruction!
+        #LMC does not have a MUL instruction, but our simulator adds one.
         a = poptop()
         b = poptop()
         tmp = newtmp()
@@ -535,7 +568,7 @@ def emit(token, tval=None):
         if istmp(b): usetmp(b)
 
     elif token == '/':
-        #temporary, LMC does not have a div instruction!
+        #LMC does not have a DIV instruction, but our simulator adds one.
         a = poptop()
         b = poptop()
         tmp = newtmp()
@@ -666,8 +699,14 @@ def tac_to_ac(tac):
 # Remove redundant instructions,
 # Remove redundant data
 
+# NOTE: this code could be optimised because operands are swappable with ADD
+# but it might be better to do a more determined data flow optimisation pass
+# rather than looking for certain patterns.
+# alternatively we could use rule rewriting to list match templates and
+# rules for rewriting them.
+
 def peephole_redundant_store_load(instrs):
-    """Run a peephole optimiser to remove STA name followed by LDA name"""
+    """Run a peephole optimiser to remove 'STA name' followed by a 'LDA name'"""
 
     # Note this could be implemented as a rule in a rewrite engine instead.
     ##trace("on entry:" + str(instrs))
@@ -692,67 +731,61 @@ def peephole_redundant_store_load(instrs):
     ##trace("on exit:" + str(instrs))
 
 
-# NOTE: this code could be optimised because operands are swappable with ADD
-# but it might be better to do a more determined data flow optimisation pass
-# rather than looking for certain patterns.
-# alternatively we could use rule rewriting to list match templates and
-# rules for rewriting them.
+#----- CODE EMITTER -----------------------------------------------------------
 
-# NOTE: tac_to_ac could be done by a rewrite engine that is rule driven.
+def generate(instrs, final):
+    """Generate code for one expression"""
+
+    # each subexpression is output at each step
+    #TODO: If an assignment statement, don't output the result, squash this.
+    #only output an expression if it is not assigned to anything.
+    instrs.append(["LDA", final])
+    instrs.append(["OUT",""])
+
+    # Run an optimisation pass on this code region only
+    peephole_redundant_store_load(instrs)
+
+    # Output all code for this code region
+    for i in instrs:
+        opcode, operand = i
+        print(opcode + " " + str(operand))
 
 
-#----- MAIN -------------------------------------------------------------------
-#
-# Main compiler driver
+#----- PROG -------------------------------------------------------------------
 
-def readline():
-    """Read a single line of input and return it, or return EOF if no more left"""
-    try:
-        return raw_input("") # if not isatty don't send prompt, else send prompt
-    except EOFError:
-        return EOF
-
-
-# prog -> expr ; EOLN prog
-#    | empty
-
-def main():
+def prog():
+    """Parse a whole program (list of expressions)"""
     global inbuf, outbuf, pos, tmp_stack, lookahead
 
+    # start->.prog
     while True:
         # READ ANOTHER LINE
         inbuf = readline()
+        # prog->.empty
         if inbuf == EOF: break # no more lines left
 
         # PARSE AND GENERATE CODE FOR THE WHOLE LINE
         lookahead = lexer()
-        while lookahead != EOLN: # spurious, as expr() checks this??
+        while lookahead != EOLN:
             # PARSE ONE EXPRESSION
             outbuf = []
+            # prog->.expr ; EOLN prog
             expr()
+            # prog->expr .; EOLN prog
             match(';')
-            # EOLN should always occur after this??
-            # unless we have multiple expressions on a line?
             final = stack.pop()
 
-            # GENERATE CODE FOR ONE EXPRESSION
-            # each subexpression is output at each step
-            #TODO: If an assignment statement, don't output the result, squash this.
-            #only output an expression if it is not assigned to anything.
-            outbuf.append(["LDA", final])
-            outbuf.append(["OUT",""])
-
-            # Run an optimisation pass on this code region only
-            peephole_redundant_store_load(outbuf)
-
-            # Output all code for this code region
-            for i in outbuf:
-                opcode, operand = i
-                print(opcode + " " + str(operand))
-                #print(str(i))
+            generate(outbuf, final)
 
             # empty the tmp stack
             tmp_stack = []
+
+
+#----- MAIN COMPILER DRIVER ---------------------------------------------------
+
+def main():
+    # start->.prog EOF
+    prog()
 
     # MARK THE END OF THE COMPLETE PROGRAM
     print("HLT")
@@ -779,6 +812,7 @@ def main():
         print(makevar(name) + " DAT " + str(value))
 
 
+#----- MODULE ENTRY POINT -----------------------------------------------------
 if __name__ == "__main__":
     ## import sys
 	## IN_NAME = sys.argv[1] #TODO if -  or not present, use stdin
