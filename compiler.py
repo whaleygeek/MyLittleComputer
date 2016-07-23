@@ -2,7 +2,8 @@
 #
 # A very simple high level language compiler
 #
-# Based on from Aho, Sethi and Ullman "Compilers: Principles, techniques and tools"
+# Based on from Aho, Sethi and Ullman "Compilers: Principles, techniques and tools", 1986.
+# ISBN 0-201-10194-7
 # pages 48-78.
 #
 # This code implements a recursive-descent parser, with 1 character lookahead.
@@ -29,10 +30,9 @@
 
 
 import sys
-import symtab
 
 def trace(msg):
-    pass #print("# " + str(msg))
+    pass ##print("# " + str(msg))
 
 
 #===== FRONT END ==============================================================
@@ -100,19 +100,20 @@ def isalnum(ch):
 CONST       = 256
 EOLN        = 257
 VAR         = 258
+EOF         = 259
 
-def tokname(t):
+def tokname(token):
     """Get the name of this token number"""
     # single character tokens like '+' have their lexical symbol as their name
 
-    if t == CONST:
+    if token == CONST:
         return "CONST"
-    elif t == EOLN:
+    elif token == EOLN:
         return "EOLN"
-    elif t == "VAR":
+    elif token == "VAR":
         return "VAR"
     else:
-        return t
+        return token
 
 
 # SCANNER STATE
@@ -130,16 +131,16 @@ def get():
 
     global pos
     if pos >= len(inbuf):
-        return None # end of file
+        return EOLN # end of line
     ch = inbuf[pos]
     pos += 1
-    #trace("get:" + str(ch))
+    ##trace("get:" + str(ch))
     return ch
 
 
 def unget(ch):
     """Put this character back in the input stream"""
-    #trace("unget:" + str(ch))
+    ##trace("unget:" + str(ch))
     global pos
     pos -= 1
     if inbuf[pos] != ch:
@@ -152,36 +153,34 @@ def lexer():
     """The lexical analyser driver that identifies tokens"""
 
     global lookahead, tokenval, lineno
+
     while True:
-        t = get()
-        if t == ' ' or t == '\t':
+        token = get()
+        if token == ' ' or token == '\t':
             pass
 
-        elif t == '\n':
+        elif token == '\n':
             lineno += 1
 
-        elif isdigit(t):
-            tokenval = ord(t) - ord('0')
-            t = get()
-            while (isdigit(t)):
-                tokenval = tokenval*10 + ord(t) - ord('0')
-                t = get()
-            unget(t)
-            #trace("lexer:CONST")
+        elif isdigit(token):
+            tokenval = ord(token) - ord('0')
+            token = get()
+            while (isdigit(token)):
+                tokenval = tokenval*10 + ord(token) - ord('0')
+                token = get()
+            unget(token)
             return CONST
 
-        elif t == None:
-            return EOLN
-
-        elif isalpha(t):
-            t = t.upper()
-            tokenval = t
+        elif isalpha(token):
+            tokenval = token.upper()
             return VAR
+
+        elif token == EOLN:
+            return EOLN
 
         else:
             tokenval = None
-            #trace("lexer:" + str(t))
-            return t
+            return token
 
 
 #----- PARSER -----------------------------------------------------------------
@@ -190,7 +189,8 @@ def lexer():
 # Accepts or rejects the program based on whether it fits the grammar or not.
 
 
-""" GRAMMAR
+""" This is the desired grammar to parse:
+(Aho, Sethi and Ullman, p70)
 
 prog -> expr ; prog
     | empty
@@ -206,73 +206,124 @@ term -> term * factor
 factor -> ( expr )
     | CONST
     | VAR
+
+But we want to build a recursive-descent parser, and the grammar is left-recursive,
+which will make the parser loop forever. So, the following grammar is used with
+left-recursion completely eliminated:
+(Aho, Sethi and Ullman, p72)
+
+prog -> expr ; EOLN prog
+    | empty
+
+expr -> term moreterms
+
+moreterms -> + term moreterms
+    | - term moreterms
+    | empty
+
+term -> factor morefactors
+
+morefactors -> * factor morefactors
+    | / factor morefactors
+    | empty
+
+factor -> ( expr )
+    | CONST
+    | VAR
+
+
+Note 1: The compiler driver processes lines at a time, so line breaks inside
+expressions are not allowed in this implementation.
+
+Note 2: moreterms and morefactors are optimised inside terms and factors,
+rather than being separate functions.
 """
 
 
 def expr():
-    #trace("expr")
     """Parse an expression"""
 
+    # expr->.term moreterms
     term()
+
+    # expr-> erm .moreterms
     while True:
-        #trace("lookahead:" + str(lookahead))
+        # moreterms->.+ term moreterms
         if lookahead == '+':
             match('+')
+            # moreterms->+ .term moreterms
             term()
             emit('+')
+
+        # moreterms->.- term moreterms
         elif lookahead == '-':
             match('-')
+            # moreterms->- .term moreterms
             term()
             emit('-')
+
+        # moreterms->.empty
         else:
             break
 
 
 def term():
-    #trace("term")
+    # term->.factor morefactors
     factor()
+
     while True:
-        #trace("lookahead:" + str(lookahead))
+        # morefactors->.* factor morefactors
         if lookahead == '*':
             match('*')
+            # morefactors->* .factor morefactors
             factor()
             emit('*')
 
+        # morefactors->./ factor morefactors
         elif lookahead == '/':
             match('/')
+            # morefactors->/ .factor morefactors
             factor()
             emit('/')
+
+        # morefactors->.empty
         else:
             break
 
 
 def factor():
-    #trace("factor")
-    #trace("lookahead:" + str(lookahead))
+
+    # factor->.( expr )
     if lookahead == '(':
         match('(')
+        # factor->( .expr )
         expr()
+        # factor-> ( expr .)
         match(')')
+
+    # factor->.CONST
     elif lookahead == CONST:
         emit(CONST, tokenval)
         match(CONST)
+
+    # factor->.VAR
     elif lookahead == VAR:
         emit(VAR, tokenval)
         match(VAR)
+
     else:
         error("factor:expected factor, got:" + str(lookahead))
 
 
-def match(t):
-    """Match this token"""
+def match(token):
+    """Match this token, or fail if it does not match"""
 
     global lookahead
 
-    if lookahead == t:
-        #trace("matched:" + str(t))
+    if lookahead == token:
         lookahead = lexer()
     else:
-        error("match:expected " + str(t) + " got:" + str(lookahead))
+        error("match:expected " + str(token) + " got:" + str(lookahead))
 
 
 #----- TEMPORARIES, CONSTANTS, VARIABLES, ABSTRACT MACHINE STACK --------------
@@ -292,10 +343,10 @@ def poptop():
     """Pop the top item off of the parse stack"""
 
     top = stack.pop()
-    trace("poptop:" + str(top))
+    ##trace("poptop:" + str(top))
     if istmp(top):
         tmp = tmp_stack.pop()
-        trace("top popped:" + str(top) + " tmp stack popped:" + str(tmp))
+        ##trace("top popped:" + str(top) + " tmp stack popped:" + str(tmp))
     return top
 
 
@@ -303,10 +354,10 @@ def pushtmp(tmp):
     """Push a tmp variable on the stack"""
 
     #Also remember how many times it has been used
-    trace("pushtmp:" + str(tmp))
+    ##trace("pushtmp:" + str(tmp))
     usetmp(tmp)
     stack.append(maketmp(tmp))
-    trace("stack:" + str(stack))
+    ##trace("stack:" + str(stack))
 
 
 def pushconst(value):
@@ -314,10 +365,10 @@ def pushconst(value):
 
     #If this is a new constant, create a data region for it.
     #If this is an existing constant, just reuse the name.
-    trace("pushconst:" + str(value))
+    ##trace("pushconst:" + str(value))
     useconst(value)
     stack.append(makeconst(value))
-    trace("stack:" + str(stack))
+    ##trace("stack:" + str(stack))
 
 
 def pushvar(varname):
@@ -325,10 +376,10 @@ def pushvar(varname):
 
     #If this is a new variable, create a data region for it.
     #If this is an existing variable, just reuse the name.
-    trace("pushvar:" + str(varname))
+    ##trace("pushvar:" + str(varname))
     usevar(varname)
     stack.append(makevar(varname))
-    trace("stack:" + str(stack))
+    ##trace("stack:" + str(stack))
 
 
 # temporaries (TMP)
@@ -356,7 +407,7 @@ def newtmp():
 def usetmp(tmp):
     """Mark this tmp variable as used"""
 
-    trace("#usetmp:" + str(tmp))
+    ##trace("usetmp:" + str(tmp))
     if type(tmp) == str:
         if tmp.startswith("tmp"):
           tmp = int(tmp[3:])
@@ -373,7 +424,7 @@ def unusetmp(tmp):
     #e.g. when the optimiser rewrites or deletes an instruction
 
     global tmp_used
-    trace("#unuse:" + str(tmp))
+    ##trace("unuse:" + str(tmp))
     if type(tmp) == str:
         if tmp.startswith("tmp"):
             tmp = int(tmp[3:])
@@ -382,8 +433,8 @@ def unusetmp(tmp):
         tmp_used[tmp] -= 1
         if tmp_used[tmp] == 0:
             del tmp_used[tmp]
-            trace("#deleted:" + str(tmp))
-            trace("#tmp_used:" + str(tmp_used))
+            ##trace("deleted:" + str(tmp))
+            ##trace("tmp_used:" + str(tmp_used))
 
 
 # constants (CONST)
@@ -440,19 +491,19 @@ def usevar(name):
 
 outbuf      = []
 
-def emit(t, tval=None):
+def emit(token, tval=None):
     """Emit code for this token"""
 
     global outbuf
     tac = None
 
-    if t == CONST:
+    if token == CONST:
         pushconst(tval)
 
-    elif t == VAR:
+    elif token == VAR:
         pushvar(tval)
 
-    elif t == '+':
+    elif token == '+':
         a = poptop()
         b = poptop()
         tmp = newtmp()
@@ -462,7 +513,7 @@ def emit(t, tval=None):
         if istmp(a): usetmp(a)
         if istmp(b): usetmp(b)
 
-    elif t == '-':
+    elif token == '-':
         a = poptop()
         b = poptop()
         tmp = newtmp()
@@ -472,7 +523,7 @@ def emit(t, tval=None):
         if istmp(a): usetmp(a)
         if istmp(b): usetmp(b)
 
-    elif t == '*':
+    elif token == '*':
         #temporary, LMC does not have a mult instruction!
         a = poptop()
         b = poptop()
@@ -483,7 +534,7 @@ def emit(t, tval=None):
         if istmp(a): usetmp(a)
         if istmp(b): usetmp(b)
 
-    elif t == '/':
+    elif token == '/':
         #temporary, LMC does not have a div instruction!
         a = poptop()
         b = poptop()
@@ -498,8 +549,6 @@ def emit(t, tval=None):
         ac = tac_to_ac(tac)
         for c in ac:
             outbuf.append(c)
-    #if tac != None:
-    #    outbuf.append(tac)
 
 
 #----- TAC TRANSFORMER --------------------------------------------------------------
@@ -621,15 +670,15 @@ def peephole_redundant_store_load(instrs):
     """Run a peephole optimiser to remove STA name followed by LDA name"""
 
     # Note this could be implemented as a rule in a rewrite engine instead.
-    #trace("on entry:" + str(instrs))
+    ##trace("on entry:" + str(instrs))
     this_i = 1
     while this_i < len(instrs):
         prev_operator, prev_operand = instrs[this_i-1]
         this_operator, this_operand = instrs[this_i]
         if prev_operator == "STA" and this_operator == "LDA" and this_operand == prev_operand:
             # delete prev and this, they are redundant
-            #trace("deleting:" + str(this_i-1) + " " + str(this_i))
-            #trace("  " + str(instrs[this_i-1]) + " " + str(instrs[this_i]))
+            ##trace("deleting:" + str(this_i-1) + " " + str(this_i))
+            ##trace("  " + str(instrs[this_i-1]) + " " + str(instrs[this_i]))
             del instrs[this_i-1]
             del instrs[this_i-1]
             this_i = this_i - 1
@@ -640,7 +689,7 @@ def peephole_redundant_store_load(instrs):
         else:
             this_i += 1
 
-    #trace("on exit:" + str(instrs))
+    ##trace("on exit:" + str(instrs))
 
 
 # NOTE: this code could be optimised because operands are swappable with ADD
@@ -651,36 +700,42 @@ def peephole_redundant_store_load(instrs):
 
 # NOTE: tac_to_ac could be done by a rewrite engine that is rule driven.
 
-#['LDA', 'const4']
-#['ADD', 'const3']
-#['ADD', 'tmp0']
-#['STA', 'tmp0']       ['ADD', 'const5']
-#['LDA', 'const5']     xxx
-#['ADD', 'tmp0']       xxx
-
-
 
 #----- MAIN -------------------------------------------------------------------
 #
 # Main compiler driver
 
+def readline():
+    """Read a single line of input and return it, or return EOF if no more left"""
+    try:
+        return raw_input("") # if not isatty don't send prompt, else send prompt
+    except EOFError:
+        return EOF
+
+
+# prog -> expr ; EOLN prog
+#    | empty
+
 def main():
     global inbuf, outbuf, pos, tmp_stack, lookahead
 
     while True:
-        try:
-            inbuf = raw_input("") # if not isatty don't send prompt, else send prompt (see ark-iotic)
-            pos = 0
-        except EOFError:
-            break
+        # READ ANOTHER LINE
+        inbuf = readline()
+        if inbuf == EOF: break # no more lines left
 
+        # PARSE AND GENERATE CODE FOR THE WHOLE LINE
         lookahead = lexer()
-        while lookahead != EOLN:
+        while lookahead != EOLN: # spurious, as expr() checks this??
+            # PARSE ONE EXPRESSION
             outbuf = []
             expr()
             match(';')
+            # EOLN should always occur after this??
+            # unless we have multiple expressions on a line?
             final = stack.pop()
 
+            # GENERATE CODE FOR ONE EXPRESSION
             # each subexpression is output at each step
             #TODO: If an assignment statement, don't output the result, squash this.
             #only output an expression if it is not assigned to anything.
@@ -699,23 +754,25 @@ def main():
             # empty the tmp stack
             tmp_stack = []
 
-    # Mark the end of the complete program
+    # MARK THE END OF THE COMPLETE PROGRAM
     print("HLT")
 
 
+    # OUTPUT DATA TABLES AT END
+
     # Allocate space for constants
-    #trace("#" + str(const_used))
+    ##trace(str(const_used))
     for i in range(len(const_used)):
         value = const_used[i]
         print(makeconst(value) + " DAT " + str(value))
 
     # Allocate space for temporaries
-    #trace("#" + str(tmp_used))
+    ##trace(str(tmp_used))
     for t in tmp_used:
         print(maketmp(t) + " DAT")
 
     # Allocate space for variables
-    trace("#" + str(var_used))
+    ##trace(str(var_used))
     for i in range(len(var_used)):
         name = var_used[i]
         value = 0 # All vars are zero-init
