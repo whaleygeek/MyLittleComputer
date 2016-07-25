@@ -141,7 +141,7 @@ def readline():
 # Tokens
 
 CONST       = 256
-EOLN        = 257
+EOLN        = 257 #TODO: Phase this out eventually
 VAR         = 258
 EOF         = 259
 
@@ -150,6 +150,7 @@ def tokname(token):
 
     # single character tokens like '+' have their lexical symbol as their name
 
+    #TODO: This could be improved with a table lookup for token>256??
     if token == CONST:
         return "CONST"
     elif token == EOLN:
@@ -174,7 +175,7 @@ def lexer():
 
     while True:
         token = get()
-        if token == ' ' or token == '\t' or token == '\n':
+        if token == ' ' or token == '\t' or token == '\n' or token == '\r':
             # strip whitespace
             pass
 
@@ -191,7 +192,7 @@ def lexer():
             tokenval = token.upper()
             return VAR
 
-        elif token == EOLN:
+        elif token == EOLN: #TODO: Will be phased out
             # Note EOLN is actually "end of line buffer"
             # which is distinct from '\n' which will always be the last character
             # in the line buffer when the input stream is read from.
@@ -208,6 +209,14 @@ def lexer():
 # Parses a stream of tokens, matches against a grammar.
 # Accepts or rejects the program based on whether it fits the grammar or not.
 
+"""Assignment to lvalues will probably add something like this:
+prog->expr ; EOLN prog
+    | assignment ; EOLN prog
+    | empty
+
+assignment->VAR = expr
+
+"""
 
 """ This is the desired grammar to parse:
 
