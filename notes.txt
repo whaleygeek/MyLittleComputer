@@ -1,17 +1,33 @@
 DESIGN NOTES
 
+
 --------------------------------------------------------------------------------
 NEXT STEPS
 
-- look at the grammar and work out how to add LVALUE variable assignment.
-  See: Aho, Sethi, Ullman page 64-65
+- Modify the grammar to add lvalue assignment
 
-- In particular, need to understand and document how to turn a grammar into
-  a recursive descent code tree (as it is not immediately obvious from the
-  existing code how to do this - need to refer to Aho Sethi and Ullman to
-  extract their procedural description)
+- Modify the abstract machine (TAC) to support variable assignment.
 
-- add some test cases that use variables as lvalue and rvalue
+- Modify the TAC to AC transformer to support lvalue assignment.
+
+- Update the test cases to include testing for lvalue assignment.
+
+
+--------------------------------------------------------------------------------
+
+Had a look at removing EOLN. Harder than it looks, because we have to
+process the whole stream so that we can unget() from the previous line.
+
+Let's not be hasty and do a bad fix on this.
+We only need 1 char of lookahead, but we need to make sure we keep the last
+char when moving from one line to the next, otherwise unget() will fail
+across line boundaries. This might also be quite hard to track down as it
+will depend on how the test case input string 'beats' with the unget() calls
+of the grammar.
+
+- remove the arbitrary EOLN in our scanner driver, so that expressions
+  can flow across multiple lines. The semicolon should terminate
+  an expression,
 
 --------------------------------------------------------------------------------
 

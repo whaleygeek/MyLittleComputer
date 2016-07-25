@@ -210,8 +210,12 @@ def lexer():
 
 
 """ This is the desired grammar to parse:
+
 (Aho, Sethi and Ullman, p70)
 Note the addition of EOLN in prog, so that it is easy to process one line at a time.
+This is actually a bit spurious as the semicolon marks the end of the expression,
+so we might take out the EOLN requirement later and allow expressions to overhang
+multiple lines (especially useful if they are large).
 
 start->prog EOF
 
@@ -237,6 +241,14 @@ left-recursive, which will make the parser loop forever.
 So, the following modified grammar is used with left-recursion completely eliminated:
 (Aho, Sethi and Ullman, p72) using the technique on p47-48.
 
+A->Aa | Ab | c
+
+translates to:
+
+A->cR
+R->aR | bR | empty
+
+
 prog -> expr ; EOLN prog
     | empty
 
@@ -257,11 +269,11 @@ factor -> ( expr )
     | VAR
 
 
-Note 1: The compiler driver processes lines at a time, so line breaks inside
-expressions are not allowed in this implementation.
-
-Note 2: moreterms and morefactors are optimised inside term() and factor(),
+Note 1: moreterms and morefactors are optimised inside term() and factor(),
 rather than being separate functions.
+
+Note 2: The compiler driver processes lines at a time, so line breaks inside
+expressions are not allowed in this implementation.
 
 Note 3: the '.' character in the comments represents where the predictive parser
 thinks it should be at that point in time. This makes it possible to relate the
@@ -518,9 +530,12 @@ def usevar(name):
 
 #===== BACK END ===============================================================
 
-#----- EMITTER ----------------------------------------------------------------
+#----- TAC EMITTER ------------------------------------------------------------
 #
-# Generate code based on the parse stack.
+# Generate TAC (three address code) based on the parse stack contents.
+# TAC is really an instruction set for an ideal abstract machine.
+# It is later translated into AC (accumulator code) and into LMC assembly
+# instructions in the final emit stage.
 
 outbuf      = []
 
@@ -731,7 +746,7 @@ def peephole_redundant_store_load(instrs):
     ##trace("on exit:" + str(instrs))
 
 
-#----- CODE EMITTER -----------------------------------------------------------
+#----- FINAL CODE EMITTER -----------------------------------------------------
 
 def generate(instrs, final):
     """Generate code for one expression"""
@@ -813,6 +828,7 @@ def main():
 
 
 #----- MODULE ENTRY POINT -----------------------------------------------------
+
 if __name__ == "__main__":
     ## import sys
 	## IN_NAME = sys.argv[1] #TODO if -  or not present, use stdin
