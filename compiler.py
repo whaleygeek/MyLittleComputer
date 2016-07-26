@@ -54,32 +54,6 @@ def error(reason=None):
     sys.exit()
 
 
-#----- CHARACTER HELPERS ------------------------------------------------------
-
-def isdigit(ch):
-    """Is this character a digit?"""
-
-    if ch >= '0' and ch <= '9':
-        return True
-    return False
-
-
-def isalpha(ch):
-    """Is this character a letter of any case?"""
-
-    if (ch >= 'a' and ch <= 'z') or (ch >= 'A' and ch <= 'Z'):
-        return True
-    return False
-
-
-def isalnum(ch):
-    """Is this character a digit or a letter of any case?"""
-
-    if isdigit(ch) or isalpha(ch):
-        return True
-    return False
-
-
 #----- INPUT STREAM MANAGEMENT ------------------------------------------------
 
 lineno = 0
@@ -141,7 +115,7 @@ def readline():
 # Tokens
 
 CONST       = 256
-EOLN        = 257 #TODO: Phase this out eventually
+EOLN        = '\n' #TODO: Phase this out eventually
 VAR         = 258
 EOF         = 259
 
@@ -175,28 +149,22 @@ def lexer():
 
     while True:
         token = get()
-        if token == ' ' or token == '\t' or token == '\n' or token == '\r':
+        if token == ' ' or token == '\t': # or token == '\n' or token == '\r':
             # strip whitespace
             pass
 
-        elif isdigit(token):
+        elif token.isdigit():
             tokenval = ord(token) - ord('0')
             token = get()
-            while (isdigit(token)):
+            while (token.isdigit()):
                 tokenval = tokenval*10 + ord(token) - ord('0')
                 token = get()
             unget(token)
             return CONST
 
-        elif isalpha(token):
+        elif token.isalpha():
             tokenval = token.upper()
             return VAR
-
-        elif token == EOLN: #TODO: Will be phased out
-            # Note EOLN is actually "end of line buffer"
-            # which is distinct from '\n' which will always be the last character
-            # in the line buffer when the input stream is read from.
-            return EOLN
 
         else:
             # All other tokens use their ascii representation (e.g. '+' is a '+')
