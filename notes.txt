@@ -1,5 +1,8 @@
 DESIGN NOTES
 
+JUST DONE
+
+Removed the arbitrary line buffering
 
 --------------------------------------------------------------------------------
 NEXT STEPS
@@ -12,22 +15,6 @@ NEXT STEPS
 
 - Update the test cases to include testing for lvalue assignment.
 
-
---------------------------------------------------------------------------------
-
-Had a look at removing EOLN. Harder than it looks, because we have to
-process the whole stream so that we can unget() from the previous line.
-
-Let's not be hasty and do a bad fix on this.
-We only need 1 char of lookahead, but we need to make sure we keep the last
-char when moving from one line to the next, otherwise unget() will fail
-across line boundaries. This might also be quite hard to track down as it
-will depend on how the test case input string 'beats' with the unget() calls
-of the grammar.
-
-- remove the arbitrary EOLN in our scanner driver, so that expressions
-  can flow across multiple lines. The semicolon should terminate
-  an expression,
 
 --------------------------------------------------------------------------------
 

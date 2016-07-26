@@ -34,7 +34,7 @@
 import sys
 
 def trace(msg):
-    pass ##print("# " + str(msg))
+    print("# " + str(msg))
 
 
 #===== FRONT END ==============================================================
@@ -55,44 +55,54 @@ def error(reason=None):
 
 
 #----- INPUT STREAM MANAGEMENT ------------------------------------------------
+#
+# A single character of putback is supported - i.e. you can only ungetch() one char
+# from the input stream once you have called getch() on that char.
+# This effectively implements a 1 character lookahead
 
+inbuf = ""
 lineno = 0
-inbuf  = None
-pos    = 0
+pos = 0
+lastch = None
+putback = None
 
-
-def get():
-    """Get the next character in the input stream"""
-
-    global pos
-    if pos >= len(inbuf):
-        return EOLN # end of line
-    ch = inbuf[pos]
-    pos += 1
+def printable(ch):
+    if type(ch) == int:
+        print("int %d" % ch)
+    else:
+        if ord(ch) < 32 or ord(ch) > 127:
+            return '%02X' % ord(ch)
     return ch
 
 
-def unget(ch):
+def getch():
+    """Get the next character in the input stream"""
+    global putback, pos, inbuf, lastch
+
+    if putback != None:
+        ch = putback
+        putback = None
+    else:
+        ch = sys.stdin.read(1)
+        if ch == '': ch = EOFCH
+    inbuf += ch
+    pos += 1
+    lastch = ch
+    return ch
+
+
+def ungetch(ch):
     """Put this character back in the input stream"""
+    global putback, pos, inbuf
 
-    global pos
+    if putback != None:
+        raise RuntimeError("tried to unget too many chars")
+    if ch != lastch:
+        raise RuntimeError("Tried to unget wrong char, lastch:%s ch:%s" % (lastch, ch))
+
+    putback = ch
     pos -= 1
-    if inbuf[pos] != ch:
-        raise RuntimeError("Tried to putback wrong char, expected:" + str(inbuf[pos]) + " putback:" + str(ch))
-
-
-def readline():
-    """Read a single line of input and return it, or return EOF if no more left"""
-
-    global lineno
-
-    try:
-        line = raw_input("") # if not isatty don't send prompt, else send prompt
-        lineno += 1
-        return line
-
-    except EOFError:
-        return EOF
+    inbuf = inbuf[0:-1]
 
 
 #----- SCANNER/LEXER ----------------------------------------------------------
@@ -114,10 +124,11 @@ def readline():
 
 # Tokens
 
+EOFCH       = '\x03'
+
 CONST       = 256
-EOLN        = '\n' #TODO: Phase this out eventually
-VAR         = 258
-EOF         = 259
+VAR         = 257
+EOF         = 258
 
 def tokname(token):
     """Get the name of this token number"""
@@ -127,8 +138,6 @@ def tokname(token):
     #TODO: This could be improved with a table lookup for token>256??
     if token == CONST:
         return "CONST"
-    elif token == EOLN:
-        return "EOLN"
     elif token == "VAR":
         return "VAR"
     else:
@@ -145,31 +154,39 @@ lookahead   = None
 def lexer():
     """The lexical analyser driver that identifies tokens"""
 
-    global lookahead, tokenval
+    global lookahead, tokenval, lineno, inbuf
 
     while True:
-        token = get()
-        if token == ' ' or token == '\t': # or token == '\n' or token == '\r':
+        ch = getch()
+
+        if ch == EOFCH:
+            return EOF
+
+        if ch == ' ' or ch == '\t' or ch == '\r':
             # strip whitespace
             pass
 
-        elif token.isdigit():
-            tokenval = ord(token) - ord('0')
-            token = get()
-            while (token.isdigit()):
-                tokenval = tokenval*10 + ord(token) - ord('0')
-                token = get()
-            unget(token)
+        elif ch == '\n':
+            lineno += 1
+            inbuf = ""
+
+        elif ch.isdigit():
+            tokenval = ord(ch) - ord('0')
+            ch = getch()
+            while (ch.isdigit()):
+                tokenval = tokenval*10 + ord(ch) - ord('0')
+                ch = getch()
+            ungetch(ch)
             return CONST
 
-        elif token.isalpha():
-            tokenval = token.upper()
+        elif ch.isalpha():
+            tokenval = ch.upper()
             return VAR
 
         else:
             # All other tokens use their ascii representation (e.g. '+' is a '+')
             tokenval = None
-            return token
+            return ch
 
 
 #----- PARSER -----------------------------------------------------------------
@@ -178,8 +195,8 @@ def lexer():
 # Accepts or rejects the program based on whether it fits the grammar or not.
 
 """Assignment to lvalues will probably add something like this:
-prog->expr ; EOLN prog
-    | assignment ; EOLN prog
+prog->expr ; prog
+    | assignment ; prog
     | empty
 
 assignment->VAR = expr
@@ -189,14 +206,10 @@ assignment->VAR = expr
 """ This is the desired grammar to parse:
 
 (Aho, Sethi and Ullman, p70)
-Note the addition of EOLN in prog, so that it is easy to process one line at a time.
-This is actually a bit spurious as the semicolon marks the end of the expression,
-so we might take out the EOLN requirement later and allow expressions to overhang
-multiple lines (especially useful if they are large).
 
 start->prog EOF
 
-prog -> expr ; EOLN prog
+prog -> expr ; prog
     | empty
 
 expr -> expr + term
@@ -226,7 +239,7 @@ A->cR
 R->aR | bR | empty
 
 
-prog -> expr ; EOLN prog
+prog -> expr ; prog
     | empty
 
 expr -> term moreterms
@@ -747,30 +760,23 @@ def generate(instrs, final):
 
 def prog():
     """Parse a whole program (list of expressions)"""
-    global inbuf, outbuf, pos, tmp_stack, lookahead
+    global outbuf, tmp_stack, lookahead
 
-    # start->.prog
-    while True:
-        # READ ANOTHER LINE
-        inbuf = readline()
-        # prog->.empty
-        if inbuf == EOF: break # no more lines left
+    # start->.prog EOF
+    lookahead = lexer()
+    while lookahead != EOF:
+        # PARSE ONE EXPRESSION
+        outbuf = []
+        # prog->.expr ; prog
+        expr()
+        # prog->expr .; prog
+        match(';')
 
-        # PARSE AND GENERATE CODE FOR THE WHOLE LINE
-        lookahead = lexer()
-        while lookahead != EOLN:
-            # PARSE ONE EXPRESSION
-            outbuf = []
-            # prog->.expr ; EOLN prog
-            expr()
-            # prog->expr .; EOLN prog
-            match(';')
-            final = stack.pop()
+        final = stack.pop()
+        generate(outbuf, final)
 
-            generate(outbuf, final)
-
-            # empty the tmp stack
-            tmp_stack = []
+        # empty the tmp stack
+        tmp_stack = []
 
 
 #----- MAIN COMPILER DRIVER ---------------------------------------------------
