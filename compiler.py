@@ -58,7 +58,7 @@ def error(reason=None):
 #
 # A single character of putback is supported - i.e. you can only ungetch() one char
 # from the input stream once you have called getch() on that char.
-# This effectively implements a 1 character lookahead
+# This is used by the lexer to implement a 1 character lookahead.
 
 inbuf = ""
 lineno = 0
@@ -782,6 +782,7 @@ def prog():
 #----- MAIN COMPILER DRIVER ---------------------------------------------------
 
 def main():
+
     # start->.prog EOF
     prog()
 
