@@ -17,6 +17,9 @@
 
 
 //----- INSTRUCTION -----------------------------------------------------------
+
+namespace mlc_instruction {
+
 // # Encode/Decode an instruction
 // #
 // # An instruction is a positive whole number 000-999
@@ -190,9 +193,13 @@
 // 	s = s.upper()
 // 	operator = reverseLookup(operators, s)
 // 	return operator
+}
 
 
 //----- IO --------------------------------------------------------------------
+
+namespace mlc_io {
+
 // # Handle the input/output streams to a running program.
 // # This decides how to read and write data to and from a running program,
 // # or to and from a stored program file.
@@ -242,9 +249,13 @@
 // #def writeln(number, base=None, width= None, file=file):
 // #    write(number, base=base, width=width, file=file)
 // #    if file == None:
+}
 
 
 //----- DECIMAL ---------------------------------------------------------------
+
+namespace mlc_decimal {
+
 // # Read and write decimal 3 digit unsigned numbers
 // # with zero padding
 // 
@@ -302,9 +313,13 @@
 //         print(str(number).zfill(width))
 //     else: # to file
 //         file.write(str(number).zfill(width) + "\n")
+}
 
 
 //----- BINARY ----------------------------------------------------------------
+
+namespace mlc_binary {
+
 // # Read and write binary data as bytes (8 bit) and words (16 bits)
 // 
 // DEFAULT_WIDTH = 8
@@ -327,9 +342,13 @@
 //     else:
 //         file.write(v)
 //         file.write('\n')
+}
 
 
 //----- HEXADECIMAL -----------------------------------------------------------
+
+namespace mlc_hexadecimal {
+
 // # Read and write hexadecimal 8 bit (2 char) or 16 bit (4 char) unsigned numbers
 // # with zero padding
 // 
@@ -351,9 +370,13 @@
 //     else:
 //         file.write(v)
 //         file.write('\n')
+}
 
 
 //----- HLTINSTRS -------------------------------------------------------------
+
+namespace mlc_hlt_instrs {
+
 // # Extra HLT instructions for the instruction set simulator
 // # These are good for implementing OS calls
 //
@@ -378,9 +401,13 @@
 // 	# DEFINE USER HLT INSTRUCTIONS HERE
 //
 // 	return acc
+}
 
 
 //----- IOINSTRS --------------------------------------------------------------
+
+namespace mlc_io_instrs {
+
 // # Add extra IO instructions to the instruction set simulator
 // // 
 // # Runtime registration of generic form
@@ -408,10 +435,13 @@
 // 	print("exec IO instr %d" % str(operand))
 // 	# DEFINE NEW IO INSTRUCTIONS HERE
 // 	return acc
-
+}
 
 
 //----- EXTINSTRS -------------------------------------------------------------
+
+namespace mlc_ext_instrs {
+
 // # Extended instructions that are added to the instuction set simulator
 // 
 // # Runtime registration of new mnemonics in the instruction table
@@ -442,9 +472,13 @@
 // 		raise ValueError("Unknown EXT instr:" + str(operand))
 // 
 // 	return acc
+}
 
 
 //----- EXTARCH ---------------------------------------------------------------
+
+namespace mlc_ext_arch {
+
 // # Extended architecture features
 // # The b_reg and a b_flag is added.
 // # This makes it easier to implement two-operand MUL and DIV instructions
@@ -510,9 +544,13 @@
 //         return old_execute(operator, operand, acc)
 // 
 //     return new_execute
+}
 
 
 //----- SIMULATOR -------------------------------------------------------------
+
+namespace mlc_simulator {
+
 // # Simulate a loaded program
 // 
 // BUS_MAX           = 999 # largest value the internal buses can use
@@ -671,9 +709,13 @@
 // 		p_flag = True
 // 	else:
 // 		p_flag = False
+}
 
 
 //----- PARSER ----------------------------------------------------------------
+
+namespace mlc_parser {
+
 // # Parse an input program file
 //
 // def labelFromString(s):
@@ -743,9 +785,13 @@
 // 		operand  = None
 //
 // 	return label, operator, operand, labelref
+}
 
 
 //----- LOADER ----------------------------------------------------------------
+
+namespace mlc_loader {
+
 // # Load numeric data into memory
 // # Useful for loading a 'binary' file into the simulator
 //
@@ -774,9 +820,13 @@
 //         end = len(memory)
 //     for addr in range(start, end):
 //         print(str(addr) + " " + str(memory[addr]))
+}
 
 
 //----- INTERACTIVE -----------------------------------------------------------
+
+namespace mlc_shell {
+
 // # interactive shell
 //
 // def todec(n):
@@ -805,9 +855,13 @@
 //
 // if __name__ == "__main__":
 // 	main()
+}
 
 
 //----- BOOT ------------------------------------------------------------------
+
+namespace mlc_boot {
+
 //# boot a runnable system
 //
 // def main():
@@ -821,7 +875,7 @@
 // 	#TODO: get encoder decoder settings from args io.configure()
 // 	#so that we can use BINARY and HEXADECIMAL modes too.
 // 	main()
-
+}
 
 // # END
 
