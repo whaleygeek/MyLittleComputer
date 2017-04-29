@@ -3,10 +3,34 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 JUST DONE
 
-Most function sigs done
+lambdas (radio.ts is a good example)
+
+    export function onDataPacketReceived(cb: (packet: Packet) => void) {
+        onDataReceived(() => {
+            receiveNumber();
+            const packet = new Packet();
+            packet.receivedNumber = receivedNumber();
+            packet.time = receivedTime();
+            packet.serial = receivedSerial();
+            packet.receivedString = receivedString();
+            packet.signal = receivedSignalStrength();
+            cb(packet)
+        });
+    }
+
+    
+    // generic form
+    function register(cb: (param:number) => number):number {
+        return cb(param)
+    }
+
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
+
+
+
+
 
 lambdas to investigage
 list of instruction parts (any) to investigate in return result
