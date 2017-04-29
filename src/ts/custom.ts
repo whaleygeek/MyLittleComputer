@@ -935,22 +935,14 @@ namespace mlc_shell {
 //----- BOOT ------------------------------------------------------------------
 
 namespace mlc_boot {
+    //# boot a runnable system
 
-//# boot a runnable system
-//
-// def main():
-// 	FILENAME = sys.argv[1]
-// 	m = {}
-// 	loader.load(FILENAME, m)
-// 	run(m)
-// 
-// 
-// if __name__ == "__main__":
-// 	#TODO: get encoder decoder settings from args io.configure()
-// 	#so that we can use BINARY and HEXADECIMAL modes too.
-// 	main()
+    function main(void):void {
+        // def main():
+        // 	FILENAME = sys.argv[1]
+        // 	m = {}
+        // 	loader.load(FILENAME, m)
+        // 	run(m)
+    }
 }
-
-// # END
-
 
