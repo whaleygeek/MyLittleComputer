@@ -1,4 +1,8 @@
 // Code as imported from original Python project.
+
+
+//TODO: Change back to camel case!!!
+
 //   TODO: rewrite in TypeScript
 //   TODO: wire up I/O to platform
 //   TODO: wire up an interactive REPL using 'interactive'
@@ -531,6 +535,9 @@ namespace mlc_ext_instrs {
 
 //----- EXTARCH ---------------------------------------------------------------
 
+//NOTE: leave the lambdas until last.
+//will have to look at some of Peli's ts code to see how those are specified
+
 namespace mlc_ext_arch {
 
     // # Extended architecture features
@@ -628,7 +635,7 @@ namespace mlc_simulator {
     // halt_flag         = false
     // memory            = {}
 
-    //function run(mem:number_array, start_addr:number=0):void {
+    function run(mem:number[], start_addr:number=0):void {
         // def run(mem, startaddr = 0):
         // 	"""Run a program to completion"""
         //
@@ -642,9 +649,9 @@ namespace mlc_simulator {
         // 			raise ValueError("out of range program counter:"
         // 			  + str(program_counter))
         // 		cycle()
-    //}
+    }
 
-    //function cycle():void {
+    function cycle():void {
         // def cycle():
         // 	"""Run a single cycle of the LMC machine"""
         //
@@ -660,17 +667,18 @@ namespace mlc_simulator {
         //
         // 	# EXECUTE
         // 	accumulator = execute(operator, operand, accumulator)
-    //}
+    }
 
-    //function fetch():void {
+    function fetch():number {
         // def fetch():
         // 	"""Fetch a single instruction from memory at the program counter pos"""
         //
         // 	instr = memory[program_counter]
         // 	return instr
-    //}
+        return 0 //TODO
+    }
 
-    //function decode(instr:number):number {
+    function decode(instr:number):number {
         // def decode(instr):
         // 	"""Decode a single instruction"""
         //
@@ -678,23 +686,23 @@ namespace mlc_simulator {
         // 	operand = instruction.getOperand(instr)
         //
         // 	return operator, operand
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
-    //function truncate(value:number):number {
+    function truncate(value:number):number {
         // def truncate(v):
         // 	"""Truncate a value to the bus-width of the machine"""
         //
         // 	return v % (BUS_MAX+1)
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
     // # Extended architecture features (comment out if you don't want them)
     // @extarch.bmux        # Add b_reg multiplexed with accumulator
     // @extarch.hlt_instrs  # add user specified HLT instructions
     // @extarch.io_instrs   # add user specified IO instructions
     // @extarch.ext_instrs  # add user specified EXT instructions
-    //function execute(operator:number, operand:number, acc:number):number {
+    function execute(operator:number, operand:number, acc:number):number {
         // def execute(operator, operand, acc):
         // 	"""Execute a single instruction, and return new desired accumulator result"""
         //
@@ -752,10 +760,10 @@ namespace mlc_simulator {
         //
         // 	update_flags(acc)
         // 	return acc
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
-    //function update_flags(value:number):void {
+    function update_flags(value:number):void {
         // def update_flags(v):
         // 	"""Update the z and p flags"""
         //
@@ -779,17 +787,16 @@ namespace mlc_simulator {
         // 		p_flag = true
         // 	else:
         // 		p_flag = false
-    //}
+    }
 }
 
 
 //----- PARSER ----------------------------------------------------------------
 
 namespace mlc_parser {
-
     // # Parse an input program file
 
-    //function label_from_string(s:string):number {
+    function label_from_string(s:string):number {
         // def labelFromString(s):
         // 	"""Work out if this operand is a label or not"""
         //
@@ -802,10 +809,10 @@ namespace mlc_parser {
         //
         // 	# Must be a label
         // 	return null, s # A labelref
-        //return null //TODO
-    //}
+        return null //TODO
+    }
 
-    //function parse_line(line:string):list_of_stuff   {
+    function parse_line(line:string):list_of_stuff   {
         // def parseLine(line):
         // 	"""parse a line into an instruction"""
         //
@@ -859,8 +866,8 @@ namespace mlc_parser {
         // 		operand  = null
         //
         // 	return label, operator, operand, labelref
-        //return null //TODO
-    //}
+        return null //TODO
+    }
 }
 
 
@@ -870,7 +877,7 @@ namespace mlc_loader {
     // # Load numeric data into memory
     // # Useful for loading a 'binary' file into the simulator
 
-    //function load(filename:string, memory:number_array, start_addr:number=0):void {
+    function load(filename:string, memory:number[], start_addr:number=0):void {
         // def load(filename, memory, startaddr=0):
         //     """Load from a file into memory"""
         //
@@ -886,9 +893,9 @@ namespace mlc_loader {
         //             break
         //
         //     f.close()
-    //}
+    }
 
-    //function show_mem(memory:number_array, start:number=0, end:number=null):void {
+    function show_mem(memory:number[], start:number=0, end:number=null):void {
         // def showmem(memory, start=0, end=null):
         //     """Show a range of a memory region"""
         //
@@ -897,7 +904,7 @@ namespace mlc_loader {
         //         end = len(memory)
         //     for addr in range(start, end):
         //         trace(str(addr) + " " + str(memory[addr]))
-    //}
+    }
 }
 
 
