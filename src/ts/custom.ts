@@ -292,9 +292,9 @@ namespace mlc_decimal {
     // # Read and write decimal 3 digit unsigned numbers
     // # with zero padding
     //
-    // DEFAULT_WIDTH = 3
+    let DEFAULT_WIDTH = 3
 
-    //function read(width:number=DEFAULT_WIDTH, file:string=null):number {
+    function read(width:number=DEFAULT_WIDTH, file:string=null):number {
         // def read(width=null, file=null):
         //     #trace("read")
         //     """return a decimal number in range 000-999"""
@@ -334,10 +334,10 @@ namespace mlc_decimal {
         //                 instr = number(line)
         //                 #trace(" instr:" + str(instr))
         //                 return instr
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
-    //function write(number:number, width:number=null, file:string=null):void {
+    function write(number:number, width:number=null, file:string=null):void {
         // def write(number, width=null, file=null):
         //     #trace("write: %s %s %s %s" %( str(number) , str(type(number)), str(width), str(type(width))))
         //     """write a decimal number 000-999 zero padded"""
@@ -349,7 +349,7 @@ namespace mlc_decimal {
         //         trace(str(number).zfill(width))
         //     else: # to file
         //         file.write(str(number).zfill(width) + "\n")
-    //}
+    }
 }
 
 
