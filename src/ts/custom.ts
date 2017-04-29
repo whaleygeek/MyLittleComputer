@@ -23,6 +23,9 @@ function trace(msg:string):void {
 
 //----- MAP -------------------------------------------------------------------
 
+//beware, null==0
+//so if value==0, value==null??
+
 class Map<K, V> {
 
     keys: K[]
@@ -32,49 +35,49 @@ class Map<K, V> {
     }
 
     search_array(a: Object[], item: Object): number {
-        // sequentially search a for item
-        // if found, return index
-        // else
-            return null
+        for (let i = 0; i < a.length(); i++) {
+            if (a[i] == item) {
+                return i
+            }
+        }
+        return -1 // NOT FOUND
     }
 
     value_for(key: K): V {
-        //index = search for key in keys
-        //if found
-        //return values[index]
-        //else
+        let i = this.search_array(this.keys, key)
+        if (i == -1) {
             return null
+        }
+        return this.values[i]
     }
 
     key_for(value: V): K {
-        //index = search for value in values
-        //if not found, return null
-        //else return keys[index]
-        return null //TODO
+        let i = this.search_array(this.values, value)
+        if (i == -1) {
+            return null
+        }
+        return this.keys[i]
     }
 
     set(key: K, value: V): void {
-        //index = search for K in keys
-        //if not foundfound,
-        // append key to keys, get index
-        // set values[index] = value
+        let i = this.search_array(this.keys, key)
+        if (i == -1) {
+            this.keys.push(key)
+            this.values.push(value)
+        } else {
+            this.values[i] = value
+        }
     }
 
     has_key(key: K): boolean {
-        //index = search for K in keys
-        //if found
-        // return true
-        // else
-        return false
+        return this.search_array(this.keys, key) != -1
     }
+
     has_value(value: V): boolean {
-        //index = search for value in values
-        //if found
-        //return true
-        //else
-        return false
+        return this.search_array(this.values, value) != -1
     }
 }
+
 
 //----- INSTRUCTION -----------------------------------------------------------
 
