@@ -1,7 +1,68 @@
 DESIGN NOTES
 
+
+
 --------------------------------------------------------------------------------
-JUST DONE
+NEXT STEPS (PORTING)
+
+Use the above pattern to implement the instruction extension mechanism
+
+Things to work out (for INSTRUCTION)
+- best way to do constants in a namespace, perhaps an enum?
+namespace testing {
+    enum Operand {
+        HLT = 000,
+        ADD = 100,
+        SUB = 200
+    }
+
+- map from string to number,
+- map from (sparse) number to string
+
+// operators = {
+// 	HLT: "HLT",  # this is really HLT 00
+// 	ADD: "ADD",
+// 	SUB: "SUB",
+
+PXT seems to do this sort of stuff with a function with a case table inside it.
+This implies there is no associative array type in the micro:bit version of PXT
+
+function numberToString(op:number):string {
+    switch (op) {
+    case Operand.HLT: return "HLT"
+    case Operand.ADD: return "ADD
+    }
+}
+
+function stringToNumber(op:string):number {
+    if op.equals("HLT") return Operand.HLT
+    if op.equals("ADD") return Operand.ADD
+
+}
+
+
+--------------------------------------------------------------------------------
+namespace:
+    mlc_instruction     (instruction encoding and decoding)
+    mlc_io              (IO streams for a running program)
+    mlc_decimal         (decimal parsing and printing)
+    mlc_binary          (binary parsing and printing)
+    mlc_hexadecimal     (hex parsing and printing)
+    mlc_hlt_instrs      (extended HLT instructions)
+    mlc_io_instrs       (extended IO instructions
+    mlc_ext_instrs      (extended EXT instructions)
+    mlc_ext_arch        (extended architecture, bmux)
+    mlc_simulator       (instruction set and platform simulator)
+    mlc_parser          (parse an input file for the assembler)
+    mlc_loader          (load binary into memory)
+    mlc_shell           (interactive shell)
+    mlc_boot            (boot and run a program from memory)
+
+
+
+
+--------------------------------------------------------------------------------
+INSTRUCTION EXTENSION MECHANISM
 
 lambdas (radio.ts is a good example)
 
@@ -76,13 +137,6 @@ namespace fred {
     exec = exec_ext_ten(exec)
     trace(exec(0))
 }
-
-
---------------------------------------------------------------------------------
-NEXT STEPS (PORTING)
-
-Use the above pattern to implement the instruction extension mechanism
-
 
 
 --------------------------------------------------------------------------------
