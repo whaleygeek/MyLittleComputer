@@ -34,45 +34,49 @@ namespace mlc_instruction {
     // # yy is 00..99, the operand
     //
     // # decimal opcodes of all standard LMC instructions
-    // HLT = 000
-    // ADD = 100
-    // SUB = 200
-    // STA = 300
-    // # 400 not defined by LMC architecture
-    // LDA = 500
-    // BRA = 600
-    // BRZ = 700
-    // BRP = 800
-    // INP = 901
-    // OUT = 902
-    //
-    // # Pseudo opcodes, used by assembler only, not by LMC architecture
-    // # An out of range opcode is used to signify these.
-    // PSEUDO = 1000
-    // DAT    = 1000
-    // #1001..1999 not used yet
-    //
-    //
+    enum Operand {
+        HLT = 000,
+        ADD = 100,
+        SUB = 200,
+        STA = 300,
+        // # 400 not defined by LMC architecture
+        LDA = 500,
+        BRA = 600,
+        BRZ = 700,
+        BRP = 800,
+        INP = 901,
+        OUT = 902,
+
+        // # Pseudo opcodes, used by assembler only, not by LMC architecture
+        // # An out of range opcode is used to signify these.
+        PSEUDO = 1000,
+        DAT    = 1000
+        // #1001..1999 not used yet
+    }
+
     // # useful lookup table for string versions of operands
     // no_operands = [INP, OUT, HLT]
-    //
-    // operators = {
-    // 	HLT: "HLT",  # this is really HLT 00
-    // 	ADD: "ADD",
-    // 	SUB: "SUB",
-    // 	STA: "STA",
-    // 	LDA: "LDA",
-    // 	BRA: "BRA",
-    // 	BRZ: "BRZ",
-    // 	BRP: "BRP",
-    // 	INP: "INP",  # this is really IO 1
-    // 	OUT: "OUT",  # this is really IO 2
-    // 	# PSEUDO
-    // 	DAT: "DAT" # PSEUDO instruction, for convenience
-    // }
+
+    //TODO: This is a bad approach, it is not user extensible, see below
+
+    function opNumberToString(op:number):string {
+        switch (op) {
+            case Operand.HLT: return "HLT" // this is really HLT 00
+            case Operand.ADD: return "ADD"
+            case Operand.SUB: return "SUB"
+            case Operand.STA: return "STA"
+            case Operand.LDA: return "LDA"
+            case Operand.BRA: return "BRA"
+            case Operand.BRZ: return "BRZ"
+            case Operand.BRP: return "BRP"
+            case Operand.INP: return "INP" // this is really IO 1
+            case Operand.OUT: return "OUT" // this is really IO 2
+            case Operand.DAT: return "DAT" // PSEUDO instruction, for convenience
+            default: return "HLT"
+        }
+    }
 
     function registerMnemonic(name:string, code:number, hasOperations:boolean=false):void {
-        // def registerMnemonic(name, code, hasOperands=false):
         // 	"""Register a new Mnemonic in the instruction tables"""
         //
         // 	# Define the constant (e.g. instruction.XXX)
@@ -89,7 +93,6 @@ namespace mlc_instruction {
     }
 
     //function reverseLookup(mymap:list, value:number):string {
-        // def reverseLookup(mymap, value):
         // 	"""Lookup a value in a map, and get it's key"""
         //
         // 	value_idx = mymap.values().index(value)
@@ -99,7 +102,6 @@ namespace mlc_instruction {
     //}
 
     function build(operator:number, operation:number=0):number {
-        // def build(operator, operand=null):
         // 	"""Build an instruction"""
         //
         // 	#trace("build:" + str(operator) + " " + str(operand))
@@ -122,7 +124,6 @@ namespace mlc_instruction {
     }
 
     function setOperator(instr:number, operator:number):number {
-        // def setOperator(instr, operator):
         // 	"""Set the operator in an existing instruction"""
         //
         // 	operand = getOperand(instr)
@@ -131,7 +132,6 @@ namespace mlc_instruction {
     }
 
     function setOperand(instr:number, operand:number):number {
-        // def setOperand(instr, operand):
         // 	"""Set the operand in an existing instruction"""
         //
         // 	operator = getOperator(instr)
@@ -140,7 +140,6 @@ namespace mlc_instruction {
     }
 
     function getOperator(instr:number):number {
-        // def getOperator(instr):
         // 	"""Get the operator from an existing instruction"""
         //
         // 	operator = (instr/100)*100 # change for binary machine, but beware of breaking number output
@@ -149,7 +148,6 @@ namespace mlc_instruction {
     }
 
     function getOperand(instr:number):number {
-        // def getOperand(instr):
         // 	"""Get the operand from an existing instruction"""
         //
         // 	return instr % 100 # change for binary machine, but beware of breaking number output
@@ -157,7 +155,6 @@ namespace mlc_instruction {
     }
 
     function hasOperand(instr:number):boolean {
-        // def has_operand(instr):
         // 	"""Check if this instruction has an operand or not"""
         // 	# Note the special handling for INP OUT HLT (and IO n, HLT n)
         //
@@ -170,7 +167,6 @@ namespace mlc_instruction {
     }
 
     function getOperatorString(instr:number):string {
-        // def getOperatorString(instr):
         // 	"""Turn a numeric operator inside an instr into a string"""
         //
         // 	if operators.has_key(instr):
@@ -186,7 +182,6 @@ namespace mlc_instruction {
     }
 
     function toString(instr:number):string {
-        // def toString(instr):
         // 	"""Get a string representation of any instruction"""
         //
         // 	result = getOperatorString(instr)
@@ -198,7 +193,6 @@ namespace mlc_instruction {
     }
 
     function isOperator(s:string):boolean {
-        // def isOperator(s):
         // 	"""Is this string an operator or not?"""
         // 	try:
         // 		reverseLookup(operators, s)
@@ -209,7 +203,6 @@ namespace mlc_instruction {
     }
 
     function operatorFromString(s:string):number {
-        // def operatorFromString(s):
         // 	"""Turn a string into a numberic operator"""
         // 	# We also support numberic operators (000..999) # change this for binary machine
         // 	try:
@@ -245,13 +238,11 @@ namespace mlc_io {
     // thebase = DECIMAL
 
     function configure(base:number):void {
-        // def configure(base):
         //     global thebase
         //     thebase = base
     }
 
     function read(base:number=null, width:number=null, file:string=null): void {
-        // def read(base=null, width=null, file=null):
         //     if base == null:
         //         base = thebase
         //
@@ -266,7 +257,6 @@ namespace mlc_io {
     }
 
     function write(number:number, base:number=null, width:number=null, file:string=null):void {
-        // def write(number, base=null, width=null, file=null):
         //     if base == null:
         //         base = thebase
         //
@@ -281,8 +271,6 @@ namespace mlc_io {
     }
 
     function writeln(number:number, base:number=null, width:number=null, file:string=null):void {
-        //
-        // #def writeln(number, base=null, width= null, file=file):
         // #    write(number, base=base, width=width, file=file)
         // #    if file == null:
     }
@@ -299,7 +287,6 @@ namespace mlc_decimal {
     let DEFAULT_WIDTH = 3
 
     function read(width:number=DEFAULT_WIDTH, file:string=null):number {
-        // def read(width=null, file=null):
         //     #trace("read")
         //     """return a decimal number in range 000-999"""
         //     # default width is 3 characters, but you can ask for wider
@@ -342,7 +329,6 @@ namespace mlc_decimal {
     }
 
     function write(number:number, width:number=null, file:string=null):void {
-        // def write(number, width=null, file=null):
         //     #trace("write: %s %s %s %s" %( str(number) , str(type(number)), str(width), str(type(width))))
         //     """write a decimal number 000-999 zero padded"""
         //
@@ -366,7 +352,6 @@ namespace mlc_binary {
     let DEFAULT_WIDTH = 8
 
     function read(width:number=DEFAULT_WIDTH, file:string=null):number {
-    // def read(width=DEFAULT_WIDTH, file=null):
     //     """Read a binary number and return as range 0-255 or 0-65535"""
     //     if file == null:
     //         v = raw_input()
@@ -377,7 +362,6 @@ namespace mlc_binary {
     }
 
     function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
-        // def write(number, width=DEFAULT_WIDTH, file=null):
         //     """Write a binary number"""
         //     f = "{0:0%db}" % width
         //     v = f.format(number)
@@ -400,7 +384,6 @@ namespace mlc_hexadecimal {
     let DEFAULT_WIDTH=4
 
     function read(file:string=null):number {
-        // def read(file=null):
         //     if file == null:
         //         v = raw_input()
         //     else:
@@ -410,7 +393,6 @@ namespace mlc_hexadecimal {
     }
 
     function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
-        // def write(number, width=DEFAULT_WIDTH, file=null):
         //     format = "%%0%dX" % width
         //     v = format % number
         //     if file == null:
@@ -444,8 +426,6 @@ namespace mlc_hlt_instrs {
     // # parameters.
 
     function execHLTInstr(operand:number, acc:number):number {
-        //
-        // def execHLTInstr(operand, acc):
         // 	"""Execute any halt instructions here (instruction.T_XX)"""
         //
         // 	trace("executed HLT %d" % str(operand))
@@ -482,8 +462,6 @@ namespace mlc_io_instrs {
     // # all the I/O together into a set of instructions.
 
     function execIOInstr(operand:number, acc:number):number {
-        //
-        // def execIOInstr(operand, acc):
         // 	"""Execute any user IO instructions here (instruction.IO_xx)"""
         // //
         // 	trace("exec IO instr %d" % str(operand))
@@ -511,7 +489,6 @@ namespace mlc_ext_instrs {
     // instruction.registerMnemonic("DIV", 403, false)
 
     function execExtendedInstr(operand:number, acc:number):number {
-        // def execExtendedInstr(operand, acc):
         // 	"""Execute any user instructions here (instruction.X_xx)"""
         //
         // 	if   operand == instruction.getOperand(instruction.USB): # Use Breg in next instruction
@@ -553,7 +530,6 @@ namespace mlc_ext_arch {
     // b_reg  = 0
 
     //function bmux(oldExecute:lambda):lambda {
-        // def bmux(old_execute):
         //     """Add the b_reg architectural feature in as a multiplexor around execute()"""
         //     def new_execute(operator, operand, acc):
         //         global b_flag, b_reg
@@ -577,7 +553,6 @@ namespace mlc_ext_arch {
     //}
 
     //function HLTInstrs(oldExecute:lambda):lambda {
-        // def hlt_instrs(old_execute):
         //     """Insert new HLT instructions into instruction simulation"""
         //     def new_execute(operator, operand, acc):
         //         if   operator == instruction.HLT: # 0xx
@@ -590,7 +565,6 @@ namespace mlc_ext_arch {
     //}
 
     //function IOInstrs(oldExecute:lambda):lambda {
-        // def io_instrs(old_execute):
         //     """Insert new IO instructions into instruction simulation"""
         //     def new_execute(operator, operand, acc):
         //         if   operator == instruction.IO:
@@ -604,7 +578,6 @@ namespace mlc_ext_arch {
     //}
 
     //function EXTInstrs(oldExecute:lambda):lambda {
-        // def ext_instrs(old_execute):
         //     """Insert new EXT instructions into instruction simulation"""
         //     def new_execute(operator, operand, acc):
         //         if   operator == instruction.EXT:
@@ -636,7 +609,6 @@ namespace mlc_simulator {
     // memory            = {}
 
     function run(mem:number[], startAddr:number=0):void {
-        // def run(mem, startaddr = 0):
         // 	"""Run a program to completion"""
         //
         // 	global program_counter, memory
@@ -652,7 +624,6 @@ namespace mlc_simulator {
     }
 
     function cycle():void {
-        // def cycle():
         // 	"""Run a single cycle of the LMC machine"""
         //
         // 	global program_counter, accumulator
@@ -670,7 +641,6 @@ namespace mlc_simulator {
     }
 
     function fetch():number {
-        // def fetch():
         // 	"""Fetch a single instruction from memory at the program counter pos"""
         //
         // 	instr = memory[program_counter]
@@ -679,7 +649,6 @@ namespace mlc_simulator {
     }
 
     function decode(instr:number):number {
-        // def decode(instr):
         // 	"""Decode a single instruction"""
         //
         // 	operator = instruction.getOperator(instr)
@@ -690,7 +659,6 @@ namespace mlc_simulator {
     }
 
     function truncate(value:number):number {
-        // def truncate(v):
         // 	"""Truncate a value to the bus-width of the machine"""
         //
         // 	return v % (BUS_MAX+1)
@@ -703,7 +671,6 @@ namespace mlc_simulator {
     // @extarch.io_instrs   # add user specified IO instructions
     // @extarch.ext_instrs  # add user specified EXT instructions
     function execute(operator:number, operand:number, acc:number):number {
-        // def execute(operator, operand, acc):
         // 	"""Execute a single instruction, and return new desired accumulator result"""
         //
         // 	global program_counter, z_flag, p_flag, memory, halt_flag
@@ -764,7 +731,6 @@ namespace mlc_simulator {
     }
 
     function updateFlags(value:number):void {
-        // def update_flags(v):
         // 	"""Update the z and p flags"""
         //
         // 	global z_flag, p_flag
@@ -797,7 +763,6 @@ namespace mlc_parser {
     // # Parse an input program file
 
     function labelFromString(s:string):number {
-        // def labelFromString(s):
         // 	"""Work out if this operand is a label or not"""
         //
         // 	# Is it numeric?
@@ -813,7 +778,6 @@ namespace mlc_parser {
     }
 
     //function parseLine(line:string):string[] {
-        // def parseLine(line):
         // 	"""parse a line into an instruction"""
         //
         // 	# Ignore lines that are comments
@@ -878,7 +842,6 @@ namespace mlc_loader {
     // # Useful for loading a 'binary' file into the simulator
 
     function load(filename:string, memory:number[], startAddr:number=0):void {
-        // def load(filename, memory, startaddr=0):
         //     """Load from a file into memory"""
         //
         //     f = open(filename, "rt")
@@ -916,13 +879,11 @@ namespace mlc_shell {
     // simulator.memory = [0 for i in range(99)]
 
     function toDec(n:number):string {
-        // def todec(n):
         // 	return str(n).zfill(3)
         return "" //TODO
     }
 
     function main():void {
-        // def main():
         // 	while not simulator.halt_flag:
         // 		line = raw_input("instruction? ")
         //
@@ -949,7 +910,6 @@ namespace mlc_boot {
     //# boot a runnable system
 
     function main():void {
-        // def main():
         // 	FILENAME = sys.argv[1]
         // 	m = {}
         // 	loader.load(FILENAME, m)
