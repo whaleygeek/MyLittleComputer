@@ -1,11 +1,40 @@
 DESIGN NOTES
 
+--------------------------------------------------------------------------------
 JUST DONE
 
-Removed the arbitrary line buffering
+Bare bones pull through of the bits of the Python code we need to port.
+Checked that a file of this size (comments only at this stage) loads
+into pxt.microbit.org fine.
+
 
 --------------------------------------------------------------------------------
-NEXT STEPS
+NEXT STEPS (PORTING)
+
+- Decide on identifier naming conventions (camel or underscored lcase?)
+- Make a priority list of the order to implement the namespaces in
+- for each namespace, create correct function signatures with dummy bodies
+- for each namespace in priority, port each function and test it
+- build up a MVP that will take a memory image of a program, run it and
+  generate some output (do offline build using the python tools here)
+- integrate minimal IO and HLT instructions to get a simple data in and data out
+  (might have to write a micro:bit specific input routine)
+
+- get an interactive REPL shell working on serial
+- put in the rest of the namespaces required to use it interactively
+- note, is there any way to send simulated serial data in the simulator?
+
+- plan out which micro:bit platform features to expose
+- plan out how to map micro:bit features to IO/HLT/EXT instructions
+- write adaptors for extended instructions and test
+
+- plan out some resources we could built using this
+  (specifically link to OCR/AQA/EDEXCEL schemes for using LMC)
+- look for wider uses beyond the curriculum
+
+
+--------------------------------------------------------------------------------
+NEXT STEPS (TOOLS)
 
 - Modify the grammar to add lvalue assignment
   - define in ideal grammar
