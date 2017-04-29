@@ -3,17 +3,21 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 JUST DONE
 
-Bare bones pull through of the bits of the Python code we need to port.
-Checked that a file of this size (comments only at this stage) loads
-into pxt.microbit.org fine.
+Function signatures (guesses mainly) done for each function.
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-- Decide on identifier naming conventions (camel or underscored lcase?)
-- Make a priority list of the order to implement the namespaces in
-- for each namespace, create correct function signatures with dummy bodies
+- validate (and fix) function signatures against pxt.microbit.org
+- resolve any issues with python annotations (can we use ts lambdas here?)
+- resolve any issues with multiple return results
+
+--------------------------------------------------------------------------------
+
+- work out which path we are going to boot up first - interactive probably
+- work out a dependency tree of namespaces and functions we need to test to get there
+
 - for each namespace in priority, port each function and test it
 - build up a MVP that will take a memory image of a program, run it and
   generate some output (do offline build using the python tools here)
