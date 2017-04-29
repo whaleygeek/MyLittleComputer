@@ -359,9 +359,9 @@ namespace mlc_binary {
 
     // # Read and write binary data as bytes (8 bit) and words (16 bits)
     //
-    // DEFAULT_WIDTH = 8
+    let DEFAULT_WIDTH = 8
 
-    //function read(width:number=DEFAULT_WIDTH, file:string=null):number {
+    function read(width:number=DEFAULT_WIDTH, file:string=null):number {
     // def read(width=DEFAULT_WIDTH, file=null):
     //     """Read a binary number and return as range 0-255 or 0-65535"""
     //     if file == null:
@@ -369,10 +369,10 @@ namespace mlc_binary {
     //     else:
     //         v = file.readline()
     //     return number(v, 2)
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
-    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
+    function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
         // def write(number, width=DEFAULT_WIDTH, file=null):
         //     """Write a binary number"""
         //     f = "{0:0%db}" % width
@@ -382,7 +382,7 @@ namespace mlc_binary {
         //     else:
         //         file.write(v)
         //         file.write('\n')
-    //}
+    }
 }
 
 
