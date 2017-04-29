@@ -8,15 +8,28 @@ Removed the arbitrary line buffering
 NEXT STEPS
 
 - Modify the grammar to add lvalue assignment
+  - define in ideal grammar
+  - transform into a left-recursive safe grammar
+  - implement changes in code and refactor
+  - write and run some test cases to see if it parses correctly
 
 - Modify the abstract machine (TAC) to support variable assignment.
-
-- Modify the TAC to AC transformer to support lvalue assignment.
+  - detect expression eval or assignment statement
+  - for expr eval, insert OUT as normal
+  - for assignment, emit instruction 'STA var' instead
 
 - Update the test cases to include testing for lvalue assignment.
 
+At this point, it should be possible to implement a range of non iterative
+mathematical calculations
 
 --------------------------------------------------------------------------------
+
+Harden up the arithmetic engine, specifically better detection of runtime
+errors due to overflows and underflows, and add necessary architecture so
+that it is possible to implement 16 bit and 32 bit calculations (remember
+we're a decimal machine at the moment, might want to implement the binary
+machine architecture first, which is mostly just BUS_MAX settings)
 
 - consider adding a V flag (overflow) that is set if the previous multiply
 divide overflowed or underflowed. Do this as an architecture
@@ -47,6 +60,12 @@ line or by addition of an external .config file.
 
 - resolve discrepancies in command line arguments
 
+Each tool uses a different set of settings. Would be nice to have an optional
+interactive mode, support for io redirection, and also command line parameters
+for named files. Can probably all do this with an args helper (we have one of
+these in another project)
+
+--------------------------------------------------------------------------------
 - write a GPIO abstraction for Raspberry Pi (and anyio)
 - Try to define some simple OS calls
 - Add some more instructions, like Remainder shifts and rotates
