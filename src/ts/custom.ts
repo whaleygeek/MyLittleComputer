@@ -393,19 +393,19 @@ namespace mlc_hexadecimal {
     // # Read and write hexadecimal 8 bit (2 char) or 16 bit (4 char) unsigned numbers
     // # with zero padding
     //
-    // DEFAULT_WIDTH=4
+    let DEFAULT_WIDTH=4
 
-    //function read(file:string=null):number {
+    function read(file:string=null):number {
         // def read(file=null):
         //     if file == null:
         //         v = raw_input()
         //     else:
         //         v = file.readline()
         //     return number(v, 16)
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 
-    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
+    function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
         // def write(number, width=DEFAULT_WIDTH, file=null):
         //     format = "%%0%dX" % width
         //     v = format % number
@@ -414,7 +414,7 @@ namespace mlc_hexadecimal {
         //     else:
         //         file.write(v)
         //         file.write('\n')
-    //}
+    }
 }
 
 
