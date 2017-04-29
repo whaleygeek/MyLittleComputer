@@ -95,18 +95,18 @@ namespace mlc_instruction {
     //}
 
     function build(operator:number, operation:number=0):number {
-        // def build(operator, operand=None):
+        // def build(operator, operand=null):
         // 	"""Build an instruction"""
         //
         // 	#trace("build:" + str(operator) + " " + str(operand))
         //
-        // 	if operator == None and operand == None:
+        // 	if operator == null and operand == null:
         // 		return 0
         //
         // 	if type(operator) != number:
         // 		raise ValueError("non number operator:" + str(operator))
         //
-        // 	if operand == None:
+        // 	if operand == null:
         // 		operand = 0
         //
         // 	elif operand < 0 or operand > 99: # TODO change to 0..255 to allow binary/hex machines
@@ -240,15 +240,15 @@ namespace mlc_io {
     //
     // thebase = DECIMAL
 
-    //function configure(base:number):void {
+    function configure(base:number):void {
         // def configure(base):
         //     global thebase
         //     thebase = base
-    //}
+    }
 
-    //function read(base:number=none, width:number=none, file:string=none): void {
-        // def read(base=None, width=None, file=None):
-        //     if base == None:
+    function read(base:number=null, width:number=null, file:string=null): void {
+        // def read(base=null, width=null, file=null):
+        //     if base == null:
         //         base = thebase
         //
         //     if base == DECIMAL:
@@ -259,11 +259,11 @@ namespace mlc_io {
         //         return hexadecimal.read(width=width, file=file)
         //     else:
         //         raise ValueError("Unsupported base:" + str(base))
-    //}
+    }
 
-    //function write(number:number, base:number=none, width:number=none, file:string=none):void {
-        // def write(number, base=None, width=None, file=None):
-        //     if base == None:
+    function write(number:number, base:number=null, width:number=null, file:string=null):void {
+        // def write(number, base=null, width=null, file=null):
+        //     if base == null:
         //         base = thebase
         //
         //     if base == DECIMAL:
@@ -274,14 +274,14 @@ namespace mlc_io {
         //         hexadecimal.write(number, width=width, file=file)
         //     else:
         //         raise ValueError("Unsupported base:" + str(base))
-    //}
+    }
 
-    //function writeln(number:number, base:number=none, width:number=none, file:string=none):void {
+    function writeln(number:number, base:number=null, width:number=null, file:string=null):void {
         //
-        // #def writeln(number, base=None, width= None, file=file):
+        // #def writeln(number, base=null, width= null, file=file):
         // #    write(number, base=base, width=width, file=file)
-        // #    if file == None:
-    //}
+        // #    if file == null:
+    }
 }
 
 
@@ -294,16 +294,16 @@ namespace mlc_decimal {
     //
     // DEFAULT_WIDTH = 3
 
-    //function read(width:number=DEFAULT_WIDTH, file:string=none):number {
-        // def read(width=None, file=None):
+    //function read(width:number=DEFAULT_WIDTH, file:string=null):number {
+        // def read(width=null, file=null):
         //     #trace("read")
         //     """return a decimal number in range 000-999"""
         //     # default width is 3 characters, but you can ask for wider
         //
-        //     if width == None:
+        //     if width == null:
         //         width = DEFAULT_WIDTH
         //
-        //     if file == None: # stdin, strip blank lines
+        //     if file == null: # stdin, strip blank lines
         //         #trace("stdin")
         //         while true:
         //             try:
@@ -313,7 +313,7 @@ namespace mlc_decimal {
         //                     line = input()
         //             except EOFError:
         //                 #trace(" EOF")
-        //                 return None # EOF
+        //                 return null # EOF
         //
         //             line = line.strip() # strip wrapping spaces and newline char
         //             if len(line) != 0:
@@ -328,7 +328,7 @@ namespace mlc_decimal {
         //             line = file.readline()
         //             if line == "":
         //                 #trace(" EOF")
-        //                 return None # EOF
+        //                 return null # EOF
         //             line = line.strip() # strip wrapping spaces and newline char
         //             if len(line) != 0:
         //                 instr = number(line)
@@ -337,15 +337,15 @@ namespace mlc_decimal {
         //return 0 //TODO
     //}
 
-    //function write(number:number, width:number=none, file:string=none):void {
-        // def write(number, width=None, file=None):
+    //function write(number:number, width:number=null, file:string=null):void {
+        // def write(number, width=null, file=null):
         //     #trace("write: %s %s %s %s" %( str(number) , str(type(number)), str(width), str(type(width))))
         //     """write a decimal number 000-999 zero padded"""
         //
-        //     if width == None:
+        //     if width == null:
         //         width = DEFAULT_WIDTH
         //
-        //     if file == None: # stdout
+        //     if file == null: # stdout
         //         trace(str(number).zfill(width))
         //     else: # to file
         //         file.write(str(number).zfill(width) + "\n")
@@ -361,10 +361,10 @@ namespace mlc_binary {
     //
     // DEFAULT_WIDTH = 8
 
-    //function read(width:number=DEFAULT_WIDTH, file:string=none):number {
-    // def read(width=DEFAULT_WIDTH, file=None):
+    //function read(width:number=DEFAULT_WIDTH, file:string=null):number {
+    // def read(width=DEFAULT_WIDTH, file=null):
     //     """Read a binary number and return as range 0-255 or 0-65535"""
-    //     if file == None:
+    //     if file == null:
     //         v = raw_input()
     //     else:
     //         v = file.readline()
@@ -372,12 +372,12 @@ namespace mlc_binary {
         //return 0 //TODO
     //}
 
-    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=none):void {
-        // def write(number, width=DEFAULT_WIDTH, file=None):
+    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
+        // def write(number, width=DEFAULT_WIDTH, file=null):
         //     """Write a binary number"""
         //     f = "{0:0%db}" % width
         //     v = f.format(number)
-        //     if file == None:
+        //     if file == null:
         //         trace(v)
         //     else:
         //         file.write(v)
@@ -395,9 +395,9 @@ namespace mlc_hexadecimal {
     //
     // DEFAULT_WIDTH=4
 
-    //function read(file:string=none):number {
-        // def read(file=None):
-        //     if file == None:
+    //function read(file:string=null):number {
+        // def read(file=null):
+        //     if file == null:
         //         v = raw_input()
         //     else:
         //         v = file.readline()
@@ -405,11 +405,11 @@ namespace mlc_hexadecimal {
         //return 0 //TODO
     //}
 
-    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=none):void {
-        // def write(number, width=DEFAULT_WIDTH, file=None):
+    //function write(number:number, width:number=DEFAULT_WIDTH, file:string=null):void {
+        // def write(number, width=DEFAULT_WIDTH, file=null):
         //     format = "%%0%dX" % width
         //     v = format % number
-        //     if file == None:
+        //     if file == null:
         //         trace(v)
         //     else:
         //         file.write(v)
@@ -566,7 +566,7 @@ namespace mlc_ext_arch {
         //         return acc
         //
         //     return new_execute # the patched (decorated) execute function with b_flag functionality
-        //return none //TODO
+        //return null //TODO
     //}
 
     //function hlt_isntrs(old_execute:lambda):lambda {
@@ -579,7 +579,7 @@ namespace mlc_ext_arch {
         //         return old_execute(operator, operand, acc)
         //
         //     return new_execute
-        //return none //TODO
+        //return null //TODO
     //}
 
     //function io_instrs(old_execute:lambda):lambda {
@@ -593,7 +593,7 @@ namespace mlc_ext_arch {
         //         return old_execute(operator, operand, acc)
         //
         //     return new_execute
-        ///return none //TODO
+        ///return null //TODO
     //}
 
     //function ext_instrs(old_execute:lambda):lambda {
@@ -605,7 +605,7 @@ namespace mlc_ext_arch {
         //         return old_execute(operator, operand, acc)
         //
         //     return new_execute
-        //return none //TODO
+        //return null //TODO
     //}
 }
 
@@ -796,13 +796,13 @@ namespace mlc_parser {
         // 	# Is it numeric?
         // 	try:
         // 		operand = number(s)
-        // 		return operand, None # just a normal number
+        // 		return operand, null # just a normal number
         // 	except:
         // 		pass
         //
         // 	# Must be a label
-        // 	return None, s # A labelref
-        //return none //TODO
+        // 	return null, s # A labelref
+        //return null //TODO
     //}
 
     //function parse_line(line:string):list_of_stuff   {
@@ -812,7 +812,7 @@ namespace mlc_parser {
         // 	# Ignore lines that are comments
         // 	line = line.strip()
         // 	if line.startswith('#'):
-        // 		return None, None, None, None # whole-line comment
+        // 		return null, null, null, null # whole-line comment
         //
         // 	# Strip off end of line comment
         // 	try:
@@ -825,13 +825,13 @@ namespace mlc_parser {
         // 	# Ignore lines with no instruction on them
         // 	parts    = line.split(" ")
         // 	if len(parts) == 0: # empty line
-        // 		return None
+        // 		return null
         //
         // 	# Split line into [label] [operator] [operand]
-        // 	label    = None
-        // 	operator = None
-        // 	operand  = None
-        // 	labelref = None
+        // 	label    = null
+        // 	operator = null
+        // 	operand  = null
+        // 	labelref = null
         //
         // 	if len(parts) == 1: # (label) or (operator)
         // 		if instruction.isOperator(parts[0]): # (operator)
@@ -856,10 +856,10 @@ namespace mlc_parser {
         // 	# DAT or instruction?
         // 	if operator == instruction.DAT:
         // 		operator = operand
-        // 		operand  = None
+        // 		operand  = null
         //
         // 	return label, operator, operand, labelref
-        //return none //TODO
+        //return null //TODO
     //}
 }
 
@@ -879,7 +879,7 @@ namespace mlc_loader {
         //
         //     while true:
         //         instr = io.read(file=f)
-        //         if instr != None:
+        //         if instr != null:
         //             memory[addr] = instr
         //             addr += 1
         //         else:
@@ -888,12 +888,12 @@ namespace mlc_loader {
         //     f.close()
     //}
 
-    //function show_mem(memory:number_array, start:number=0, end:number=none):void {
-        // def showmem(memory, start=0, end=None):
+    //function show_mem(memory:number_array, start:number=0, end:number=null):void {
+        // def showmem(memory, start=0, end=null):
         //     """Show a range of a memory region"""
         //
         //     trace("MEMORY:")
-        //     if end == None:
+        //     if end == null:
         //         end = len(memory)
         //     for addr in range(start, end):
         //         trace(str(addr) + " " + str(memory[addr]))
