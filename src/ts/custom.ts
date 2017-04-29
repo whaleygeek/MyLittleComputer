@@ -439,7 +439,7 @@ namespace mlc_hlt_instrs {
     // # the accumulator might be a memory address that stores a block of
     // # parameters.
 
-    //function exec_HLT_instr(operand:number, acc:number):number {
+    function exec_HLT_instr(operand:number, acc:number):number {
         //
         // def execHLTInstr(operand, acc):
         // 	"""Execute any halt instructions here (instruction.T_XX)"""
@@ -448,8 +448,8 @@ namespace mlc_hlt_instrs {
         // 	# DEFINE USER HLT INSTRUCTIONS HERE
         //
         // 	return acc
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 }
 
 
@@ -477,7 +477,7 @@ namespace mlc_io_instrs {
     // # they could be done as User instrutions (U) but it's handy to group
     // # all the I/O together into a set of instructions.
 
-    //function exec_IO_instr(operand:number, acc:number):number {
+    function exec_IO_instr(operand:number, acc:number):number {
         //
         // def execIOInstr(operand, acc):
         // 	"""Execute any user IO instructions here (instruction.IO_xx)"""
@@ -485,8 +485,8 @@ namespace mlc_io_instrs {
         // 	trace("exec IO instr %d" % str(operand))
         // 	# DEFINE NEW IO INSTRUCTIONS HERE
         // 	return acc
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 }
 
 
@@ -506,7 +506,7 @@ namespace mlc_ext_instrs {
     // instruction.registerMnemonic("MUL", 402, false)
     // instruction.registerMnemonic("DIV", 403, false)
 
-    //function exec_extended_instr(operand:number, acc:number):number {
+    function exec_extended_instr(operand:number, acc:number):number {
         // def execExtendedInstr(operand, acc):
         // 	"""Execute any user instructions here (instruction.X_xx)"""
         //
@@ -524,8 +524,8 @@ namespace mlc_ext_instrs {
         // 		raise ValueError("Unknown EXT instr:" + str(operand))
         //
         // 	return acc
-        //return 0 //TODO
-    //}
+        return 0 //TODO
+    }
 }
 
 
