@@ -3,15 +3,13 @@ DESIGN NOTES
 --------------------------------------------------------------------------------
 JUST DONE
 
-Function signatures (guesses mainly) done for each function.
-
+Most function sigs done
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-- validate (and fix) function signatures against pxt.microbit.org
-- resolve any issues with python annotations (can we use ts lambdas here?)
-- resolve any issues with multiple return results
+lambdas to investigage
+list of instruction parts (any) to investigate in return result
 
 --------------------------------------------------------------------------------
 
