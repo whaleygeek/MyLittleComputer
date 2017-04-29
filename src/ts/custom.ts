@@ -21,6 +21,60 @@ function trace(msg:string):void {
     serial.writeLine(msg)
 }
 
+//----- MAP -------------------------------------------------------------------
+
+class Map<K, V> {
+
+    keys: K[]
+    values: V[]
+
+    constructor() {
+    }
+
+    search_array(a: Object[], item: Object): number {
+        // sequentially search a for item
+        // if found, return index
+        // else
+            return null
+    }
+
+    value_for(key: K): V {
+        //index = search for key in keys
+        //if found
+        //return values[index]
+        //else
+            return null
+    }
+
+    key_for(value: V): K {
+        //index = search for value in values
+        //if not found, return null
+        //else return keys[index]
+        return null //TODO
+    }
+
+    set(key: K, value: V): void {
+        //index = search for K in keys
+        //if not foundfound,
+        // append key to keys, get index
+        // set values[index] = value
+    }
+
+    has_key(key: K): boolean {
+        //index = search for K in keys
+        //if found
+        // return true
+        // else
+        return false
+    }
+    has_value(value: V): boolean {
+        //index = search for value in values
+        //if found
+        //return true
+        //else
+        return false
+    }
+}
 
 //----- INSTRUCTION -----------------------------------------------------------
 
@@ -54,26 +108,41 @@ namespace mlc_instruction {
         // #1001..1999 not used yet
     }
 
-    // # useful lookup table for string versions of operands
-    // no_operands = [INP, OUT, HLT]
+    let OperandString:string[] = {
+        "HLT",
+        "ADD",
+        "SUB",
+        "STA",
+        "LDA",
+        "BRA",
+        "BRZ",
+        "BRP",
+        "INP",
+        "OUT"
+    }
+    let OperandNumber:number[] = {
+        Operand.HLT,
+        Operand.ADD,
+        Operand.SUB,
+        Operand.STA,
+        Operand.LDA,
+        Operand.BRA,
+        Operand.BRZ,
+        Operand.BRP,
+        Operand.INP,
+        Operand.OUT
+    }
 
-    //TODO: This is a bad approach, it is not user extensible, see below
+    function numberToString(op:number):string {
+        // index = search OperandNumber to find op
+        // return OperandNumber[index]
+        return "" //TODO
+    }
 
-    function opNumberToString(op:number):string {
-        switch (op) {
-            case Operand.HLT: return "HLT" // this is really HLT 00
-            case Operand.ADD: return "ADD"
-            case Operand.SUB: return "SUB"
-            case Operand.STA: return "STA"
-            case Operand.LDA: return "LDA"
-            case Operand.BRA: return "BRA"
-            case Operand.BRZ: return "BRZ"
-            case Operand.BRP: return "BRP"
-            case Operand.INP: return "INP" // this is really IO 1
-            case Operand.OUT: return "OUT" // this is really IO 2
-            case Operand.DAT: return "DAT" // PSEUDO instruction, for convenience
-            default: return "HLT"
-        }
+    function stringToNumber(op:string):number {
+        // index = search OperandString to find op
+        // return OperandNumber[index]
+        return 0 //TODO
     }
 
     function registerMnemonic(name:string, code:number, hasOperations:boolean=false):void {
@@ -92,14 +161,6 @@ namespace mlc_instruction {
         // 		no_operands += [code]
     }
 
-    //function reverseLookup(mymap:list, value:number):string {
-        // 	"""Lookup a value in a map, and get it's key"""
-        //
-        // 	value_idx = mymap.values().index(value)
-        // 	key = mymap.keys()[value_idx]
-        // 	return key
-        //return "" //TODO
-    //}
 
     function build(operator:number, operation:number=0):number {
         // 	"""Build an instruction"""
@@ -194,27 +255,8 @@ namespace mlc_instruction {
 
     function isOperator(s:string):boolean {
         // 	"""Is this string an operator or not?"""
-        // 	try:
-        // 		reverseLookup(operators, s)
-        // 		return true
-        // 	except:
-        // 		return false
+        //TODO: if it appears in OperatorString it is an operator
         return false //TODO
-    }
-
-    function operatorFromString(s:string):number {
-        // 	"""Turn a string into a numberic operator"""
-        // 	# We also support numberic operators (000..999) # change this for binary machine
-        // 	try:
-        // 		operator = number(s)
-        // 		return operator
-        // 	except:
-        // 		pass
-        //
-        // 	s = s.upper()
-        // 	operator = reverseLookup(operators, s)
-        // 	return operator
-        return 0 //TODO
     }
 }
 
