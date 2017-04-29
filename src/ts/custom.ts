@@ -812,7 +812,7 @@ namespace mlc_parser {
         return null //TODO
     }
 
-    function parse_line(line:string):list_of_stuff   {
+    //function parse_line(line:string):list_of_stuff   {
         // def parseLine(line):
         // 	"""parse a line into an instruction"""
         //
@@ -866,8 +866,8 @@ namespace mlc_parser {
         // 		operand  = null
         //
         // 	return label, operator, operand, labelref
-        return null //TODO
-    }
+        //return null //TODO
+    //}
 }
 
 
@@ -915,13 +915,13 @@ namespace mlc_shell {
 
     // simulator.memory = [0 for i in range(99)]
 
-    //function to_dec(n:number):string {
+    function to_dec(n:number):string {
         // def todec(n):
         // 	return str(n).zfill(3)
-        //return "" //TODO
-    //}
+        return "" //TODO
+    }
 
-    //function main():void {
+    function main():void {
         // def main():
         // 	while not simulator.halt_flag:
         // 		line = raw_input("instruction? ")
@@ -939,7 +939,7 @@ namespace mlc_shell {
         // 			+ " z:"    + str(simulator.z_flag)
         // 			+ " p:"    + str(simulator.p_flag)
         // 			+ " halt:" + str(simulator.halt_flag))
-    //}
+    }
 }
 
 
@@ -948,12 +948,12 @@ namespace mlc_shell {
 namespace mlc_boot {
     //# boot a runnable system
 
-    //function main():void {
+    function main():void {
         // def main():
         // 	FILENAME = sys.argv[1]
         // 	m = {}
         // 	loader.load(FILENAME, m)
         // 	run(m)
-    //}
+    }
 }
 
