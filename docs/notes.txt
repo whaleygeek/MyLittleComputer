@@ -18,22 +18,72 @@ lambdas (radio.ts is a good example)
         });
     }
 
-    
+
     // generic form
     function register(cb: (param:number) => number):number {
         return cb(param)
     }
 
+But can you redefine functions once they are defined?
+probably not, as the language is not dynamic like real javascript.
+functions are statically defined.
+However, a variable can be a refrence to any function (which is what a function is in Python)
+so we can synthesise the function decorator pattern providing we call the function
+through a variable function reference
+
+
+Here is a working extensible mechanism
+
+namespace fred {
+    function trace(msg: number): void {
+        serial.writeLine("hello " + msg.toString())
+    }
+
+    // the base executor
+    function exec_base(param: number): number {
+        return param
+    }
+
+    // wrap an add_one feature
+    function exec_ext_one(parent: (param: number) => number): (param: number) => number {
+        function ext1(param: number): number {
+            let v = parent(param)
+            v = v + 1
+            return v
+        }
+        return ext1
+    }
+
+    // wrap an add_ten feature
+    function exec_ext_ten(parent: (param: number) => number): (param: number) => number {
+        function ext10(param: number): number {
+            let v = parent(param)
+            v = v + 10
+            return v
+        }
+        return ext10
+    }
+
+    // try the base executor
+    let exec = exec_base
+    trace(exec(0))
+
+    // try base plus one
+    exec = exec_ext_one(exec)
+    trace(exec(0))
+
+    // try base plus one plus ten
+    exec = exec_ext_ten(exec)
+    trace(exec(0))
+}
+
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
+Use the above pattern to implement the instruction extension mechanism
 
 
-
-
-lambdas to investigage
-list of instruction parts (any) to investigate in return result
 
 --------------------------------------------------------------------------------
 
