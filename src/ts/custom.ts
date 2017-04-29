@@ -292,7 +292,7 @@ namespace mlc_decimal {
     //
     // DEFAULT_WIDTH = 3
 
-    function read(width:int=none, file:string=none):void {
+    function read(width:int=DEFAULT_WIDTH, file:string=none):int {
         // def read(width=None, file=None):
         //     #print("read")
         //     """return a decimal number in range 000-999"""
@@ -355,28 +355,32 @@ namespace mlc_decimal {
 
 namespace mlc_binary {
 
-// # Read and write binary data as bytes (8 bit) and words (16 bits)
-// 
-// DEFAULT_WIDTH = 8
-// 
-// def read(width=DEFAULT_WIDTH, file=None):
-//     """Read a binary number and return as range 0-255 or 0-65535"""
-//     if file == None:
-//         v = raw_input()
-//     else:
-//         v = file.readline()
-//     return int(v, 2)
-// 
-// 
-// def write(number, width=DEFAULT_WIDTH, file=None):
-//     """Write a binary number"""
-//     f = "{0:0%db}" % width
-//     v = f.format(number)
-//     if file == None:
-//         print(v)
-//     else:
-//         file.write(v)
-//         file.write('\n')
+    // # Read and write binary data as bytes (8 bit) and words (16 bits)
+    //
+    // DEFAULT_WIDTH = 8
+
+    function read(width:int=DEFAULT_WIDTH, file:string=none):int {
+    // def read(width=DEFAULT_WIDTH, file=None):
+    //     """Read a binary number and return as range 0-255 or 0-65535"""
+    //     if file == None:
+    //         v = raw_input()
+    //     else:
+    //         v = file.readline()
+    //     return int(v, 2)
+        return 0 //TODO
+    }
+
+    function write(number:int, width:int=DEFAULT_WIDTH, file:string=none):void {
+        // def write(number, width=DEFAULT_WIDTH, file=None):
+        //     """Write a binary number"""
+        //     f = "{0:0%db}" % width
+        //     v = f.format(number)
+        //     if file == None:
+        //         print(v)
+        //     else:
+        //         file.write(v)
+        //         file.write('\n')
+    }
 }
 
 
