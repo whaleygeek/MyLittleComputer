@@ -21,6 +21,12 @@ function trace(msg:string):void {
     serial.writeLine(msg)
 }
 
+//TODO: need better error handling
+function error(msg:string):void {
+    serial.writeLine(msg)
+}
+
+
 //----- MAP -------------------------------------------------------------------
 
 //beware, null==0
@@ -111,155 +117,129 @@ namespace mlc_instruction {
         // #1001..1999 not used yet
     }
 
-    let OperandString:string[] = {
-        "HLT",
-        "ADD",
-        "SUB",
-        "STA",
-        "LDA",
-        "BRA",
-        "BRZ",
-        "BRP",
-        "INP",
-        "OUT"
-    }
-    let OperandNumber:number[] = {
-        Operand.HLT,
-        Operand.ADD,
-        Operand.SUB,
-        Operand.STA,
-        Operand.LDA,
-        Operand.BRA,
-        Operand.BRZ,
-        Operand.BRP,
-        Operand.INP,
-        Operand.OUT
-    }
+    let operands:Map<number,string> = [
+        Operand.HLT, "HLT",
+        Operand.ADD, 'ADD",
+        Operand.SUB, "SUB",
+        Operand.STA, "STA",
+        Operand.LDA, "LDA",
+        Operand.BRA, "BRA",
+        Operand.BRZ, "BRZ",
+        Operand.BRP, "BRP",
+        Operand.INP, "INP",
+        Operand.OUT, "OUT"
+    ]
+
+    let no_operands:number[] = [
+        Operands.INP,
+        Operands.OUT,
+        Operands.HLT
+    ]
 
     function numberToString(op:number):string {
-        // index = search OperandNumber to find op
-        // return OperandNumber[index]
-        return "" //TODO
+        return this.operands.value_for(op)
     }
 
     function stringToNumber(op:string):number {
-        // index = search OperandString to find op
-        // return OperandNumber[index]
-        return 0 //TODO
+        return this.operands.key_of(op)
     }
 
-    function registerMnemonic(name:string, code:number, hasOperations:boolean=false):void {
+    function registerMnemonic(name:string, code:number, hasOperands:boolean=false):void {
         // 	"""Register a new Mnemonic in the instruction tables"""
-        //
         // 	# Define the constant (e.g. instruction.XXX)
         // 	me = sys.modules[__name__]
         // 	setattr(me, name, code)
-        //
+
         // 	# Add the name into the table (e.g. XXX: "XXX"
-        // 	operators[code] = name
-        //
+        this.operands.add(code, name)
+
         // 	# If appropriate, flag that it has no operands
-        // 	if not hasOperands:
-        // 		global no_operands
-        // 		no_operands += [code]
+        if (! hasOperands) {
+            this.no_operands.append(code)
+        }
     }
 
 
-    function build(operator:number, operation:number=0):number {
+    function build(operator:number, operand:number=0):number {
         // 	"""Build an instruction"""
-        //
         // 	#trace("build:" + str(operator) + " " + str(operand))
-        //
+
+        // beware, null is same as 0
         // 	if operator == null and operand == null:
         // 		return 0
-        //
-        // 	if type(operator) != number:
-        // 		raise ValueError("non number operator:" + str(operator))
-        //
-        // 	if operand == null:
-        // 		operand = 0
-        //
-        // 	elif operand < 0 or operand > 99: # TODO change to 0..255 to allow binary/hex machines
-        // 		raise ValueError("Operand out of range:" + str(operand))
-        //
+
+        if (operand < 0 or operand > 99) {
+            error("Operand out of range 0..99)
+        }
+
         // 	return operator + operand # TODO might have to store differently to allow bytes
         // 	# but beware, when we get it's value on a decimal machine, it must return correct value
-        return 0 //TODO
+        return operator + operand
     }
 
     function setOperator(instr:number, operator:number):number {
         // 	"""Set the operator in an existing instruction"""
-        //
-        // 	operand = getOperand(instr)
-        // 	return build(operator, operand)
-        return 0 //TODO
+
+        operand = this.getOperand(instr)
+        return this.build(operator, operand)
     }
 
     function setOperand(instr:number, operand:number):number {
         // 	"""Set the operand in an existing instruction"""
-        //
-        // 	operator = getOperator(instr)
-        // 	return build(operator, operand)
-        return 0 //TODO
+
+        operator = this.getOperator(instr)
+        return this.build(operator, operand)
     }
 
     function getOperator(instr:number):number {
         // 	"""Get the operator from an existing instruction"""
-        //
-        // 	operator = (instr/100)*100 # change for binary machine, but beware of breaking number output
-        // 	return operator
-        return 0 //TODO
+        operator = (instr/100) * 100 //TODO: change for binary machine, but beware of breaking number outut
+        return operator
     }
 
     function getOperand(instr:number):number {
         // 	"""Get the operand from an existing instruction"""
-        //
-        // 	return instr % 100 # change for binary machine, but beware of breaking number output
-        return 0 //TODO
+
+        return instr % 100 //TODO: change for binary machine, but beware of breaking number output
     }
 
     function hasOperand(instr:number):boolean {
         // 	"""Check if this instruction has an operand or not"""
         // 	# Note the special handling for INP OUT HLT (and IO n, HLT n)
-        //
-        // 	try:
-        // 		no_operands.index(instr)
-        // 	except:
-        // 		return true
-        // 	return false
-        return false //TODO
+
+        return ! this.no_operands.has_key(instr & 100)
     }
 
     function getOperatorString(instr:number):string {
         // 	"""Turn a numeric operator inside an instr into a string"""
-        //
-        // 	if operators.has_key(instr):
-        // 		return operators[instr]
-        //
-        // 	instr = getOperator(instr)
-        // 	if operators.has_key(instr):
-        // 		return operators[instr]
-        //
-        // 	else:
-        // 		raise ValueError("Unknown operator:" + str(instr))
-        return "" // TODO
+
+        if (this.operators.has_hey(instr)) {
+            return this.operators.value_for(instr)
+        }
+
+        instr = this.getOperator(instr)
+        if (this.operators.has_key(instr) {
+            return this.operators.value_for(instr)
+        } else {
+            error("Unknown operator")
+        }
     }
 
     function toString(instr:number):string {
         // 	"""Get a string representation of any instruction"""
-        //
-        // 	result = getOperatorString(instr)
-        // 	if has_operand(instr):
-        // 		operand = getOperand(instr)
-        // 		result = result + " " + str(operand).zfill(2) ## might need to change for binary machine
-        // 	return result
-        return "" //TODO
+
+        let result = this.getOperatorString(instr)
+        if this.hasOperand(instr) {
+            let operand = this.getOperand(instr)
+            result = result + " " + operand.toString() //TODO change for binary machine
+            //TODO: need Typescript equivalent of zfill(2)
+        }
+        return result
     }
 
     function isOperator(s:string):boolean {
         // 	"""Is this string an operator or not?"""
-        //TODO: if it appears in OperatorString it is an operator
-        return false //TODO
+        return self.operators.has_value(s)
     }
 }
 
