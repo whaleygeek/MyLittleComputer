@@ -6,7 +6,9 @@ Tested SerialInputStream, works fine
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-Put stream.ts code into custom.ts as a streams namespace.
+I'd really like to have a REPL later, so a bi-directional stream over serial
+would be really useful at this point, to get interactive input for numbers etc.
+
 
 Look back at decimal/binary/hexadecimal/io in light of new input stream classes
 

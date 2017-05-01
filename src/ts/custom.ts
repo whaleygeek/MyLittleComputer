@@ -433,10 +433,11 @@ namespace mlc_decimal {
 
     let DEFAULT_WIDTH = 3
 
-    function read(width: number = DEFAULT_WIDTH, file: string = null): number {
+    function read(width:number=DEFAULT_WIDTH, stream:InputStream): number {
         //     #trace("read")
         //     """return a decimal number in range 000-999"""
         //     # default width is 3 characters, but you can ask for wider
+
 
         //     if file == null: # stdin, strip blank lines
         //         #trace("stdin")

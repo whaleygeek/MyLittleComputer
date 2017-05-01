@@ -138,10 +138,48 @@ class SerialInputStream implements InputStream {
     }
 }
 
+//let f = new ReadOnlyFile("hello\nDavid\n")
+//while (!f.isEnd()) {
+//    let msg = f.readLine()
+//    basic.showString(msg)
+//    basic.pause(200)
+//}
 
-let f = new ReadOnlyFile("hello\nDavid\n")
-while (!f.isEnd()) {
-    let msg = f.readLine()
-    basic.showString(msg)
+
+interface OutputStream {
+    write(s: string): void;
+    writeLine(s: string): void
+}
+
+class ScreenOutputStream implements OutputStream {
+    constructor() {
+    }
+
+    write(s: string) {
+        basic.showString(s)
+    }
+    writeLine(s: string) {
+        basic.showString(s)
+        basic.pause(200)
+        basic.clearScreen()
+    }
+}
+
+class SerialOutputStream implements OutputStream {
+    constructor() {
+    }
+
+    write(s: string) {
+        serial.writeString(s)
+    }
+
+    writeLine(s: string) {
+        serial.writeLine(s)
+    }
+}
+
+let o = new SerialOutputStream()
+while (true) {
+    o.write('hello world')
     basic.pause(200)
 }
