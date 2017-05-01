@@ -1,20 +1,14 @@
 DESIGN NOTES
 
-Tested new ReadOnlyFile with this
-
-let f = new ReadOnlyFile("hello\nDavid\n")
-while (!f.isEnd()) {
-    let msg = f.readLine()
-    basic.showString(msg)
-    basic.pause(200)
-}
+Tested SerialInputStream, works fine
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-Write a SerialInputStream connected to the serial port.
-This will be blocking.
+Put stream.ts code into custom.ts as a streams namespace.
+
+Look back at decimal/binary/hexadecimal/io in light of new input stream classes
 
 
 --------------------------------------------------------------------------------
@@ -24,20 +18,26 @@ namespace:
     mlc_binary          (binary parsing and printing)
     mlc_hexadecimal     (hex parsing and printing)
     mlc_io              (IO streams for a running program)
-
+    --------
     mlc_hlt_instrs      (extended HLT instructions)
     mlc_io_instrs       (extended IO instructions
     mlc_ext_instrs      (extended EXT instructions)
     mlc_ext_arch        (extended architecture, bmux)
-
+    --------
     mlc_simulator       (instruction set and platform simulator)
-
-    mlc_parser          (parse an input file for the assembler)
-
     mlc_loader          (load binary into memory)
-
-    mlc_shell           (interactive shell)
     mlc_boot            (boot and run a program from memory)
+    --------
+    mlc_parser          (parse an input file for the assembler)
+    (NOTE: need a memory dumper for the shell?)
+    mlc_shell           (interactive shell)
+    mlc_disassembler
+    --------
+    (might never run these on micro:bit)
+    mlc_assembler
+    mlc_compiler
+
+
 
 
 --------------------------------------------------------------------------------

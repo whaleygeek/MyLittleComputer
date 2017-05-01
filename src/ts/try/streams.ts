@@ -4,10 +4,6 @@
 // an API that allows you to index into any instance of static read only data
 // i.e. an open file pointer
 
-//TODO: we really want this API interchangeable with reading chars from serial
-//so that our input stream could be stdin or from stored file.
-//that might be too 'big' a design for this tiny system?
-//but it means that most of the API is about streaming
 
 //TODO: need to work out how to do error handling.
 //null is the same as zero, and there are no exceptions!
@@ -38,19 +34,16 @@ class ReadOnlyFile
         this.eof = false
     }
 
-    //file
     length(): number {
         // get the filesize
         return this.data.length()
     }
 
-    //file
     getPos(): number {
         // get the current file pos
         return this.pos
     }
 
-    //file
     setPos(pos: number) {
         // set the current file pos
         if (pos < 0 || pos > this.data.length) {
@@ -60,19 +53,16 @@ class ReadOnlyFile
         }
     }
 
-    //file
     reset(): void {
         this.eof = false
         this.pos = 0
     }
 
-    //stream
     isEnd(): boolean {
         // work out if hit end of file or not
         return this.eof
     }
 
-    //stream
     readLine(): string {
         // read characters until EOLN or EOF
         // if already eof, raise an error?
@@ -92,7 +82,6 @@ class ReadOnlyFile
         }
     }
 
-    //stream
     readChar(): string {
         // read a single char
         // if already EOF, raise an error
@@ -107,7 +96,6 @@ class ReadOnlyFile
         return "" //TODO: read past eof
     }
 
-    //stream
     putBack(data: string): void {
         // putback 1 or more characters, useful for lookahead parsers
         // validate that what is being put back is correct
@@ -117,23 +105,43 @@ class ReadOnlyFile
     }
 }
 
+class SerialInputStream implements InputStream {
+    line: string
+    lpos: number
+
+    constructor() {
+        this.line = ""
+        this.lpos = 0
+    }
+
+    isEnd(): boolean {
+        // Serial never generates EOF
+        return false
+    }
+
+    readLine(): string { //blocking
+        return serial.readLine()
+    }
+
+    readChar(): string { //blocking
+        if (this.lpos >= this.line.length) {
+            this.line = this.readLine()
+            this.lpos = 0
+        }
+        let c = this.line[this.lpos]
+        this.lpos += 1
+        return c
+    }
+
+    putBack(data: string): void {
+        //TODO: unimplemented
+    }
+}
 
 
-
-// some static readonly data
-// i.e. the raw file data
-// this is probably in flash and RAM, not much we can do about that.
-
-let file1:string = "10\n20\n30\n"
-
-
-// reading and processing data from a stream
-// i.e. the app
-
-let f = new ReadOnlyFile(file1)
-
-while (! f.isEof()) {
-    s = f.readLine()
-    basic.showString(s)
-    basic.pause(250)
+let f = new ReadOnlyFile("hello\nDavid\n")
+while (!f.isEnd()) {
+    let msg = f.readLine()
+    basic.showString(msg)
+    basic.pause(200)
 }

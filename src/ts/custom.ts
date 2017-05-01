@@ -14,6 +14,8 @@
 
 //----- DEBUG -----------------------------------------------------------------
 
+//possibly in namespace debug?
+
 function trace(msg: string): void {
     serial.writeLine(msg)
 }
@@ -24,10 +26,147 @@ function error(msg: string): void {
 }
 
 
+//----- STREAMS ---------------------------------------------------------------
+
+namespace streams {
+    interface InputStream {
+        isEnd(): boolean;
+        readLine(): string;
+        readChar(): string;
+        putBack(data: string): void;
+    }
+
+    interface File {
+        length(): number;
+        getPos(): number;
+        setPos(pos: number): void;
+        reset(): void;
+    }
+
+    class ReadOnlyFile
+        implements InputStream, File {
+        data: string
+        pos: number
+        eof: boolean
+
+        constructor(data: string) {
+            this.data = data // is this a reference or a copy?
+            this.pos = 0 // start of file
+            this.eof = false
+        }
+
+        length(): number {
+            // get the filesize
+            return this.data.length()
+        }
+
+        getPos(): number {
+            // get the current file pos
+            return this.pos
+        }
+
+        setPos(pos: number) {
+            // set the current file pos
+            if (pos < 0 || pos > this.data.length) {
+                // raise error
+            } else {
+                this.pos = pos
+            }
+        }
+
+        reset(): void {
+            this.eof = false
+            this.pos = 0
+        }
+
+        isEnd(): boolean {
+            // work out if hit end of file or not
+            return this.eof
+        }
+
+        readLine(): string {
+            // read characters until EOLN or EOF
+            // if already eof, raise an error?
+            if (this.eof) {
+                // raise error
+                return ""
+            } else {
+                let line = ""
+                let c = ""
+                while (c != '\n' && !this.eof) {
+                    c = this.readChar()
+                    if (!this.eof) {
+                        line += c
+                    }
+                }
+                return line
+            }
+        }
+
+        readChar(): string {
+            // read a single char
+            // if already EOF, raise an error
+            // advance pointer by one, maintain eof flag
+            // return string with single char in it
+            if (this.pos < this.data.length) {
+                let ch = this.data[this.pos]
+                this.pos += 1
+                return ch
+            }
+            this.eof = true
+            return "" //TODO: read past eof
+        }
+
+        putBack(data: string): void {
+            // putback 1 or more characters, useful for lookahead parsers
+            // validate that what is being put back is correct
+            // validate we are not putting back beyond start of string
+            // if bad, raise an error
+            // wind back pos by the length of this string
+        }
+    }
+
+    class SerialInputStream implements InputStream {
+        line: string
+        lpos: number
+
+        constructor() {
+            this.line = ""
+            this.lpos = 0
+        }
+
+        isEnd(): boolean {
+            // Serial never generates EOF
+            return false
+        }
+
+        readLine(): string { //blocking
+            return serial.readLine()
+        }
+
+        readChar(): string { //blocking
+            if (this.lpos >= this.line.length) {
+                this.line = this.readLine()
+                this.lpos = 0
+            }
+            let c = this.line[this.lpos]
+            this.lpos += 1
+            return c
+        }
+
+        putBack(data: string): void {
+            //TODO: unimplemented
+        }
+    }
+}
+
+
 //----- MAP -------------------------------------------------------------------
 
 //beware, null==0
 //so if value==0, value==null??
+
+//note, bug in generics is being fixed at moment, so can't use this yet
 
 class Map<K, V> {
 
@@ -466,7 +605,7 @@ namespace mlc_io {
 }
 
 
-
+//=============================================================================
 
 
 //----- HLTINSTRS -------------------------------------------------------------
@@ -653,6 +792,9 @@ namespace mlc_ext_arch {
     //return null //TODO
     //}
 }
+
+
+//=============================================================================
 
 
 //----- SIMULATOR -------------------------------------------------------------
@@ -934,6 +1076,17 @@ namespace mlc_loader {
         //         trace(str(addr) + " " + str(memory[addr]))
     }
 }
+
+
+//----- MEMDUMP ---------------------------------------------------------------
+//TODO: A tool used at the shell that allows memory to be dumped in hex, binary, dec
+//across a range
+//Note: This needs to be prototyped in Python first
+
+
+//----- MEMEDIT ---------------------------------------------------------------
+//TODO: a tool used at the shell that allows memory to be edited
+//Note: This needs to be prototyped in Python first
 
 
 //----- SHELL -----------------------------------------------------------------
