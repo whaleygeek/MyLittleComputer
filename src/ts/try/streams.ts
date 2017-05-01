@@ -12,68 +12,87 @@
 //TODO: need to work out how to do error handling.
 //null is the same as zero, and there are no exceptions!
 
-class ReadOnlyFile {
-    data: string = null
+interface InputStream {
+    isEnd(): boolean;
+    readLine(): string;
+    readChar(): string;
+    putBack(data: string): void;
+}
+
+
+class ReadOnlyFile
+    implements InputStream {
+    data: string
     pos: number
-    eof: boolean = false
+    eof: boolean
 
     //file
-    constructor (data:string) {
+    constructor(data: string) {
         this.data = data // is this a reference or a copy?
         this.pos = 0 // start of file
+        this.eof = false
     }
 
     //file
-    length():number {
+    length(): number {
         // get the filesize
         return this.data.length()
     }
 
     //file
-    getPos():number {
+    getPos(): number {
         // get the current file pos
         return this.pos
     }
 
     //file
-    setPos(pos:number) {
+    setPos(pos: number) {
         // set the current file pos
-        if (pos < 0 || pos > data.length) {
+        if (pos < 0 || pos > this.data.length) {
             // raise error
+        } else {
+            this.pos = pos
         }
-        this.pos = pos
     }
 
     //file
-    reset() {
+    reset(): void {
         this.eof = false
         this.pos = 0
     }
 
     //stream?
-    isEof() {
+    isEnd(): boolean {
         // work out if hit end of file or not
         return this.eof
     }
 
     //stream
-    readLine():string {
+    readLine(): string {
         // read characters until EOLN or EOF
         // if already eof, raise an error?
         // maintain eof flag if now hit end of file
         // return what we just read as a copy, to the caller
+        return ""
     }
 
     //stream
-    readChar():string {
+    readChar(): string {
         // read a single char
         // if already EOF, raise an error
         // advance pointer by one, maintain eof flag
         // return string with single char in it
+        if (this.pos < this.data.length) {
+            let ch = this.data[this.pos]
+            this.pos += 1
+            return ch
+        }
+        this.eof = true
+        return "" //TODO: read past eof
     }
 
     //stream
-    putBack(data:string) {
+    putBack(data: string): void {
         // putback 1 or more characters, useful for lookahead parsers
         // validate that what is being put back is correct
         // validate we are not putting back beyond start of string
@@ -81,6 +100,8 @@ class ReadOnlyFile {
         // wind back pos by the length of this string
     }
 }
+
+
 
 
 // some static readonly data
