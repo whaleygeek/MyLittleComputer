@@ -19,14 +19,19 @@ interface InputStream {
     putBack(data: string): void;
 }
 
+interface File {
+    length(): number;
+    getPos(): number;
+    setPos(pos: number): void;
+    reset(): void;
+}
 
 class ReadOnlyFile
-    implements InputStream {
+    implements InputStream, File {
     data: string
     pos: number
     eof: boolean
 
-    //file
     constructor(data: string) {
         this.data = data // is this a reference or a copy?
         this.pos = 0 // start of file
@@ -61,7 +66,7 @@ class ReadOnlyFile
         this.pos = 0
     }
 
-    //stream?
+    //stream
     isEnd(): boolean {
         // work out if hit end of file or not
         return this.eof
@@ -71,9 +76,20 @@ class ReadOnlyFile
     readLine(): string {
         // read characters until EOLN or EOF
         // if already eof, raise an error?
-        // maintain eof flag if now hit end of file
-        // return what we just read as a copy, to the caller
-        return ""
+        if (this.eof) {
+            // raise error
+            return ""
+        } else {
+            let line = ""
+            let c = ""
+            while (c != '\n' && !this.eof) {
+                c = this.readChar()
+                if (!this.eof) {
+                    line += c
+                }
+            }
+            return line
+        }
     }
 
     //stream

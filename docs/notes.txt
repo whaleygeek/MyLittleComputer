@@ -1,27 +1,20 @@
 DESIGN NOTES
 
+Tested new ReadOnlyFile with this
+
+let f = new ReadOnlyFile("hello\nDavid\n")
+while (!f.isEnd()) {
+    let msg = f.readLine()
+    basic.showString(msg)
+    basic.pause(200)
+}
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-Need to decide where input stream/output stream are going to wire up to.
-At this stage, this is just for INP and OUT (decimal, binary, hexadecimal)
-but eventually when using the simulator/assembler/disassembler it will be for code too.
-
-For an interactive session, probably from serial port.
-There is no working file system at the moment.
-
-So we might have to have a very simple simulated file system, stored in a big
-string or something, that we can store code and data in?
-
-could be an input stream string that has pre-entered numbers ready for parsing?
-Pass this string to the IO module as the data source and it can then manage
-peeling data out as it needs it.
-
-Also need to see if TypeScript is any good at managing string constants,
-we don't really want the string both in flash and in RAM, as we'll quickly
-run out of resources. But managed strings in the runtime are stored in RAM?
+Write a SerialInputStream connected to the serial port.
+This will be blocking.
 
 
 --------------------------------------------------------------------------------
