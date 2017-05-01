@@ -1,23 +1,55 @@
 DESIGN NOTES
 
-Looks like there is no base conversion or number formatting anywhere.
-We're gonna have to write it ourselves.
+Decimal number formatting works fine.
+Next step is to write the parser.
+
+Once Decimal is done, we might look at whether binary and hexadecimal can just
+be special cases of a more generic number base converter, so we could do any
+base up to 16 (octal for example).
+
+Although, at this stage, it's fine to pass in a base parameter and have it
+default to 10 and only use that, as all our testing to date has only been
+done in decimal, and the machine implementation is decimal too and that
+is not configurable.
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-When passing a stream around, need some signature way of working out if
-it is an input, an output, or both.
-i.e how do you work out if a stream implements an interface?
+Write the parse10 parser - is there a simple way to convert string to int?
+Nothing pops up when using the code completion in PXT.
 
-Depending on configuration, we might pass an InputStream, or an OutputStream,
-or an IOStream to the mlc_io namespace when using it, and the behaviour
-should adapt accordingly (prompting etc)
+charAt
+charCodeAt
+compare
+concat
+isEmpty
+length
+substr
 
-So, in the number parser namespaces, if an IOStream is passed in, it's an
-interactive stream and a prompt should be given. If it's just an input
-stream, then it's non interactive and we should just read data.
+Number and number don't have any methods
+
+What else is there that might do this in the existing codebase?
+number parser in the melody player in music.ts??
+
+It uses parseInt from pxt-core.d.ts
+Can't find out what that binds to.
+
+Seems fine:
+let n:number = parseInt(s)
+
+
+There is a toString() on number that will format it as a string.
+Note that there are no options for zero pad or field width protection.
+Interface Number in pxt-core.d.ts - there are no optional parameters.
+
+
+
+For the number parsers...
+
+Might just pass a flag to the thing saying 'interactive' and let it work
+it out from that. Default value of the flag could be false. Bit of a hack,
+but it would work
 
 --------------------------------------------------------------------------------
 
