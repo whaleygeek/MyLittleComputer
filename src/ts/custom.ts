@@ -566,6 +566,9 @@ namespace mlc_io {
         if (stream == null) {
             stream = theInpStream
         }
+        if (interactive == null) {
+            interactive = theOutStream
+        }
         if (interactive != null) {
             interactive.write("inp" + base.toString() + "> ")
         }
