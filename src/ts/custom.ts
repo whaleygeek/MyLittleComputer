@@ -293,7 +293,7 @@ namespace mlc_instruction {
     // # yy is 00..99, the operand
     //
     // # decimal opcodes of all standard LMC instructions
-    enum Operand {
+    enum Operator {
         HLT = 000,
         ADD = 100,
         SUB = 200,
@@ -315,35 +315,33 @@ namespace mlc_instruction {
 
     // bug in pxt prevents this working. Fix going into beta Tuesday 2nd May.
     // find a workaround until then, and ignore the extension mechanism for now.
-    //let operands: Map<number, string> = new Map<number, string>()
+    // let operators: Map<number, string> = new Map<number, string>()
 
-    //operands.push(Operand.HLT, "HLT")
-    //        Operand.HLT, "HLT",
-    //        Operand.ADD, "ADD",
-    //        Operand.SUB, "SUB",
-    //        Operand.STA, "STA",
-    //        Operand.LDA, "LDA",
-    //        Operand.BRA, "BRA",
-    //        Operand.BRZ, "BRZ",
-    //        Operand.BRP, "BRP",
-    //        Operand.INP, "INP",
-    //        Operand.OUT, "OUT"
-    //    ])
+    //operands.push(Operator.HLT, "HLT")
+    //operands.push(Operator.ADD, "ADD")
+    //operands.push(Operator.SUB, "SUB")
+    //operands.push(Operator.STA, "STA")
+    //operands.push(Operator.LDA, "LDA")
+    //operands.push(Operator.BRA, "BRA")
+    //operands.push(Operator.BRZ, "BRZ")
+    //operands.push(Operator.BRP, "BRP")
+    //operands.push(Operator.INP, "INP")
+    //operands.push(Operator.OUT, "OUT")
 
-    let operands_n: number[] = [
-        Operand.HLT,
-        Operand.ADD,
-        Operand.SUB,
-        Operand.STA,
-        Operand.LDA,
-        Operand.BRA,
-        Operand.BRZ,
-        Operand.BRP,
-        Operand.INP,
-        Operand.OUT
+    let operators_n: number[] = [
+        Operator.HLT,
+        Operator.ADD,
+        Operator.SUB,
+        Operator.STA,
+        Operator.LDA,
+        Operator.BRA,
+        Operator.BRZ,
+        Operator.BRP,
+        Operator.INP,
+        Operator.OUT
     ]
 
-    let operands_s: string[] = [
+    let operators_s: string[] = [
         "HLT",
         "ADD",
         "SUB",
@@ -357,17 +355,17 @@ namespace mlc_instruction {
     ]
 
     let no_operands: number[] = [
-        Operand.INP,
-        Operand.OUT,
-        Operand.HLT
+        Operator.INP,
+        Operator.OUT,
+        Operator.HLT
     ]
 
     function numberToString(op: number): string {
-        //return this.operands.value_for(op)
+        //return this.operators.value_for(op)
 
-        for (let i = 0; i < operands_n.length; i++) {
-            if (operands_n[i] == op) {
-                return operands_s[i]
+        for (let i = 0; i < operators_n.length; i++) {
+            if (operators_n[i] == op) {
+                return operators_s[i]
             }
         }
         error("Operator number not found")
@@ -375,10 +373,10 @@ namespace mlc_instruction {
     }
 
     function stringToNumber(op: string): number {
-        //return this.operands.key_of(op)
-        for (let i = 0; i < operands_s.length; i++) {
-            if (operands_s[i] == op) {
-                return operands_n[i]
+        //return this.operators.key_of(op)
+        for (let i = 0; i < operators_s.length; i++) {
+            if (operators_s[i] == op) {
+                return operators_n[i]
             }
         }
         error("Operator string not found")
@@ -392,9 +390,9 @@ namespace mlc_instruction {
         // 	setattr(me, name, code)
 
         // 	# Add the name into the table (e.g. XXX: "XXX"
-        //this.operands.add(code, name)
-        this.operands_n.push(code)
-        this.operands_s.push(name)
+        //this.operators.add(code, name)
+        this.operators_n.push(code)
+        this.operators_s.push(name)
 
         // 	# If appropriate, flag that it has no operands
         if (!hasOperands) {
@@ -602,14 +600,22 @@ namespace mlc_io {
 
 
 //=============================================================================
-//TODO: Not got past this line yet in the porting
+//TODO: Leaving this until the simulator is running
+//we can add the extended instructions later.
 
-//TODO: Not sure yet, but might put all extensions, and the extension wrappers
-//in a simple mlc_extensions namespace
+namespace mlc_extensions
 
-//----- HLTINSTRS -------------------------------------------------------------
+    //This is how to do the lamba annotations...
+    // wrap an add_one feature
+    //function exec_ext_one(parent: (param: number) => number): (param: number) => number {
+    //    function ext1(param: number): number {
+    //        let v = parent(param)
+    //        v = v + 1
+    //        return v
+    //    }
+    //    return ext1
+    //}
 
-namespace mlc_hlt_instrs {
 
     // # Extra HLT instructions for the instruction set simulator
     // # These are good for implementing OS calls
@@ -634,15 +640,9 @@ namespace mlc_hlt_instrs {
         // 	trace("executed HLT %d" % str(operand))
         // 	# DEFINE USER HLT INSTRUCTIONS HERE
         //
-        // 	return acc
+        // 	return acc // unsupported instruction is turned into a NOP
         return 0 //TODO
     }
-}
-
-
-//----- IOINSTRS --------------------------------------------------------------
-
-namespace mlc_io_instrs {
 
     // # Add extra IO instructions to the instruction set simulator
     // //
@@ -669,15 +669,9 @@ namespace mlc_io_instrs {
         // //
         // 	trace("exec IO instr %d" % str(operand))
         // 	# DEFINE NEW IO INSTRUCTIONS HERE
-        // 	return acc
+        // 	return acc // unsupported instruction is turned into a NOP
         return 0 //TODO
     }
-}
-
-
-//----- EXTINSTRS -------------------------------------------------------------
-
-namespace mlc_ext_instrs {
 
     // # Extended instructions that are added to the instuction set simulator
     //
@@ -698,46 +692,35 @@ namespace mlc_ext_instrs {
     function execExtendedInstr(operand: number, acc: number): number {
         // 	"""Execute any user instructions here (instruction.X_xx)"""
         //
-        // 	if   operand == instruction.getOperand(instruction.USB): # Use Breg in next instruction
+        // 	if   operand == instruction.getOperand(401): # Use Breg in next instruction
         // 		extarch.b_flag = true # next instr will use B instead of A
         //
-        // 	elif operand == instruction.getOperand(instruction.MUL): # multiply
+        // 	elif operand == instruction.getOperand(402): # multiply
         // 		acc = extarch.b_reg * acc
         //
-        // 	elif operand == instruction.getOperand(instruction.DIV): # divide
+        // 	elif operand == instruction.getOperand(403): # divide
         // 		##trace("acc %d breg %d" % (acc, b_reg))
         // 		acc = extarch.b_reg / acc
         //
-        // 	else:
-        // 		raise ValueError("Unknown EXT instr:" + str(operand))
-        //
+        // unsupported instruction is turned into a NOP
         // 	return acc
         return 0 //TODO
     }
-}
 
 
-//----- EXTARCH ---------------------------------------------------------------
-
-//NOTE: We have a solution for the lambdas now, in the notes.txt file
-//so this is ready to be rewritten in TypeScript.
-//we can use lambas to define function decorators for runtime chaining functions.
-
-namespace mlc_ext_arch {
+    //NOTE: We have a solution for the lambdas now, in the notes.txt file
+    //so this is ready to be rewritten in TypeScript.
+    //we can use lambas to define function decorators for runtime chaining functions.
 
     // # Extended architecture features
     // # The b_reg and a b_flag is added.
     // # This makes it easier to implement two-operand MUL and DIV instructions
     // # even with the limited space in the instruction set format.
-    //
-    // #TODO: Add copious comments about this decorator system,
-    // #it is not something that beginner python programs will be familiar with.
-    //
-    //
-    // b_flag = false
-    // b_reg  = 0
 
-    //function bmux(oldExecute:lambda):lambda {
+    let b_flag = false
+    let b_reg = 0
+
+    //function addBMux(oldExecute:lambda):lambda {
     //     """Add the b_reg architectural feature in as a multiplexor around execute()"""
     //     def new_execute(operator, operand, acc):
     //         global b_flag, b_reg
@@ -760,7 +743,7 @@ namespace mlc_ext_arch {
     //return null //TODO
     //}
 
-    //function HLTInstrs(oldExecute:lambda):lambda {
+    //function addHLTInstrs(oldExecute:lambda):lambda {
     //     """Insert new HLT instructions into instruction simulation"""
     //     def new_execute(operator, operand, acc):
     //         if   operator == instruction.HLT: # 0xx
@@ -772,7 +755,7 @@ namespace mlc_ext_arch {
     //return null //TODO
     //}
 
-    //function IOInstrs(oldExecute:lambda):lambda {
+    //function addIOInstrs(oldExecute:lambda):lambda {
     //     """Insert new IO instructions into instruction simulation"""
     //     def new_execute(operator, operand, acc):
     //         if   operator == instruction.IO:
@@ -785,7 +768,7 @@ namespace mlc_ext_arch {
     ///return null //TODO
     //}
 
-    //function EXTInstrs(oldExecute:lambda):lambda {
+    //function addEXTInstrs(oldExecute:lambda):lambda {
     //     """Insert new EXT instructions into instruction simulation"""
     //     def new_execute(operator, operand, acc):
     //         if   operator == instruction.EXT:
@@ -799,157 +782,149 @@ namespace mlc_ext_arch {
 
 
 //=============================================================================
-
+//##HERE##
 
 //----- SIMULATOR -------------------------------------------------------------
 
 namespace mlc_simulator {
-
     // # Simulate a loaded program
-    //
-    // BUS_MAX           = 999 # largest value the internal buses can use
-    // PC_MAX            = BUS_MAX
-    // STDIN_REDIRECTED  = not sys.stdin.isatty()
-    // STDOUT_REDIRECTED = not sys.stdout.isatty()
-    //
-    // program_counter   = 0
-    // accumulator       = 0
-    // z_flag            = false # zero
-    // p_flag            = false # positive
-    // halt_flag         = false
-    // memory            = {}
 
-    function run(mem: number[], startAddr: number = 0): void {
+    let BUS_MAX           = 999 // largest value the internal buses can use
+    let PC_MAX            = BUS_MAX
+    let program_counter   = 0
+    let accumulator       = 0
+    let z_flag            = false // zero
+    let p_flag            = false // positive
+    let halt_flag         = false
+    let memory:number[]   = []
+
+    //function run(mem:number[], startAddr:number=0): void {
         // 	"""Run a program to completion"""
-        //
-        // 	global program_counter, memory
+
         // 	program_counter = startaddr
         // 	memory = mem
-        //
+
         // 	while not halt_flag:
         // 		#TODO check LMC spec, does 999+1 wrap to 000?
         // 		if program_counter < 0 or program_counter > 999:
         // 			raise ValueError("out of range program counter:"
         // 			  + str(program_counter))
         // 		cycle()
-    }
+    //}
 
     function cycle(): void {
-        // 	"""Run a single cycle of the LMC machine"""
-        //
-        // 	global program_counter, accumulator
-        //
+        // 	"""Run a single cycle of the machine"""
+
         // 	# FETCH
-        // 	instr = fetch()
+        let instr = fetch()
         // 	##trace("fetch: pc:" + str(program_counter) + " instr:" + str(instr))
-        // 	program_counter = truncate(program_counter+1)
-        //
+        program_counter = truncate(program_counter+1)
+
         // 	# DECODE
-        // 	operator, operand = decode(instr)
-        //
+        decoded = decode(instr)
+        let operator = decoded[0]
+        let operand = decoded[1]
+
         // 	# EXECUTE
-        // 	accumulator = execute(operator, operand, accumulator)
+        accumulator = execute(operator, operand, accumulator)
     }
 
     function fetch(): number {
         // 	"""Fetch a single instruction from memory at the program counter pos"""
-        //
-        // 	instr = memory[program_counter]
-        // 	return instr
-        return 0 //TODO
+
+        return memory[program_counter]
     }
 
-    function decode(instr: number): number {
+    function decode(instr: number): number[] {
         // 	"""Decode a single instruction"""
-        //
-        // 	operator = instruction.getOperator(instr)
-        // 	operand = instruction.getOperand(instr)
-        //
-        // 	return operator, operand
-        return 0 //TODO
+
+        let operator = instruction.getOperator(instr)
+        let operand = instruction.getOperand(instr)
+        return [operator, operand]
     }
 
     function truncate(value: number): number {
         // 	"""Truncate a value to the bus-width of the machine"""
-        //
-        // 	return v % (BUS_MAX+1)
-        return 0 //TODO
+
+        return value % (BUS_MAX+1)
     }
 
-    // # Extended architecture features (comment out if you don't want them)
-    // @extarch.bmux        # Add b_reg multiplexed with accumulator
-    // @extarch.hlt_instrs  # add user specified HLT instructions
-    // @extarch.io_instrs   # add user specified IO instructions
-    // @extarch.ext_instrs  # add user specified EXT instructions
-    function execute(operator: number, operand: number, acc: number): number {
+    function base_execute(operator: number, operand: number, acc: number): number {
         // 	"""Execute a single instruction, and return new desired accumulator result"""
-        //
-        // 	global program_counter, z_flag, p_flag, memory, halt_flag
-        //
-        // 	if   operator == instruction.HLT: # 0xx
-        // 		if operand == 0: # HLT 00 is actually HLT
-        // 			halt_flag = true
-        //
-        // 	elif operator == instruction.ADD: # 1xx
-        // 		acc += memory[operand]
-        // 		acc = truncate(acc)
-        //
-        // 	elif operator == instruction.SUB: # 2xx
-        // 		acc -= memory[operand]
-        // 		acc = truncate(acc)
-        //
-        // 	elif operator == instruction.STA: # 3xx
-        // 		memory[operand] = acc
-        // 		##trace("m[" + str(operand) + "]=" + str(acc))
-        //
-        // 	elif operator == instruction.LDA: # 5xx
-        // 		acc = memory[operand]
-        // 		##trace("a=m[" + str(operand) + "]")
-        //
-        // 	elif operator == instruction.BRA: # 6xx
-        // 		program_counter = operand
-        //
-        // 	elif operator == instruction.BRZ: # 7xx
-        // 		if z_flag:
-        // 			program_counter = operand
-        //
-        // 	elif operator == instruction.BRP: # 8xx
-        // 		if p_flag:
-        // 			program_counter = operand
-        //
-        // 	elif operator == instruction.IO: # 9xx
-        // 		if operand == instruction.getOperand(instruction.INP): # 901
-        // 			if not STDIN_REDIRECTED:
-        // 				sys.stdout.write("in? ")
-        // 			value = io.read()
-        // 			#TODO: should we cope with negative numbers here and complement appropriately?
-        // 			#TODO: Should honour buswidth here depending on decimal/binary/hexadecimal io mode
-        // 			if value < 0 or value > 999:
-        // 				raise ValueError("Out of range value:" + str(value))
-        // 			acc = truncate(value)
-        //
-        // 		elif operand == instruction.getOperand(instruction.OUT): # 902
-        // 			if not STDOUT_REDIRECTED:
-        // 				sys.stdout.write("out=")
-        // 			io.write(acc)
-        //
-        // 	else: # unhandled operator
-        // 		raise ValueError("Unknown operator:" + str(operator))
-        //
-        // 	update_flags(acc)
-        // 	return acc
-        return 0 //TODO
+
+        switch (operator) {
+            case mlc_instruction.Operator.HLT: // 0xx
+                if (operand == 0) { // HLT 00 is actually HLTD
+                    halt_flag = true
+                }
+
+            case mlc_instruction.Operator.ADD: // 1xx
+         		acc += memory[operand]
+         		acc = truncate(acc)
+
+            case mlc_instruction.Operator.SUB: // 2xx
+         		acc -= memory[operand]
+         		acc = truncate(acc)
+
+            case mlc_instruction.Operator.STA: // 3xx
+         		memory[operand] = acc
+
+            case mlc_instruction.Operator.LDA: // 5xx
+         		acc = memory[operand]
+
+            case mlc_instruction.Operator.BRA: // 6xx
+         		program_counter = operand
+
+            case mlc_instruction.Operator.BRZ: // 7xx
+                if (z_flag) {
+                    program_counter = operand
+                }
+
+            case mlc_instruction.Operator.BRP: // 8xx
+                if (p_flag) {
+                    program_counter = operand
+                }
+
+            case mlc_instruction.Operator.IO: // 9xx
+                if (operand == mlc_instruction.getOperand(instruction.INP) { // 901
+                    //TODO let IOStream handle this prompting?
+                    //but would be nice to be able to set the prompt?
+                    // if not STDIN_REDIRECTED:
+                    //     sys.stdout.write("in? ")
+         			value = mlc_io.read()
+                    // 			#TODO: should we cope with negative numbers here and complement appropriately?
+                    // 			#TODO: Should honour buswidth here depending on decimal/binary/hexadecimal io mode
+         			if (value < 0 || value > 999) {
+         			    //TODO: error, value out of range
+         			}
+         			acc = truncate(value)
+         		}
+         		if (operand == instruction.getOperand(instruction.OUT) { // 902
+         		    //TODO let IOStream handle this for us?
+         		    //would be nice to be able to set prefix though
+                    // if not STDOUT_REDIRECTED:
+                    //     sys.stdout.write("out=")
+                    mlc_io.write(acc)
+                }
+        }
+        // Unhandled operators will just fallback to being a NOP
+
+        update_flags(acc)
+        return acc
     }
 
-    function updateFlags(value: number): void {
+    let execute = base_execute
+    //USER EXTENSIONS
+    //execute = mlc_extensions.addBMux(execute) // add b_reg multiplexed with accumulator
+    //execute = mlc_extensions.addHLTInstrs(execute) // add HLT instructions
+    //execute = mlc_extensions.addIOInstrs(execute) // add IO instructions
+    //execute = mlc_extensions.addEXTInstrs(execute) // add EXT instructions
+
+    function updateFlags(v: number): void {
         // 	"""Update the z and p flags"""
-        //
-        // 	global z_flag, p_flag
-        //
-        // 	if v == 0:
-        // 		z_flag = true
-        // 	else:
-        // 		z_flag = false
+
+        z_flag = (v == 0)
+
         // 	#TODO check if LMC specifies how this is represented
         // 	# negative is just a representation, so 000-999 are all positive,
         // 	# but split into two halves. Not that easy to do two's complement,
@@ -959,90 +934,9 @@ namespace mlc_simulator {
         // 	# so if >= 500, negative, value = 1000 = value
         // 	# does the assembler allow entry of negative numbers, and code them
         // 	# into the appropriate complemented form?
-        //
-        // 	if v < 500: #TODO: This will be dependent on buswidth
-        // 		p_flag = true
-        // 	else:
-        // 		p_flag = false
+
+        v_vflag = (v < 500) //TODO dependent on BUSWIDTH?
     }
-}
-
-
-//----- PARSER ----------------------------------------------------------------
-
-namespace mlc_parser {
-    // # Parse an input program file
-
-    function labelFromString(s: string): number {
-        // 	"""Work out if this operand is a label or not"""
-        //
-        // 	# Is it numeric?
-        // 	try:
-        // 		operand = number(s)
-        // 		return operand, null # just a normal number
-        // 	except:
-        // 		pass
-        //
-        // 	# Must be a label
-        // 	return null, s # A labelref
-        return null //TODO
-    }
-
-    //function parseLine(line:string):string[] {
-    // 	"""parse a line into an instruction"""
-    //
-    // 	# Ignore lines that are comments
-    // 	line = line.strip()
-    // 	if line.startswith('#'):
-    // 		return null, null, null, null # whole-line comment
-    //
-    // 	# Strip off end of line comment
-    // 	try:
-    // 		commentpos = line.index('#')
-    // 		line = line[:commentpos]
-    // 		line = line.strip()
-    // 	except:
-    // 		pass
-    //
-    // 	# Ignore lines with no instruction on them
-    // 	parts    = line.split(" ")
-    // 	if len(parts) == 0: # empty line
-    // 		return null
-    //
-    // 	# Split line into [label] [operator] [operand]
-    // 	label    = null
-    // 	operator = null
-    // 	operand  = null
-    // 	labelref = null
-    //
-    // 	if len(parts) == 1: # (label) or (operator)
-    // 		if instruction.isOperator(parts[0]): # (operator)
-    // 			operator = instruction.operatorFromString(parts[0])
-    // 		else: # (label) (operator)
-    // 			label    = parts[0]
-    //
-    // 	elif len(parts) == 2: # (label operator) or (operator operand)
-    // 		if instruction.isOperator(parts[0]): # (operator operand)
-    // 			operator          = instruction.operatorFromString(parts[0])
-    // 			operand, labelref = labelFromString(parts[1])
-    //
-    // 		else: # (label operator)
-    // 			label    = parts[0]
-    // 			operator = instruction.operatorFromString(parts[1])
-    //
-    // 	elif len(parts) == 3: # (label operator operand)
-    // 		label             = parts[0]
-    // 		operator          = instruction.operatorFromString(parts[1])
-    // 		operand, labelref = labelFromString(parts[2])
-    //
-    // 	# DAT or instruction?
-    // 	if operator == instruction.DAT:
-    // 		operator = operand
-    // 		operand  = null
-    //
-    // 	return label, operator, operand, labelref
-    //return null //TODO
-    //}
 }
 
 
@@ -1052,12 +946,14 @@ namespace mlc_loader {
     // # Load numeric data into memory
     // # Useful for loading a 'binary' file into the simulator
 
+    //NOTE: If we write a ReadOnlyFile wrapper for SerialInputStream,
+    //this could boot live from the output of the host assembler.
     function load(filename: string, memory: number[], startAddr: number = 0): void {
         //     """Load from a file into memory"""
-        //
+
         //     f = open(filename, "rt")
         //     addr = startaddr
-        //
+
         //     while true:
         //         instr = io.read(file=f)
         //         if instr != null:
@@ -1065,19 +961,7 @@ namespace mlc_loader {
         //             addr += 1
         //         else:
         //             break
-        //
         //     f.close()
-    }
-
-    function showMem(memory: number[], startAddr: number = 0, endAddr: number = null): void {
-        // def showmem(memory, start=0, end=null):
-        //     """Show a range of a memory region"""
-        //
-        //     trace("MEMORY:")
-        //     if end == null:
-        //         end = len(memory)
-        //     for addr in range(start, end):
-        //         trace(str(addr) + " " + str(memory[addr]))
     }
 }
 
@@ -1086,7 +970,17 @@ namespace mlc_loader {
 //TODO: A tool used at the shell that allows memory to be dumped in hex, binary, dec
 //across a range
 //Note: This needs to be prototyped in Python first
-
+//    //TODO: this belongs in MEMDUMP
+//    function showMem(memory: number[], startAddr: number = 0, endAddr: number = null): void {
+//        // def showmem(memory, start=0, end=null):
+//        //     """Show a range of a memory region"""
+//        //
+//        //     trace("MEMORY:")
+//        //     if end == null:
+//        //         end = len(memory)
+//        //     for addr in range(start, end):
+//        //         trace(str(addr) + " " + str(memory[addr]))
+//    }
 
 //----- MEMEDIT ---------------------------------------------------------------
 //TODO: a tool used at the shell that allows memory to be edited
@@ -1094,6 +988,14 @@ namespace mlc_loader {
 
 
 //----- SHELL -----------------------------------------------------------------
+
+//TODO: This could be a proper command shell
+//a bit like a monitor.
+//it would also be possible to then write python at the host end to
+//drive this remotely, including remote loading a program that you
+//compiled on the host, and then running it on the micro:bit by
+//remote loading it via the shell, and remote driving it via inp/out
+//over serial.
 
 namespace mlc_shell {
     // # interactive shell

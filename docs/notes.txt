@@ -1,20 +1,29 @@
 DESIGN NOTES
 
-Tested mlc_io with this, it works fine:
-
-let f = new streams.ReadOnlyFile("10\n20\n")
-let s = new streams.ScreenOutputStream()
-
-mlc_io.setDefaults(10, f, s)
-let n = mlc_io.read()
-basic.showNumber(n)
-n = mlc_io.read()
-basic.showNumber(n)
+First pass at coding mlc_simulator done.
+Not yet tested.
 
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
+
+    mlc_simulator       (instruction set and platform simulator)
+
+
+    mlc_shell           (interactive shell)
+    mlc_boot            (boot and run a program from memory)
+
+We could probably test the simulator interactively using a simple shell first
+typing in one command at a time and checking the output.
+
+Then, once all instructions work, store an integer array in the code
+and load and run that.
+
+Then add more shell features so we can remotely load over the serial port.
+
+
+--------------------------------------------------------------------------------
 
 Review the extended architecture parts.
 See if we want to put all these in an mlc_extensions namespace
@@ -30,16 +39,6 @@ if we ever turn this into a pxt-package.
     mlc_ext_arch        (extended architecture, bmux)
 
 
---------------------------------------------------------------------------------
-Move on to getting the simulator to work (without extended instructions)
-
-    mlc_simulator       (instruction set and platform simulator)
-    mlc_boot            (boot and run a program from memory)
-
-Hard-code some test code generated from the python assembler into an array
-of integers for the program, and an array of integers for the test data.
-The output will be written to an array of integers, and can then be
-displayed on the screen or serial port at the end of the run.
 
 --------------------------------------------------------------------------------
 
