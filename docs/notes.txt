@@ -1,102 +1,74 @@
 DESIGN NOTES
 
-Decimal number formatting works fine.
-Next step is to write the parser.
-
-Once Decimal is done, we might look at whether binary and hexadecimal can just
-be special cases of a more generic number base converter, so we could do any
-base up to 16 (octal for example).
-
-Although, at this stage, it's fine to pass in a base parameter and have it
-default to 10 and only use that, as all our testing to date has only been
-done in decimal, and the machine implementation is decimal too and that
-is not configurable.
+Parsers integrated in custom.ts and passing syntax check
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-Write the parse10 parser - is there a simple way to convert string to int?
-Nothing pops up when using the code completion in PXT.
+mlc_io
 
-charAt
-charCodeAt
-compare
-concat
-isEmpty
-length
-substr
-
-Number and number don't have any methods
-
-What else is there that might do this in the existing codebase?
-number parser in the melody player in music.ts??
-
-It uses parseInt from pxt-core.d.ts
-Can't find out what that binds to.
-
-Seems fine:
-let n:number = parseInt(s)
-
-
-There is a toString() on number that will format it as a string.
-Note that there are no options for zero pad or field width protection.
-Interface Number in pxt-core.d.ts - there are no optional parameters.
-
-
-
-For the number parsers...
-
-Might just pass a flag to the thing saying 'interactive' and let it work
-it out from that. Default value of the flag could be false. Bit of a hack,
-but it would work
-
---------------------------------------------------------------------------------
-
-Find out how in TypeScript/micro:bit to do base conversions
-- format printing a binary number to fixed width with zero pad
-- format printing a decimal number to a fixed width with zero pad
-- format printing a hexadecimal number to fixed width with zero pad
-
---------------------------------------------------------------------------------
-
-Review the archtecture of decimal/binary/hexadecimal/io
-Seems too big for this platform, and unnecesary. Now that streams are nice
-and clean, I think we can just do this with a standard wrapper that detects
-interactive/non interactive for us, and then does base conversion.
+Write a simple test for mlc_io to make sure we can read, parse, format
+and output decimal numbers with fixed width 3 chars. That is all we need
+for MLC at this stage.
 
 
 --------------------------------------------------------------------------------
 
-Get decimal/binary/hexadecimal working
+Review the extended architecture parts.
+See if we want to put all these in an mlc_extensions namespace
 
+See section below on lambdas, we have a working solution for this already.
+the chained function decorator would allow user extensions to be put in a
+separate namespace (in a separate file) later, which would be useful
+if we ever turn this into a pxt-package.
 
---------------------------------------------------------------------------------
-namespace:
-
-    mlc_decimal         (decimal parsing and printing)
-    mlc_binary          (binary parsing and printing)
-    mlc_hexadecimal     (hex parsing and printing)
-    mlc_io              (IO streams for a running program)
-    --------
     mlc_hlt_instrs      (extended HLT instructions)
     mlc_io_instrs       (extended IO instructions
     mlc_ext_instrs      (extended EXT instructions)
     mlc_ext_arch        (extended architecture, bmux)
-    --------
+
+
+--------------------------------------------------------------------------------
+Move on to getting the simulator to work (without extended instructions)
+
     mlc_simulator       (instruction set and platform simulator)
-    mlc_loader          (load binary into memory)
     mlc_boot            (boot and run a program from memory)
-    --------
+
+Hard-code some test code generated from the python assembler into an array
+of integers for the program, and an array of integers for the test data.
+The output will be written to an array of integers, and can then be
+displayed on the screen or serial port at the end of the run.
+
+--------------------------------------------------------------------------------
+
+mlc_loader          (load binary into memory)
+
+Review use of files - it might be nice to be able to run from either
+an array of integers as a direct representation of memory, or from
+a parsed file that is loaded into an array of integers.
+This is where we introduce the mlc_loader
+
+Program can be loaded from ReadOnlyFile
+Data can be read from a different ReadOnlyFile
+or, if we have an END directive that ends assembly,
+test data could be a follow-on read from the same file.
+
+At this stage, it should be possible to then load and run a simple piece
+of test code pre-assembled using the python assembler.
+
+--------------------------------------------------------------------------------
+
+Not sure if we are going to go this far or not, might lave these tools
+in the host python side
+
     mlc_parser          (parse an input file for the assembler)
-    (NOTE: need a memory dumper for the shell?)
+    mlc_memdump
+    mlc_memedit
     mlc_shell           (interactive shell)
     mlc_disassembler
-    --------
-    (might never run these on micro:bit)
     mlc_assembler
     mlc_compiler
-
 
 
 

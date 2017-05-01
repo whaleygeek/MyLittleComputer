@@ -1,3 +1,7 @@
+
+//NOTE: This was an experiment
+//The latest code is now in ../custom.ts
+
 // stream.ts - try out ideas for data streams a sort
 // of 'lightweight filing system' an API that allows
 // you to index into any instance of static read only

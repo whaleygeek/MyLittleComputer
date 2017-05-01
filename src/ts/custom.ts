@@ -29,21 +29,21 @@ function error(msg: string): void {
 //----- STREAMS ---------------------------------------------------------------
 
 namespace streams {
-    interface InputStream {
+    export interface InputStream {
         isEnd(): boolean;
         readLine(): string;
         readChar(): string;
         putBack(data: string): void;
     }
 
-    interface File {
+    export interface File {
         length(): number;
         getPos(): number;
         setPos(pos: number): void;
         reset(): void;
     }
 
-    class ReadOnlyFile
+    export class ReadOnlyFile
         implements InputStream, File {
         data: string
         pos: number
@@ -158,6 +158,61 @@ namespace streams {
             //TODO: unimplemented
         }
     }
+    export interface OutputStream {
+        write(s: string): void;
+        writeLine(s: string): void
+    }
+    export class ScreenOutputStream implements OutputStream {
+        constructor() { }
+
+        write(s: string) {
+            basic.showString(s)
+        }
+        writeLine(s: string) {
+            basic.showString(s)
+            basic.pause(200)
+            basic.clearScreen()
+        }
+    }
+    export class SerialOutputStream implements OutputStream {
+        constructor() { }
+
+        write(s: string) {
+            serial.writeString(s)
+        }
+
+        writeLine(s: string) {
+            serial.writeLine(s)
+        }
+    }
+    export class IOStream implements InputStream, OutputStream {
+        inp: InputStream
+        out: OutputStream
+
+        constructor(inp: InputStream, out: OutputStream) {
+            this.inp = inp
+            this.out = out
+        }
+        isEnd(): boolean {
+            return this.inp.isEnd()
+        }
+        readLine(): string {
+            return this.inp.readLine()
+        }
+        readChar(): string {
+            return this.inp.readChar()
+        }
+        putBack(data: string): void {
+            this.inp.putBack(data)
+        }
+        write(s: string) {
+            this.out.write(s)
+        }
+        writeLine(s: string) {
+            this.out.writeLine(s)
+        }
+    }
+
 }
 
 
@@ -424,131 +479,6 @@ namespace mlc_instruction {
 }
 
 
-//----- DECIMAL ---------------------------------------------------------------
-
-namespace mlc_decimal {
-
-    // # Read and write decimal 3 digit unsigned numbers
-    // # with zero padding
-
-    let DEFAULT_WIDTH = 3
-
-    function read(width:number=DEFAULT_WIDTH, stream:InputStream): number {
-        //     #trace("read")
-        //     """return a decimal number in range 000-999"""
-        //     # default width is 3 characters, but you can ask for wider
-
-
-        //     if file == null: # stdin, strip blank lines
-        //         #trace("stdin")
-        //         while true:
-        //             try:
-        //                 try:
-        //                     line = raw_input()
-        //                 except:
-        //                     line = input()
-        //             except EOFError:
-        //                 #trace(" EOF")
-        //                 return null # EOF
-        //
-        //             line = line.strip() # strip wrapping spaces and newline char
-        //             if len(line) != 0:
-        //                 instr = int(line)
-        //                 #trace(" instr:" + str(instr))
-        //                 return instr
-        //
-        //     else: # from file, strip blank lines
-        //         #trace("file")
-        //         #raise RuntimeError("HERE")
-        //         while true:
-        //             line = file.readline()
-        //             if line == "":
-        //                 #trace(" EOF")
-        //                 return null # EOF
-        //             line = line.strip() # strip wrapping spaces and newline char
-        //             if len(line) != 0:
-        //                 instr = number(line)
-        //                 #trace(" instr:" + str(instr))
-        //                 return instr
-        return 0 //TODO
-    }
-
-    function write(number: number, width: number = null, file: string = null): void {
-        //     #trace("write: %s %s %s %s" %( str(number) , str(type(number)), str(width), str(type(width))))
-        //     """write a decimal number 000-999 zero padded"""
-        //
-        //     if width == null:
-        //         width = DEFAULT_WIDTH
-        //
-        //     if file == null: # stdout
-        //         trace(str(number).zfill(width))
-        //     else: # to file
-        //         file.write(str(number).zfill(width) + "\n")
-    }
-}
-
-
-//----- BINARY ----------------------------------------------------------------
-
-namespace mlc_binary {
-
-    // # Read and write binary data as bytes (8 bit) and words (16 bits)
-    //
-    let DEFAULT_WIDTH = 8
-
-    function read(width: number = DEFAULT_WIDTH, file: string = null): number {
-        //     """Read a binary number and return as range 0-255 or 0-65535"""
-        //     if file == null:
-        //         v = raw_input()
-        //     else:
-        //         v = file.readline()
-        //     return int(v, 2)
-        return 0 //TODO
-    }
-
-    function write(number: number, width: number = DEFAULT_WIDTH, file: string = null): void {
-        //     """Write a binary number"""
-        //     f = "{0:0%db}" % width
-        //     v = f.format(number)
-        //     if file == null:
-        //         trace(v)
-        //     else:
-        //         file.write(v)
-        //         file.write('\n')
-    }
-}
-
-
-//----- HEXADECIMAL -----------------------------------------------------------
-
-namespace mlc_hexadecimal {
-
-    // # Read and write hexadecimal 8 bit (2 char) or 16 bit (4 char) unsigned numbers
-    // # with zero padding
-    //
-    let DEFAULT_WIDTH = 4
-
-    function read(file: string = null): number {
-        //     if file == null:
-        //         v = raw_input()
-        //     else:
-        //         v = file.readline()
-        //     return int(v, 16)
-        return 0 //TODO
-    }
-
-    function write(number: number, width: number = DEFAULT_WIDTH, file: string = null): void {
-        //     format = "%%0%dX" % width
-        //     v = format % number
-        //     if file == null:
-        //         trace(v)
-        //     else:
-        //         file.write(v)
-        //         file.write('\n')
-    }
-}
-
-
 //----- IO --------------------------------------------------------------------
 
 namespace mlc_io {
@@ -560,54 +490,119 @@ namespace mlc_io {
     // # Depending on the configuration, it can use decimal, binary or hexadecimal
     // # of any width in characters/bytes. You can also set a default base and width
     // # that will be used if not supplied.
-    //
-    DECIMAL     = 10
-    BINARY      = 2
-    HEXADECIMAL = 16
+
+    let DECIMAL = 10
+    let BINARY = 2
+    let HEXADECIMAL = 16
 
     let theBase = DECIMAL
+    let theInpStream: streams.InputStream = null
+    let theOutStream: streams.OutputStream = null
 
-    function configure(base: number): void {
+    export function setDefaults(base: number, inp: streams.InputStream = null, out: streams.OutputStream = null): void {
         theBase = base
+        theInpStream = inp
+        theOutStream = out
     }
 
-    function read(base: number = null, width: number = null, file: string = null): void {
-        //     if base == null:
-        //         base = thebase
-        //
-        //     if base == DECIMAL:
-        //         return decimal.read(width=width, file=file)
-        //     elif base == BINARY:
-        //         return binary.read(width=width, file=file)
-        //     elif base == HEXADECIMAL:
-        //         return hexadecimal.read(width=width, file=file)
-        //     else:
-        //         raise ValueError("Unsupported base:" + str(base))
+    function format10(n: number, width = 3, zeroPad = true, signed = false): string {
+        // if zero padding, work out how many zeros to add first
+        let result = ""
+        let neg: boolean = n < 0
+        n = Math.abs(n) // strip any sign
+        let err: boolean = false
+
+        if (!signed && neg) {
+            err = true
+        }
+
+        // SIGN
+        if (neg) {
+            result = "-"
+        }
+
+        let value = n.toString()
+
+        // ZEROPAD
+        if (zeroPad) {
+            let len = value.length + result.length
+            if (len < width) {
+                let numz = width - len
+                for (; numz > 0; numz--) {
+                    result += "0"
+                }
+            }
+        }
+        // VALUE
+        result += n.toString()
+
+        // LENGTH CHECK
+        if (result.length > width) {
+            err = true
+        }
+
+        // ERROR HANDLING
+        if (err) {
+            result = ""
+            for (let i = 0; i < width; i++) {
+                result += '*'
+            }
+        }
+        return result
     }
 
-    function write(number: number, base: number = null, width: number = null, file: string = null): void {
-        //     if base == null:
-        //         base = thebase
-        //
-        //     if base == DECIMAL:
-        //         decimal.write(number, width=width, file=file)
-        //     elif base == BINARY:
-        //         binary.write(number, width=width, file=file)
-        //     elif base == HEXADECIMAL:
-        //         hexadecimal.write(number, width=width, file=file)
-        //     else:
-        //         raise ValueError("Unsupported base:" + str(base))
+    function parse10(s: string): number {
+        return parseInt(s)
     }
 
-    function writeln(number: number, base: number = null, width: number = null, file: string = null): void {
-        // #    write(number, base=base, width=width, file=file)
-        // #    if file == null:
+    export function read(base: number = null, width: number = 3, stream: streams.InputStream = null, interactive: streams.OutputStream = null): number {
+        if (base == null) {
+            base = theBase
+        }
+        if (base != DECIMAL) {
+            //error we only support decimal at moment
+            return 0
+        }
+        if (stream == null) {
+            stream = theInpStream
+        }
+        if (interactive != null) {
+            interactive.write("inp" + base.toString() + "> ")
+        }
+        //TODO might change this later to support any delimiter, e.g. [comma/newline]
+        //stream.readUntil(charset:string)
+        //i.e. let s = stream.readUntil("\n, ")
+        let s = stream.readLine()
+        return parse10(s)
+    }
+
+    export function write(n: number, base: number = null, width: number = 3, stream: streams.OutputStream = null): void {
+        if (base == null) {
+            base = theBase
+        }
+        if (stream == null) {
+            stream = theOutStream
+        }
+        if (base != DECIMAL) {
+            // error
+            return
+        }
+        let s = format10(n)
+        stream.write(s)
+    }
+
+    export function writeLine(n: number, base: number = null, width: number = null, stream: streams.OutputStream = null): void {
+        write(n, base, width, stream)
+        stream.writeLine("")
     }
 }
 
 
 //=============================================================================
+//TODO: Not got past this line yet in the porting
 
+//TODO: Not sure yet, but might put all extensions, and the extension wrappers
+//in a simple mlc_extensions namespace
 
 //----- HLTINSTRS -------------------------------------------------------------
 

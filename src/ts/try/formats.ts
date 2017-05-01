@@ -1,8 +1,12 @@
+//NOTE: This was an experiment
+//The latest code is now in ../custom.ts
+
 //TESTING: input and output format parsing
 
 function print(m:string) {
     basic.showString(m)
 }
+
 
 function format10(n:number, width=3, zeroPad=true, signed=true):string {
     // if zero padding, work out how many zeros to add first
@@ -52,19 +56,13 @@ function format10(n:number, width=3, zeroPad=true, signed=true):string {
 }
 
 function parse10(s:string):number {
-    //TODO
-    return 0
+    return parseInt(s)
 }
 
 // decimal output with zeropad
 let i = 123
 let s = format10(i)
 print(s)
-
-
-
-// decimal input with zeropadstrip
-
 
 
 
