@@ -1,19 +1,20 @@
 DESIGN NOTES
 
-Parsers integrated in custom.ts and passing syntax check
+Tested mlc_io with this, it works fine:
+
+let f = new streams.ReadOnlyFile("10\n20\n")
+let s = new streams.ScreenOutputStream()
+
+mlc_io.setDefaults(10, f, s)
+let n = mlc_io.read()
+basic.showNumber(n)
+n = mlc_io.read()
+basic.showNumber(n)
+
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
-
-mlc_io
-
-Write a simple test for mlc_io to make sure we can read, parse, format
-and output decimal numbers with fixed width 3 chars. That is all we need
-for MLC at this stage.
-
-
---------------------------------------------------------------------------------
 
 Review the extended architecture parts.
 See if we want to put all these in an mlc_extensions namespace
