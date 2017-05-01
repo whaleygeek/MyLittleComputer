@@ -1,8 +1,5 @@
 // Code as imported from original Python project.
 
-
-//TODO: Change back to camel case!!!
-
 //   TODO: rewrite in TypeScript
 //   TODO: wire up I/O to platform
 //   TODO: wire up an interactive REPL using 'interactive'
@@ -122,9 +119,11 @@ namespace mlc_instruction {
         // #1001..1999 not used yet
     }
 
-    let operands: Map<number, string> = new Map<number, string>()
+    // bug in pxt prevents this working. Fix going into beta Tuesday 2nd May.
+    // find a workaround until then, and ignore the extension mechanism for now.
+    //let operands: Map<number, string> = new Map<number, string>()
 
-    operands.push(Operand.HLT, "HLT")
+    //operands.push(Operand.HLT, "HLT")
     //        Operand.HLT, "HLT",
     //        Operand.ADD, "ADD",
     //        Operand.SUB, "SUB",
@@ -137,6 +136,32 @@ namespace mlc_instruction {
     //        Operand.OUT, "OUT"
     //    ])
 
+    let operands_n: number[] = [
+        Operand.HLT,
+        Operand.ADD,
+        Operand.SUB,
+        Operand.STA,
+        Operand.LDA,
+        Operand.BRA,
+        Operand.BRZ,
+        Operand.BRP,
+        Operand.INP,
+        Operand.OUT
+    ]
+
+    let operands_s: string[] = [
+        "HLT",
+        "ADD",
+        "SUB",
+        "STA",
+        "LDA",
+        "BRA",
+        "BRZ",
+        "BRP",
+        "INP",
+        "OUT"
+    ]
+
     let no_operands: number[] = [
         Operand.INP,
         Operand.OUT,
@@ -144,11 +169,26 @@ namespace mlc_instruction {
     ]
 
     function numberToString(op: number): string {
-        return this.operands.value_for(op)
+        //return this.operands.value_for(op)
+
+        for (let i = 0; i < operands_n.length; i++) {
+            if (operands_n[i] == op) {
+                return operands_s[i]
+            }
+        }
+        error("Operator number not found")
+        return ""
     }
 
     function stringToNumber(op: string): number {
-        return this.operands.key_of(op)
+        //return this.operands.key_of(op)
+        for (let i = 0; i < operands_s.length; i++) {
+            if (operands_s[i] == op) {
+                return operands_n[i]
+            }
+        }
+        error("Operator string not found")
+        return 0 //TODO: Unknown
     }
 
     function registerMnemonic(name: string, code: number, hasOperands: boolean = false): void {
@@ -158,7 +198,9 @@ namespace mlc_instruction {
         // 	setattr(me, name, code)
 
         // 	# Add the name into the table (e.g. XXX: "XXX"
-        this.operands.add(code, name)
+        //this.operands.add(code, name)
+        this.operands_n.push(code)
+        this.operands_s.push(name)
 
         // 	# If appropriate, flag that it has no operands
         if (!hasOperands) {
@@ -171,10 +213,6 @@ namespace mlc_instruction {
         // 	"""Build an instruction"""
         // 	#trace("build:" + str(operator) + " " + str(operand))
 
-        // beware, null is same as 0
-        // 	if operator == null and operand == null:
-        // 		return 0
-
         if (operand < 0 || operand > 99) {
             error("Operand out of range 0..99")
         }
@@ -186,14 +224,12 @@ namespace mlc_instruction {
 
     function setOperator(instr: number, operator: number): number {
         // 	"""Set the operator in an existing instruction"""
-
         let operand = this.getOperand(instr)
         return this.build(operator, operand)
     }
 
     function setOperand(instr: number, operand: number): number {
         // 	"""Set the operand in an existing instruction"""
-
         let operator = this.getOperator(instr)
         return this.build(operator, operand)
     }
@@ -205,14 +241,12 @@ namespace mlc_instruction {
 
     function getOperand(instr: number): number {
         // 	"""Get the operand from an existing instruction"""
-
         return instr % 100 //TODO: change for binary machine, but beware of breaking number output
     }
 
     function hasOperand(instr: number): boolean {
         // 	"""Check if this instruction has an operand or not"""
         // 	# Note the special handling for INP OUT HLT (and IO n, HLT n)
-
         return !this.no_operands.has_key(instr & 100)
     }
 
