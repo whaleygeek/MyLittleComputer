@@ -285,81 +285,20 @@ namespace mlc_instruction {
 }
 
 
-//----- IO --------------------------------------------------------------------
-
-namespace mlc_io {
-
-    // # Handle the input/output streams to a running program.
-    // # This decides how to read and write data to and from a running program,
-    // # or to and from a stored program file.
-    // #
-    // # Depending on the configuration, it can use decimal, binary or hexadecimal
-    // # of any width in characters/bytes. You can also set a default base and width
-    // # that will be used if not supplied.
-    //
-    // DECIMAL     = 10
-    // BINARY      = 2
-    // HEXADECIMAL = 16
-    //
-    // thebase = DECIMAL
-
-    function configure(base: number): void {
-        //     global thebase
-        //     thebase = base
-    }
-
-    function read(base: number = null, width: number = null, file: string = null): void {
-        //     if base == null:
-        //         base = thebase
-        //
-        //     if base == DECIMAL:
-        //         return decimal.read(width=width, file=file)
-        //     elif base == BINARY:
-        //         return binary.read(width=width, file=file)
-        //     elif base == HEXADECIMAL:
-        //         return hexadecimal.read(width=width, file=file)
-        //     else:
-        //         raise ValueError("Unsupported base:" + str(base))
-    }
-
-    function write(number: number, base: number = null, width: number = null, file: string = null): void {
-        //     if base == null:
-        //         base = thebase
-        //
-        //     if base == DECIMAL:
-        //         decimal.write(number, width=width, file=file)
-        //     elif base == BINARY:
-        //         binary.write(number, width=width, file=file)
-        //     elif base == HEXADECIMAL:
-        //         hexadecimal.write(number, width=width, file=file)
-        //     else:
-        //         raise ValueError("Unsupported base:" + str(base))
-    }
-
-    function writeln(number: number, base: number = null, width: number = null, file: string = null): void {
-        // #    write(number, base=base, width=width, file=file)
-        // #    if file == null:
-    }
-}
-
-
 //----- DECIMAL ---------------------------------------------------------------
 
 namespace mlc_decimal {
 
     // # Read and write decimal 3 digit unsigned numbers
     // # with zero padding
-    //
+
     let DEFAULT_WIDTH = 3
 
     function read(width: number = DEFAULT_WIDTH, file: string = null): number {
         //     #trace("read")
         //     """return a decimal number in range 000-999"""
         //     # default width is 3 characters, but you can ask for wider
-        //
-        //     if width == null:
-        //         width = DEFAULT_WIDTH
-        //
+
         //     if file == null: # stdin, strip blank lines
         //         #trace("stdin")
         //         while true:
@@ -468,6 +407,66 @@ namespace mlc_hexadecimal {
         //         file.write('\n')
     }
 }
+
+
+//----- IO --------------------------------------------------------------------
+
+namespace mlc_io {
+
+    // # Handle the input/output streams to a running program.
+    // # This decides how to read and write data to and from a running program,
+    // # or to and from a stored program file.
+    // #
+    // # Depending on the configuration, it can use decimal, binary or hexadecimal
+    // # of any width in characters/bytes. You can also set a default base and width
+    // # that will be used if not supplied.
+    //
+    DECIMAL     = 10
+    BINARY      = 2
+    HEXADECIMAL = 16
+
+    let theBase = DECIMAL
+
+    function configure(base: number): void {
+        theBase = base
+    }
+
+    function read(base: number = null, width: number = null, file: string = null): void {
+        //     if base == null:
+        //         base = thebase
+        //
+        //     if base == DECIMAL:
+        //         return decimal.read(width=width, file=file)
+        //     elif base == BINARY:
+        //         return binary.read(width=width, file=file)
+        //     elif base == HEXADECIMAL:
+        //         return hexadecimal.read(width=width, file=file)
+        //     else:
+        //         raise ValueError("Unsupported base:" + str(base))
+    }
+
+    function write(number: number, base: number = null, width: number = null, file: string = null): void {
+        //     if base == null:
+        //         base = thebase
+        //
+        //     if base == DECIMAL:
+        //         decimal.write(number, width=width, file=file)
+        //     elif base == BINARY:
+        //         binary.write(number, width=width, file=file)
+        //     elif base == HEXADECIMAL:
+        //         hexadecimal.write(number, width=width, file=file)
+        //     else:
+        //         raise ValueError("Unsupported base:" + str(base))
+    }
+
+    function writeln(number: number, base: number = null, width: number = null, file: string = null): void {
+        // #    write(number, base=base, width=width, file=file)
+        // #    if file == null:
+    }
+}
+
+
+
 
 
 //----- HLTINSTRS -------------------------------------------------------------
