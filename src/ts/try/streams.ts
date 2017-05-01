@@ -1,12 +1,9 @@
-// stream.ts - try out ideas for data streams
-// a sort of 'lightweight filing system'
-
-// an API that allows you to index into any instance of static read only data
-// i.e. an open file pointer
-
-
-//TODO: need to work out how to do error handling.
-//null is the same as zero, and there are no exceptions!
+// stream.ts - try out ideas for data streams a sort
+// of 'lightweight filing system' an API that allows
+// you to index into any instance of static read only
+// data i.e. an open file pointer TODO: need to work
+// out how to do error handling. null is the same as
+// zero, and there are no exceptions!
 
 interface InputStream {
     isEnd(): boolean;
@@ -14,14 +11,66 @@ interface InputStream {
     readChar(): string;
     putBack(data: string): void;
 }
+interface OutputStream {
+    write(s: string): void;
+    writeLine(s: string): void
+}
+class IOStream implements InputStream, OutputStream {
+    inp: InputStream
+    out: OutputStream
 
+    constructor(inp: InputStream, out: OutputStream) {
+        this.inp = inp
+        this.out = out
+    }
+    isEnd(): boolean {
+        return this.inp.isEnd()
+    }
+    readLine(): string {
+        return this.inp.readLine()
+    }
+    readChar(): string {
+        return this.inp.readChar()
+    }
+    putBack(data: string): void {
+        this.inp.putBack(data)
+    }
+    write(s: string) {
+        this.out.write(s)
+    }
+    writeLine(s: string) {
+        this.out.writeLine(s)
+    }
+}
+class ScreenOutputStream implements OutputStream {
+    constructor() { }
+
+    write(s: string) {
+        basic.showString(s)
+    }
+    writeLine(s: string) {
+        basic.showString(s)
+        basic.pause(200)
+        basic.clearScreen()
+    }
+}
+class SerialOutputStream implements OutputStream {
+    constructor() { }
+
+    write(s: string) {
+        serial.writeString(s)
+    }
+
+    writeLine(s: string) {
+        serial.writeLine(s)
+    }
+}
 interface File {
     length(): number;
     getPos(): number;
     setPos(pos: number): void;
     reset(): void;
 }
-
 class ReadOnlyFile
     implements InputStream, File {
     data: string
@@ -104,7 +153,6 @@ class ReadOnlyFile
         // wind back pos by the length of this string
     }
 }
-
 class SerialInputStream implements InputStream {
     line: string
     lpos: number
@@ -119,18 +167,20 @@ class SerialInputStream implements InputStream {
         return false
     }
 
-    readLine(): string { //blocking
+    readLine(): string {
+        //blocking
         return serial.readLine()
     }
 
-    readChar(): string { //blocking
+    readChar(): string {
+        //blocking
         if (this.lpos >= this.line.length) {
             this.line = this.readLine()
             this.lpos = 0
         }
-        let c = this.line[this.lpos]
+        let d = this.line[this.lpos]
         this.lpos += 1
-        return c
+        return d
     }
 
     putBack(data: string): void {
@@ -138,48 +188,12 @@ class SerialInputStream implements InputStream {
     }
 }
 
-//let f = new ReadOnlyFile("hello\nDavid\n")
-//while (!f.isEnd()) {
-//    let msg = f.readLine()
-//    basic.showString(msg)
-//    basic.pause(200)
-//}
-
-
-interface OutputStream {
-    write(s: string): void;
-    writeLine(s: string): void
-}
-
-class ScreenOutputStream implements OutputStream {
-    constructor() {
-    }
-
-    write(s: string) {
-        basic.showString(s)
-    }
-    writeLine(s: string) {
-        basic.showString(s)
-        basic.pause(200)
-        basic.clearScreen()
-    }
-}
-
-class SerialOutputStream implements OutputStream {
-    constructor() {
-    }
-
-    write(s: string) {
-        serial.writeString(s)
-    }
-
-    writeLine(s: string) {
-        serial.writeLine(s)
-    }
-}
-
+// TESTER
+let i = new SerialInputStream()
 let o = new SerialOutputStream()
+let terminal = new IOStream(i, o)
 while (true) {
-    o.write('hello world')
-    basic.pause(200)
+    terminal.write("command>")
+    let cmd = terminal.readLine()
+    basic.showString(cmd)
 }

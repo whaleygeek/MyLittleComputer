@@ -453,7 +453,7 @@ namespace mlc_decimal {
         //
         //             line = line.strip() # strip wrapping spaces and newline char
         //             if len(line) != 0:
-        //                 instr = number(line)
+        //                 instr = int(line)
         //                 #trace(" instr:" + str(instr))
         //                 return instr
         //
@@ -502,7 +502,7 @@ namespace mlc_binary {
         //         v = raw_input()
         //     else:
         //         v = file.readline()
-        //     return number(v, 2)
+        //     return int(v, 2)
         return 0 //TODO
     }
 
@@ -533,7 +533,7 @@ namespace mlc_hexadecimal {
         //         v = raw_input()
         //     else:
         //         v = file.readline()
-        //     return number(v, 16)
+        //     return int(v, 16)
         return 0 //TODO
     }
 
