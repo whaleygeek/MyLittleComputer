@@ -688,6 +688,10 @@ namespace mlc_ext_instrs {
     // # with their proper mnemonic names, but by runtime registering them int
     // # does not pollute instruction.py with extended functionality
     //
+    //TODO: beware, there is Python metamagic here that registers instruction constants.
+    //will have to 'avoid' that in TypeScript.
+    //EXT is a collection of extended instructions, the specific instance of which is
+    //in the operand
     // instruction.registerMnemonic("EXT", 400, false)
     // instruction.registerMnemonic("USB", 401, false)
     // instruction.registerMnemonic("MUL", 402, false)
@@ -717,8 +721,9 @@ namespace mlc_ext_instrs {
 
 //----- EXTARCH ---------------------------------------------------------------
 
-//NOTE: leave the lambdas until last.
-//will have to look at some of Peli's ts code to see how those are specified
+//NOTE: We have a solution for the lambdas now, in the notes.txt file
+//so this is ready to be rewritten in TypeScript.
+//we can use lambas to define function decorators for runtime chaining functions.
 
 namespace mlc_ext_arch {
 

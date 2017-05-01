@@ -1,16 +1,42 @@
 DESIGN NOTES
 
-Tested SerialInputStream, works fine
+Looks like there is no base conversion or number formatting anywhere.
+We're gonna have to write it ourselves.
 
 
 --------------------------------------------------------------------------------
 NEXT STEPS (PORTING)
 
-I'd really like to have a REPL later, so a bi-directional stream over serial
-would be really useful at this point, to get interactive input for numbers etc.
+When passing a stream around, need some signature way of working out if
+it is an input, an output, or both.
+i.e how do you work out if a stream implements an interface?
+
+Depending on configuration, we might pass an InputStream, or an OutputStream,
+or an IOStream to the mlc_io namespace when using it, and the behaviour
+should adapt accordingly (prompting etc)
+
+So, in the number parser namespaces, if an IOStream is passed in, it's an
+interactive stream and a prompt should be given. If it's just an input
+stream, then it's non interactive and we should just read data.
+
+--------------------------------------------------------------------------------
+
+Find out how in TypeScript/micro:bit to do base conversions
+- format printing a binary number to fixed width with zero pad
+- format printing a decimal number to a fixed width with zero pad
+- format printing a hexadecimal number to fixed width with zero pad
+
+--------------------------------------------------------------------------------
+
+Review the archtecture of decimal/binary/hexadecimal/io
+Seems too big for this platform, and unnecesary. Now that streams are nice
+and clean, I think we can just do this with a standard wrapper that detects
+interactive/non interactive for us, and then does base conversion.
 
 
-Look back at decimal/binary/hexadecimal/io in light of new input stream classes
+--------------------------------------------------------------------------------
+
+Get decimal/binary/hexadecimal working
 
 
 --------------------------------------------------------------------------------
