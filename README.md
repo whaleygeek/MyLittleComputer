@@ -1,4 +1,4 @@
-# MyLittleComputer
+# My Little Computer - A Toolchain for a Tiny Computer Architecture
 
 This is a complete toolchain for a tiny computer architecture. The chosen architecture is completely
 compatible with the Little Man Computer architecture, as (mostly defined) here:
